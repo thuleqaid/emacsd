@@ -25,6 +25,6 @@
                                (sr-speedbar-refresh)
                                (unless (sr-speedbar-exist-p)
                                  (kill-buffer "*SPEEDBAR*"))))
-;;(require-package 'yasnippet)
+(require-package 'yasnippet)
 
 (provide 'init-local)
