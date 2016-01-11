@@ -11,6 +11,15 @@
 
 (setq calendar-date-style 'iso)
 ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
+(setq appt-display-format 'window)
+(setq appt-display-duration 60)
+(setq appt-audible t)
+(setq appt-display-mode-line t)
+(setq appt-message-warning-time 10)
+(setq appt-display-diary t)
+(add-hook 'calendar-today-visible-hook 'calendar-mark-today)
+(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+(appt-activate 1)
 
 ;; backup setting
 (if (not (file-accessible-directory-p "~/.emacs.d/backup"))
@@ -37,6 +46,10 @@
 (setq tab-stop-list '(4  8  12 16 20 24 28 32 36 40
                       44 48 52 56 60 64 68 72 76 80
                       84 88 92 96))
+(defun indent-tabs-mode-setup ()
+  (setq indent-tabs-mode t))
+(add-hook 'c-mode-hook 'indent-tabs-mode-setup)
+
 (setq whitespace-style '(face tabs space-mark))
 (global-whitespace-mode t)
 
@@ -62,13 +75,15 @@
 (require-package 'yasnippet)
 (yas-global-mode 1)
 
+(ac-config-default)
+(add-hook 'python-mode-hook 'ac-cc-mode-setup)
+
 (require-package 'racer)
 (require-package 'company)
 (require-package 'company-racer)
 (require-package 'flycheck)
 (require-package 'flycheck-rust)
 (require-package 'rust-mode)
-(global-company-mode)
 (setq company-idle-delay 0.2)
 (setq company-minimum-prefix-length 1)
 (setq racer-cmd "/usr/local/bin/racer")
@@ -76,7 +91,7 @@
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 (add-hook 'rust-mode-hook #'racer-mode)
 (add-hook 'racer-mode-hook #'eldoc-mode)
-;(add-hook 'racer-mode-hook #'company-mode)
+(add-hook 'racer-mode-hook #'company-mode)
 (setq company-tooltip-align-annotations t)
 (add-hook 'racer-mode-hook
           '(lambda ()
