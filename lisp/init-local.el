@@ -1,6 +1,16 @@
 ;; set coding priority order (later one with higher priority)
-(prefer-coding-system 'gb2312)
-(prefer-coding-system 'sjis)
+;(prefer-coding-system 'gb2312)
+;(prefer-coding-system 'sjis)
+; Chinese coding setting in Windons (copy and modify from init-locales.el)
+(set-language-environment 'chinese-GBK)
+(setq locale-coding-system 'gbk)
+(set-default-coding-systems 'gbk)
+(set-terminal-coding-system 'gbk)
+(set-selection-coding-system 'gbk)
+(setq session-save-file-coding-system 'utf-8)
+
+(setq calendar-date-style 'iso)
+;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 
 ;; backup setting
 (if (not (file-accessible-directory-p "~/.emacs.d/backup"))
