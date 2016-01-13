@@ -53,6 +53,9 @@
 (setq whitespace-style '(face tabs space-mark))
 (global-whitespace-mode t)
 
+(global-set-key (kbd "<f12>") 'highlight-symbol)
+(global-set-key (kbd "M-<f12>") 'highlight-symbol-remove-all)
+
 ;;(global-ede-mode 1)
 ;;(require 'semantic/ia)
 ;;(setq semantic-default-submodes
@@ -70,7 +73,8 @@
                                (interactive)
                                (sr-speedbar-toggle)
                                (sr-speedbar-refresh)
-                               (unless (sr-speedbar-exist-p)
+                               (if (sr-speedbar-exist-p)
+                                 (sr-speedbar-select-window)
                                  (kill-buffer "*SPEEDBAR*"))))
 (require-package 'yasnippet)
 (yas-global-mode 1)
