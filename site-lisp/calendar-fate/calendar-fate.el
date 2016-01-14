@@ -29,20 +29,12 @@
 (require 'cal-china)
 
 (defun calendar-fate-chinese-character ()
-  (setq chinese-calendar-celestial-stem 
-        ["甲" "乙" "丙" "丁" "戊" "己" "庚" "辛" "壬" "癸"]) 
-  (setq chinese-calendar-terrestrial-branch 
-        ["子" "丑" "寅" "卯" "辰" "巳" "午" "未" "申" "酉" "戌" "亥"]) 
-  (setq calendar-fate-chinese-24-term
-        ["立春" "雨水" "惊蛰" "春分" "清明" "谷雨"
-         "立夏" "小满" "芒种" "夏至" "小暑" "大暑"
-         "立秋" "处暑" "白露" "秋分" "寒露" "霜降"
-         "立冬" "小雪" "大雪" "冬至" "小寒" "大寒"] 
-        )
+  (setq chinese-calendar-celestial-stem chinese-fate-calendar-celestial-stem)
+  (setq chinese-calendar-terrestrial-branch chinese-fate-calendar-terrestrial-branch)
+  (setq calendar-fate-chinese-24-term chinese-calendar-fate-chinese-24-term)
   (defun calendar-chinese-sexagesimal-name (n)
-    (format "%s%s"
-            (aref calendar-chinese-celestial-stem (% (1- n) 10))
-            (aref calendar-chinese-terrestrial-branch (% (1- n) 12))))
+    (calendar-fate-chinese-sexagesimal-name n)
+    )
   )
 
 (defun calendar-fate-chinese-datetime (&optional date)
@@ -171,6 +163,22 @@ Input is a list of datetime (month day year hour minute second)."
 N congruent to 1 gives the first name, N congruent to 2 gives the second name,
 ..., N congruent to 24 gives the last name."
   (format "%s" (aref calendar-fate-chinese-24-term (% (+ n 23) 24))))
+
+(defun calendar-fate-chinese-sexagesimal-name (n)
+  (format "%s%s"
+          (aref chinese-fate-calendar-celestial-stem (% (1- n) 10))
+          (aref chinese-fate-calendar-terrestrial-branch (% (1- n) 12))))
+
+(defconst chinese-fate-calendar-celestial-stem
+  ["甲" "乙" "丙" "丁" "戊" "己" "庚" "辛" "壬" "癸"])
+(defconst chinese-fate-calendar-terrestrial-branch
+  ["子" "丑" "寅" "卯" "辰" "巳" "午" "未" "申" "酉" "戌" "亥"])
+(defconst chinese-calendar-fate-chinese-24-term
+  ["立春" "雨水" "惊蛰" "春分" "清明" "谷雨"
+   "立夏" "小满" "芒种" "夏至" "小暑" "大暑"
+   "立秋" "处暑" "白露" "秋分" "寒露" "霜降"
+   "立冬" "小雪" "大雪" "冬至" "小寒" "大寒"]
+  )
 
 (defconst calendar-fate-1sec (/ 1 86400.0) "Value for one second in absolute date.")
 
