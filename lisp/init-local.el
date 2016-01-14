@@ -103,4 +103,7 @@
              (set (make-local-variable 'company-backends) '(company-racer))
              (local-set-key (kbd "TAB") #'racer-complete-or-indent)))
 
+(require 'calendar-fate)
+(calendar-fate-chinese-character)
+
 (provide 'init-local)
