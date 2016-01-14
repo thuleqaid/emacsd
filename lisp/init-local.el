@@ -9,6 +9,10 @@
 ;(set-selection-coding-system 'gbk)
 (setq session-save-file-coding-system 'utf-8)
 
+(require 'calendar-fate)
+(calendar-fate-chinese-character)
+(setq holiday-other-holidays '((holiday-chinese-terms)))
+
 (setq calendar-date-style 'iso)
 ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 (setq appt-display-format 'window)
@@ -102,8 +106,5 @@
              (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
              (set (make-local-variable 'company-backends) '(company-racer))
              (local-set-key (kbd "TAB") #'racer-complete-or-indent)))
-
-(require 'calendar-fate)
-(calendar-fate-chinese-character)
 
 (provide 'init-local)

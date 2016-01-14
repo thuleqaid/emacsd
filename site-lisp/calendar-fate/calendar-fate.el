@@ -22,6 +22,7 @@
 ;; Install:
 ;;  (require 'calendar-fate)
 ;;  (calendar-fate-chinese-character)
+;;  (setq holiday-other-holidays '((holiday-chinese-terms)))
 
 ;;; Code:
 (require 'calendar)
@@ -169,7 +170,7 @@ Input is a list of datetime (month day year hour minute second)."
   "The N-th name of the Chinese 24 terms.
 N congruent to 1 gives the first name, N congruent to 2 gives the second name,
 ..., N congruent to 24 gives the last name."
-  (format "%s" (aref calendar-fate-chinese-24-term (% (1- n) 24))))
+  (format "%s" (aref calendar-fate-chinese-24-term (% (+ n 23) 24))))
 
 (defconst calendar-fate-1sec (/ 1 86400.0) "Value for one second in absolute date.")
 
@@ -396,6 +397,16 @@ Computes values for 10 years either side of YEAR."
         (delete-char 1)
         (insert "\n")))
     (indent-region (point) end)))
+
+(defun holiday-chinese-terms (&optional year)
+  (let* ((g-year (or year displayed-year))
+         (term-list (calendar-fate-chinese-year g-year))
+         (holiday-list '()))
+    (while term-(list )
+           (setq holiday-list (append holiday-list (list (list (calendar-gregorian-from-absolute (floor (cadr (car term-list)))) (calendar-fate-chinese-term-name (caar term-list))))))
+           (setq term-list (cdr term-list)))
+    holiday-list)
+  )
 
 (provide 'calendar-fate)
 ;;; calendar-fate.el ends here
