@@ -410,9 +410,14 @@ Computes values for 10 years either side of YEAR."
   (let* ((g-year (or year displayed-year))
          (term-list (calendar-fate-chinese-year g-year))
          (holiday-list '()))
-    (while term-(list )
-           (setq holiday-list (append holiday-list (list (list (calendar-gregorian-from-absolute (floor (cadr (car term-list)))) (calendar-fate-chinese-term-name (caar term-list))))))
-           (setq term-list (cdr term-list)))
+    (while term-list
+      (setq holiday-list
+            (append holiday-list
+                    (list (list (calendar-gregorian-from-absolute
+                                 (floor (cadr (car term-list))))
+                                (calendar-fate-chinese-term-name
+                                 (caar term-list))))))
+      (setq term-list (cdr term-list)))
     holiday-list)
   )
 
