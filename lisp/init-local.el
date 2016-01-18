@@ -9,6 +9,15 @@
 ;(set-selection-coding-system 'gbk)
 (setq session-save-file-coding-system 'utf-8)
 
+(auto-image-file-mode t)
+(iimage-mode t)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((plantuml . t)))
+(setq org-plantuml-jar-path
+      (expand-file-name "~/.emacs.d/plantuml.jar"))
+
 (require 'calendar-fate)
 (calendar-fate-chinese-character)
 (setq holiday-other-holidays '((holiday-chinese-terms)))
