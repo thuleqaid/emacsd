@@ -35,7 +35,77 @@
 (setq holiday-other-holidays '((holiday-chinese-terms)))
 
 (setq calendar-date-style 'iso)
+(let* (
+       (agenda-path (expand-file-name "agenda/" user-emacs-directory))
+       (agenda-file (expand-file-name "overall.org" agenda-path))
+       (diary-file (expand-file-name "diary" agenda-path))
+       (note-file (expand-file-name "notes.org" agenda-path)))
+  (unless (file-exists-p agenda-path)
+    (make-directory agenda-path))
+  (unless (file-exists-p agenda-file)
+    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file)
+    )
+  (unless (file-exists-p diary-file)
+    (append-to-file "# -*- coding:utf-8 -*-\n" nil diary-file)
+    )
+  (unless (file-exists-p note-file)
+    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil note-file)
+    )
+  )
+(setq org-agenda-files '("~/.emacs.d/agenda/overall.org"))
+(setq org-default-notes-file "~/.emacs.d/agenda/notes.org")
+(setq diary-file "~/.emacs.d/agenda/diary")
 ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
+(setq org-agenda-include-diary t)
+(setq org-agenda-custom-commands
+      '(("N" "Notes" tags "NOTE"
+         ((org-agenda-overriding-header "Notes")
+          (org-tags-match-list-sublevels t)))
+        ("g" "GTD"
+         ((agenda "" nil)
+          (tags "INBOX"
+                     ((org-agenda-overriding-header "Inbox")
+                      (org-tags-match-list-sublevels nil)))
+          (tags-todo "-INBOX/NEXT"
+                     ((org-agenda-overriding-header "Next Actions")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-tags-match-list-sublevels t)
+                      (org-agenda-sorting-strategy
+                       '(todo-state-down effort-up category-keep))))
+          (tags-todo "-INBOX/PROJECT"
+                     ((org-agenda-overriding-header "Projects")
+                      (org-tags-match-list-sublevels t)
+                      (org-agenda-sorting-strategy
+                       '(category-keep))))
+          (tags-todo "-INBOX/-NEXT"
+                     ((org-agenda-overriding-header "Orphaned Tasks")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-skip-function
+                       '(lambda nil
+                          (or
+                           (org-agenda-skip-subtree-if 'todo
+                                                       '("PROJECT" "HOLD" "WAITING"))
+                           (org-agenda-skip-subtree-if 'nottododo
+                                                       '("TODO")))))
+                      (org-tags-match-list-sublevels t)
+                      (org-agenda-sorting-strategy
+                       '(category-keep))))
+          (tags-todo "/WAITING"
+                     ((org-agenda-overriding-header "Waiting")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy
+                       '(category-keep))))
+          (tags-todo "-INBOX/HOLD"
+                     ((org-agenda-overriding-header "On Hold")
+                      (org-tags-match-list-sublevels nil)
+                      (org-agenda-sorting-strategy
+                       '(category-keep)))))))
+      )
+(org-agenda-to-appt)
+
 (setq appt-display-format 'window)
 (setq appt-display-duration 60)
 (setq appt-audible t)
@@ -44,7 +114,7 @@
 (setq appt-display-diary t)
 (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
 (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
-(appt-activate 1)
+;(appt-activate 1)
 
 ;; backup setting
 (if (not (file-accessible-directory-p "~/.emacs.d/backup"))
