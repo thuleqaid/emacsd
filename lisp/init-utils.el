@@ -77,6 +77,7 @@
 ;;----------------------------------------------------------------------------
 ;; Browse current HTML file
 ;;----------------------------------------------------------------------------
+(require 'tramp)
 (defun browse-current-file ()
   "Open the current file as a URL using `browse-url'."
   (interactive)

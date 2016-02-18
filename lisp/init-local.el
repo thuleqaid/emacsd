@@ -9,6 +9,8 @@
 ;(set-selection-coding-system 'gbk)
 (setq session-save-file-coding-system 'utf-8)
 
+(setq sanityinc/force-default-font-for-symbols t)
+
 (autoload 'chinese-wbim-use-package "chinese-wbim" "Another emacs input method")
 ;; Tooltip 暂时还不好用
 (setq chinese-wbim-use-tooltip nil)
