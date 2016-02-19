@@ -1,12 +1,12 @@
 ;;----------------------------------------------------------------------------
 ;; Stop C-z from minimizing windows under OS X
 ;;----------------------------------------------------------------------------
-(defun sanityinc/maybe-suspend-frame ()
-  (interactive)
-  (unless (and *is-a-mac* window-system)
-    (suspend-frame)))
-
-(global-set-key (kbd "C-z") 'sanityinc/maybe-suspend-frame)
+;;;(defun sanityinc/maybe-suspend-frame ()
+;;;  (interactive)
+;;;  (unless (and *is-a-mac* window-system)
+;;;    (suspend-frame)))
+;;; 
+;;;(global-set-key (kbd "C-z") 'sanityinc/maybe-suspend-frame)
 
 
 ;;----------------------------------------------------------------------------
@@ -48,10 +48,10 @@
     (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
       (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
-(when (and *is-a-mac* (fboundp 'toggle-frame-fullscreen))
-  ;; Command-Option-f to toggle fullscreen mode
-  ;; Hint: Customize `ns-use-native-fullscreen'
-  (global-set-key (kbd "M-ƒ") 'toggle-frame-fullscreen))
+;;;(when (and *is-a-mac* (fboundp 'toggle-frame-fullscreen))
+;;;  ;; Command-Option-f to toggle fullscreen mode
+;;;  ;; Hint: Customize `ns-use-native-fullscreen'
+;;;  (global-set-key (kbd "M-ƒ") 'toggle-frame-fullscreen))
 
 ;; TODO: use seethru package instead?
 (global-set-key (kbd "M-C-8") (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))

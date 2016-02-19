@@ -11,7 +11,7 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
-(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
+;;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-mac* (eq system-type 'darwin))
 
 ;;----------------------------------------------------------------------------
@@ -52,7 +52,7 @@
 (require 'init-frame-hooks)
 (require 'init-xterm)
 (require 'init-themes)
-(require 'init-osx-keys)
+;;;(require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-dired)
 (require 'init-isearch)
@@ -102,17 +102,17 @@
 (require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
-(unless (version<= emacs-version "24.2")
-  (require 'init-clojure)
-  (require 'init-clojure-cider))
+;;;(unless (version<= emacs-version "24.2")
+;;;  (require 'init-clojure)
+;;;  (require 'init-clojure-cider))
 (require 'init-common-lisp)
 
-(when *spell-check-support-enabled*
-  (require 'init-spelling))
+;;;(when *spell-check-support-enabled*
+;;;  (require 'init-spelling))
 
 (require 'init-misc)
 
-(require 'init-dash)
+;;;(require 'init-dash)
 ;;;(require 'init-ledger)
 ;; Extra packages which don't require any configuration
 
@@ -120,8 +120,8 @@
 ;;;(require-package 'lua-mode)
 (require-package 'htmlize)
 ;;;(require-package 'dsvn)
-(when *is-a-mac*
-  (require-package 'osx-location))
+;;;(when *is-a-mac*
+;;;  (require-package 'osx-location))
 (require-package 'regex-tool)
 
 ;;----------------------------------------------------------------------------

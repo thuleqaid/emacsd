@@ -31,9 +31,9 @@
   (add-hook 'git-commit-mode-hook 'goto-address-mode))
 
 
-(when *is-a-mac*
-  (after-load 'magit
-    (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)])))))
+;;;(when *is-a-mac*
+;;;  (after-load 'magit
+;;;    (add-hook 'magit-mode-hook (lambda () (local-unset-key [(meta h)])))))
 
 
 

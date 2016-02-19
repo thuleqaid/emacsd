@@ -1,10 +1,10 @@
 (when (< emacs-major-version 24)
   (require-package 'org))
 (require-package 'org-fstree)
-(when *is-a-mac*
-  (require-package 'org-mac-link)
-  (autoload 'org-mac-grab-link "org-mac-link" nil t)
-  (require-package 'org-mac-iCal))
+;;;(when *is-a-mac*
+;;;  (require-package 'org-mac-link)
+;;;  (autoload 'org-mac-grab-link "org-mac-link" nil t)
+;;;  (require-package 'org-mac-iCal))
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
@@ -260,13 +260,13 @@ typical word processor."
 
 
 
-(when (and *is-a-mac* (file-directory-p "/Applications/org-clock-statusbar.app"))
-  (add-hook 'org-clock-in-hook
-            (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
-                                (concat "tell application \"org-clock-statusbar\" to clock in \"" org-clock-current-task "\""))))
-  (add-hook 'org-clock-out-hook
-            (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
-                                "tell application \"org-clock-statusbar\" to clock out"))))
+;;;(when (and *is-a-mac* (file-directory-p "/Applications/org-clock-statusbar.app"))
+;;;  (add-hook 'org-clock-in-hook
+;;;            (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
+;;;                                (concat "tell application \"org-clock-statusbar\" to clock in \"" org-clock-current-task "\""))))
+;;;  (add-hook 'org-clock-out-hook
+;;;            (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
+;;;                                "tell application \"org-clock-statusbar\" to clock out"))))
 
 
 
@@ -325,9 +325,10 @@ typical word processor."
 
 (after-load 'org
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
-  (when *is-a-mac*
-    (define-key org-mode-map (kbd "M-h") nil)
-    (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
+;;;  (when *is-a-mac*
+;;;    (define-key org-mode-map (kbd "M-h") nil)
+;;;    (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link))
+  )
 
 (after-load 'org
   (org-babel-do-load-languages
