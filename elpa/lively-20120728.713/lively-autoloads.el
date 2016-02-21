@@ -3,7 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "lively" "lively.el" (22087 17696 139996 426000))
+;;;### (autoloads nil "lively" "lively.el" (22213 51691 424196 383000))
 ;;; Generated autoloads from lively.el
 
 (autoload 'lively "lively" "\

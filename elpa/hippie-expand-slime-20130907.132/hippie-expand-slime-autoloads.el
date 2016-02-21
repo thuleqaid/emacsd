@@ -4,7 +4,7 @@
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
 ;;;### (autoloads nil "hippie-expand-slime" "hippie-expand-slime.el"
-;;;;;;  (22087 17819 927946 30000))
+;;;;;;  (22213 51847 981774 332000))
 ;;; Generated autoloads from hippie-expand-slime.el
 
 (autoload 'try-expand-slime "hippie-expand-slime" "\

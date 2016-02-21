@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "auto-compile" "auto-compile.el" (22087 17701
-;;;;;;  826720 534000))
+;;;### (autoloads nil "auto-compile" "auto-compile.el" (22213 51695
+;;;;;;  480887 92000))
 ;;; Generated autoloads from auto-compile.el
 
 (autoload 'auto-compile-mode "auto-compile" "\

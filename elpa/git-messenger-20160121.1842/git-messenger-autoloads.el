@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "git-messenger" "git-messenger.el" (22195 26266
-;;;;;;  577534 174000))
+;;;### (autoloads nil "git-messenger" "git-messenger.el" (22213 51391
+;;;;;;  795668 602000))
 ;;; Generated autoloads from git-messenger.el
 
 (autoload 'git-messenger:popup-message "git-messenger" "\

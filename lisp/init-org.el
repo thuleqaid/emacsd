@@ -39,14 +39,27 @@
       (when (file-exists-p zip-temp)
         (delete-file zip-temp)))))
 
+(defun sanityinc/grab-plantuml (url)
+  "Download URL as `org-plantuml-jar-path'."
+  (unwind-protect
+      (progn
+        (url-copy-file url (shell-quote-argument org-plantuml-jar-path)))))
+
 (after-load 'ob-ditaa
   (unless (file-exists-p org-ditaa-jar-path)
     (let ((jar-name "ditaa0_9.jar")
           (url "http://jaist.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
       (setq org-ditaa-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
       (unless (file-exists-p org-ditaa-jar-path)
-        (sanityinc/grab-ditaa url jar-name)))))
-
+        (sanityinc/grab-ditaa url jar-name))))
+  )
+(after-load 'ob-plantuml
+  (let ((jar-name "plantuml.jar")
+        (url "http://jaist.dl.sourceforge.net/project/plantuml/plantuml.jar"))
+    (setq org-plantuml-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
+    (unless (file-exists-p org-plantuml-jar-path)
+      (sanityinc/grab-plantuml url)))
+  )
 
 
 (define-minor-mode prose-mode
@@ -171,11 +184,11 @@ typical word processor."
             (tags "INBOX"
                   ((org-agenda-overriding-header "Inbox")
                    (org-tags-match-list-sublevels nil)))
-            (stuck ""
-                   ((org-agenda-overriding-header "Stuck Projects")
-                    (org-agenda-tags-todo-honor-ignore-options t)
-                    (org-tags-match-list-sublevels t)
-                    (org-agenda-todo-ignore-scheduled 'future)))
+            ;; (stuck ""
+            ;;        ((org-agenda-overriding-header "Stuck Projects")
+            ;;         (org-agenda-tags-todo-honor-ignore-options t)
+            ;;         (org-tags-match-list-sublevels t)
+            ;;         (org-agenda-todo-ignore-scheduled 'future)))
             (tags-todo "-INBOX/NEXT"
                        ((org-agenda-overriding-header "Next Actions")
                         (org-agenda-tags-todo-honor-ignore-options t)
@@ -339,16 +352,47 @@ typical word processor."
      (emacs-lisp . t)
      (gnuplot . t)
      (haskell . nil)
-     (latex . t)
-     (ledger . t)
+     (latex . nil)
+     (ledger . nil)
      (ocaml . nil)
      (octave . t)
+     (plantuml . t)
      (python . t)
-     (ruby . t)
+     (ruby . nil)
      (screen . nil)
      (,(if (locate-library "ob-sh") 'sh 'shell) . t)
      (sql . nil)
      (sqlite . t))))
 
+(let* (
+       (agenda-path (expand-file-name "agenda/" user-emacs-directory))
+       (agenda-file (expand-file-name "overall.org" agenda-path))
+       (note-file (expand-file-name "notes.org" agenda-path)))
+  (setq org-agenda-files (list agenda-path))
+  (setq org-default-notes-file note-file)
+  (setq diary-file (expand-file-name "diary" agenda-path))
+  (unless (file-exists-p agenda-path)
+    (make-directory agenda-path))
+  (unless (file-exists-p agenda-file)
+    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file)
+    )
+  (unless (file-exists-p diary-file)
+    (append-to-file "# -*- coding:utf-8 -*-\n" nil diary-file)
+    )
+  (unless (file-exists-p note-file)
+    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil note-file)
+    )
+  )
+(setq org-agenda-include-diary t)
+(org-agenda-to-appt)
+(setq appt-display-format 'window)
+(setq appt-display-duration 60)
+(setq appt-audible t)
+(setq appt-display-mode-line t)
+(setq appt-message-warning-time 10)
+(setq appt-display-diary t)
+(setq calendar-date-style 'iso)
+(add-hook 'calendar-today-visible-hook 'calendar-mark-today)
+(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
 (provide 'init-org)

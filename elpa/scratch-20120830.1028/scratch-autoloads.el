@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "scratch" "scratch.el" (22087 17118 328722
-;;;;;;  644000))
+;;;### (autoloads nil "scratch" "scratch.el" (22213 50861 734964
+;;;;;;  8000))
 ;;; Generated autoloads from scratch.el
 
 (autoload 'scratch "scratch" "\
@@ -14,8 +14,8 @@ Get a scratch buffer for the current mode.
 
 ;;;***
 
-;;;### (autoloads nil nil ("el-get.el" "scratch-pkg.el") (22087 17119
-;;;;;;  624153 67000))
+;;;### (autoloads nil nil ("el-get.el" "scratch-pkg.el") (22213 50862
+;;;;;;  140744 762000))
 
 ;;;***
 

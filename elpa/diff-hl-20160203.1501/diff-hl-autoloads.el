@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "diff-hl" "diff-hl.el" (22195 26300 355062
-;;;;;;  90000))
+;;;### (autoloads nil "diff-hl" "diff-hl.el" (22213 51252 404725
+;;;;;;  664000))
 ;;; Generated autoloads from diff-hl.el
 
 (autoload 'diff-hl-mode "diff-hl" "\
@@ -40,8 +40,8 @@ See `diff-hl-mode' for more information on Diff-Hl mode.
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-amend" "diff-hl-amend.el" (22195 26300
-;;;;;;  421730 471000))
+;;;### (autoloads nil "diff-hl-amend" "diff-hl-amend.el" (22213 51252
+;;;;;;  471392 796000))
 ;;; Generated autoloads from diff-hl-amend.el
 
 (autoload 'diff-hl-amend-mode "diff-hl-amend" "\
@@ -75,8 +75,8 @@ See `diff-hl-amend-mode' for more information on Diff-Hl-Amend mode.
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-dired" "diff-hl-dired.el" (22195 26300
-;;;;;;  555067 234000))
+;;;### (autoloads nil "diff-hl-dired" "diff-hl-dired.el" (22213 51252
+;;;;;;  604727 62000))
 ;;; Generated autoloads from diff-hl-dired.el
 
 (autoload 'diff-hl-dired-mode "diff-hl-dired" "\
@@ -91,8 +91,8 @@ Toggle VC diff highlighting on the side of a Dired window.
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-flydiff" "diff-hl-flydiff.el" (22195
-;;;;;;  26300 285060 290000))
+;;;### (autoloads nil "diff-hl-flydiff" "diff-hl-flydiff.el" (22213
+;;;;;;  51252 338058 530000))
 ;;; Generated autoloads from diff-hl-flydiff.el
 
 (defvar diff-hl-flydiff-mode nil "\
@@ -111,8 +111,8 @@ Highlight diffs on-the-fly
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-margin" "diff-hl-margin.el" (22195
-;;;;;;  26300 171724 41000))
+;;;### (autoloads nil "diff-hl-margin" "diff-hl-margin.el" (22213
+;;;;;;  51252 264724 684000))
 ;;; Generated autoloads from diff-hl-margin.el
 
 (defvar diff-hl-margin-mode nil "\
@@ -131,8 +131,8 @@ Toggle displaying `diff-hl-mode' highlights on the margin.
 
 ;;;***
 
-;;;### (autoloads nil nil ("diff-hl-pkg.el") (22195 26300 678038
-;;;;;;  905000))
+;;;### (autoloads nil nil ("diff-hl-pkg.el") (22213 51252 741734
+;;;;;;  1000))
 
 ;;;***
 

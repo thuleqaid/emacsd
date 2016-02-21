@@ -81,8 +81,8 @@
   "Open the current file as a URL using `browse-url'."
   (interactive)
   (let ((file-name (buffer-file-name)))
-    (unless (symbol-function 'tramp-tramp-file-p)
-      (require 'tramp))
+    ;; (unless (symbol-function 'tramp-tramp-file-p)
+    ;;   (require 'tramp))
     (if (tramp-tramp-file-p file-name)
         (error "Cannot open tramp file")
       (browse-url (concat "file://" file-name)))))

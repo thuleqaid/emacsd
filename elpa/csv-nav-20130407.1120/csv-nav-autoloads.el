@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "csv-nav" "csv-nav.el" (22087 17474 457898
-;;;;;;  347000))
+;;;### (autoloads nil "csv-nav" "csv-nav.el" (22213 51605 547014
+;;;;;;  532000))
 ;;; Generated autoloads from csv-nav.el
 
 (autoload 'csv-nav-mode "csv-nav" "\

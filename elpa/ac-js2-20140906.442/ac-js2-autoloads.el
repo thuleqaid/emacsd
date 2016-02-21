@@ -3,7 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "ac-js2" "ac-js2.el" (22087 17515 221594 187000))
+;;;### (autoloads nil "ac-js2" "ac-js2.el" (22213 51642 997240 718000))
 ;;; Generated autoloads from ac-js2.el
 
 (autoload 'ac-js2-expand-function "ac-js2" "\
@@ -37,8 +37,8 @@ A minor mode that provides auto-completion and navigation for Js2-mode.
 
 ;;;***
 
-;;;### (autoloads nil nil ("ac-js2-pkg.el" "ac-js2-tests.el") (22087
-;;;;;;  17516 254965 763000))
+;;;### (autoloads nil nil ("ac-js2-pkg.el" "ac-js2-tests.el") (22213
+;;;;;;  51643 233585 359000))
 
 ;;;***
 

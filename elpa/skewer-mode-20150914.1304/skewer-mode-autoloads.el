@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "skewer-bower" "skewer-bower.el" (22087 17511
-;;;;;;  814896 773000))
+;;;### (autoloads nil "skewer-bower" "skewer-bower.el" (22213 51638
+;;;;;;  793882 118000))
 ;;; Generated autoloads from skewer-bower.el
 
 (autoload 'skewer-bower-refresh "skewer-bower" "\
@@ -19,8 +19,8 @@ Dynamically load a library from bower into the current page.
 
 ;;;***
 
-;;;### (autoloads nil "skewer-css" "skewer-css.el" (22087 17511 748229
-;;;;;;  506000))
+;;;### (autoloads nil "skewer-css" "skewer-css.el" (22213 51638 727215
+;;;;;;  50000))
 ;;; Generated autoloads from skewer-css.el
 
 (autoload 'skewer-css-mode "skewer-css" "\
@@ -30,8 +30,8 @@ Minor mode for interactively loading new CSS rules.
 
 ;;;***
 
-;;;### (autoloads nil "skewer-html" "skewer-html.el" (22087 17511
-;;;;;;  444893 439000))
+;;;### (autoloads nil "skewer-html" "skewer-html.el" (22213 51638
+;;;;;;  433879 953000))
 ;;; Generated autoloads from skewer-html.el
 
 (autoload 'skewer-html-mode "skewer-html" "\
@@ -41,8 +41,8 @@ Minor mode for interactively loading new HTML.
 
 ;;;***
 
-;;;### (autoloads nil "skewer-mode" "skewer-mode.el" (22087 17511
-;;;;;;  614894 971000))
+;;;### (autoloads nil "skewer-mode" "skewer-mode.el" (22213 51638
+;;;;;;  593880 915000))
 ;;; Generated autoloads from skewer-mode.el
 
 (autoload 'list-skewer-clients "skewer-mode" "\
@@ -68,8 +68,8 @@ Connect an inferior PhantomJS process to Skewer, returning the process.
 
 ;;;***
 
-;;;### (autoloads nil "skewer-repl" "skewer-repl.el" (22087 17512
-;;;;;;  81565 843000))
+;;;### (autoloads nil "skewer-repl" "skewer-repl.el" (22213 51639
+;;;;;;  50550 329000))
 ;;; Generated autoloads from skewer-repl.el
 
 (autoload 'skewer-repl--response-hook "skewer-repl" "\
@@ -86,8 +86,8 @@ Start a JavaScript REPL to be evaluated in the visiting browser.
 
 ;;;***
 
-;;;### (autoloads nil "skewer-setup" "skewer-setup.el" (22087 17511
-;;;;;;  681562 238000))
+;;;### (autoloads nil "skewer-setup" "skewer-setup.el" (22213 51638
+;;;;;;  660547 983000))
 ;;; Generated autoloads from skewer-setup.el
 
 (autoload 'skewer-setup "skewer-setup" "\
@@ -98,7 +98,7 @@ Fully integrate Skewer into js2-mode, css-mode, and html-mode buffers.
 ;;;***
 
 ;;;### (autoloads nil nil ("cache-table.el" "skewer-mode-pkg.el")
-;;;;;;  (22087 17512 283788 412000))
+;;;;;;  (22213 51639 231018 682000))
 
 ;;;***
 

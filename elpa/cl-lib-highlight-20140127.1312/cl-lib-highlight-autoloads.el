@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "cl-lib-highlight" "cl-lib-highlight.el" (22087
-;;;;;;  17708 256785 671000))
+;;;### (autoloads nil "cl-lib-highlight" "cl-lib-highlight.el" (22213
+;;;;;;  51703 387600 543000))
 ;;; Generated autoloads from cl-lib-highlight.el
 
 (autoload 'cl-lib-highlight-initialize "cl-lib-highlight" "\

@@ -11,7 +11,7 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
-;;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
+;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-mac* (eq system-type 'darwin))
 
 ;;----------------------------------------------------------------------------
@@ -52,7 +52,6 @@
 (require 'init-frame-hooks)
 (require 'init-xterm)
 (require 'init-themes)
-;;;(require 'init-osx-keys)
 (require 'init-gui-frames)
 (require 'init-dired)
 (require 'init-isearch)
@@ -62,7 +61,6 @@
 (require 'init-flycheck)
 
 (require 'init-recentf)
-(require 'init-ido)
 (require 'init-hippie-expand)
 (require 'init-auto-complete)
 (require 'init-windows)
@@ -75,53 +73,28 @@
 (require 'init-fci)
 
 (require 'init-vc)
-;;;(require 'init-darcs)
 (require 'init-git)
-;;;(require 'init-github)
 
 (require 'init-compile)
-;;;(require 'init-crontab)
-;;;(require 'init-textile)
 (require 'init-markdown)
 (require 'init-csv)
-;;;(require 'init-erlang)
 (require 'init-javascript)
-;;;(require 'init-php)
 (require 'init-org)
 (require 'init-nxml)
 (require 'init-html)
 (require 'init-css)
-;;;(require 'init-haml)
-(require 'init-python-mode)
-;;;(require 'init-haskell)
-;;;(require 'init-elm)
-;;;(require 'init-ruby-mode)
-;;;(require 'init-rails)
-;;;(require 'init-sql)
 
 (require 'init-paredit)
 (require 'init-lisp)
 (require 'init-slime)
-;;;(unless (version<= emacs-version "24.2")
-;;;  (require 'init-clojure)
-;;;  (require 'init-clojure-cider))
 (require 'init-common-lisp)
-
-;;;(when *spell-check-support-enabled*
-;;;  (require 'init-spelling))
 
 (require 'init-misc)
 
-;;;(require 'init-dash)
-;;;(require 'init-ledger)
 ;; Extra packages which don't require any configuration
 
 (require-package 'gnuplot)
-;;;(require-package 'lua-mode)
 (require-package 'htmlize)
-;;;(require-package 'dsvn)
-;;;(when *is-a-mac*
-;;;  (require-package 'osx-location))
 (require-package 'regex-tool)
 
 ;;----------------------------------------------------------------------------

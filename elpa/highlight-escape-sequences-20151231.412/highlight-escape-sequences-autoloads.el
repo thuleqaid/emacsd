@@ -4,7 +4,7 @@
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
 ;;;### (autoloads nil "highlight-escape-sequences" "highlight-escape-sequences.el"
-;;;;;;  (22162 26695 208475 19000))
+;;;;;;  (22213 51374 598888 815000))
 ;;; Generated autoloads from highlight-escape-sequences.el
 
 (autoload 'turn-on-hes-mode "highlight-escape-sequences" "\
