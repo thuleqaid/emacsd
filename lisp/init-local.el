@@ -24,9 +24,9 @@
 ;设置默认输入法
 (setq default-input-method 'chinese-wbim)
 
-;; (require 'calendar-fate)
-;; (calendar-fate-chinese-character)
-;; (setq holiday-other-holidays '((holiday-chinese-terms)))
+(require 'calendar-fate)
+(calendar-fate-chinese-character)
+(setq holiday-other-holidays '((holiday-chinese-terms)))
 
 ;; ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 
@@ -52,6 +52,7 @@
 ;;(semantic-mode 1)
 
 (require-package 'sr-speedbar)
+(setq speedbar-show-unknown-files t)
 (global-set-key (kbd "<f9>") (lambda()
                                (interactive)
                                (sr-speedbar-toggle)
@@ -61,15 +62,15 @@
                                  (kill-buffer "*SPEEDBAR*"))))
 
 ;;添加模版
-;;;(auto-insert-mode)  ;;; Adds hook to find-files-hook
-;;;(setq auto-insert-directory "~/.emacs.d/templates/")
-;;;(setq auto-insert-query nil)
-;;;(setq auto-insert-alist
-;;;      (append '(
-;;;                (org-mode . "template.org")
-;;;                (python-mode . "template.py")
-;;;                )
-;;;              auto-insert-alist))
+(auto-insert-mode)  ;;; Adds hook to find-files-hook
+(setq auto-insert-directory "~/.emacs.d/templates/")
+(setq auto-insert-query nil)
+(setq auto-insert-alist
+      (append '(
+                (org-mode . "template.org")
+                (python-mode . "template.py")
+                )
+              auto-insert-alist))
 
 (setq tramp-mode nil)
 (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")

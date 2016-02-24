@@ -394,5 +394,6 @@ typical word processor."
 (setq calendar-date-style 'iso)
 (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
 (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+(appt-activate 1)
 
 (provide 'init-org)
