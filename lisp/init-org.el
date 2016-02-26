@@ -368,7 +368,7 @@ typical word processor."
        (agenda-path (expand-file-name "agenda/" user-emacs-directory))
        (agenda-file (expand-file-name "overall.org" agenda-path))
        (note-file (expand-file-name "notes.org" agenda-path)))
-  (setq org-agenda-files (list agenda-path))
+  (setq org-agenda-files (list agenda-file))
   (setq org-default-notes-file note-file)
   (setq diary-file (expand-file-name "diary" agenda-path))
   (unless (file-exists-p agenda-path)
@@ -394,6 +394,7 @@ typical word processor."
 (setq calendar-date-style 'iso)
 (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
 (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
-(appt-activate 1)
+(after-load 'init (appt-activate 1))
+;; (appt-activate 1)
 
 (provide 'init-org)
