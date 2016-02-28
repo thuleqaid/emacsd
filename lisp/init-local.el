@@ -72,6 +72,15 @@
                 )
               auto-insert-alist))
 
+(global-unset-key (kbd "M-c"))
+(global-set-key (kbd "M-c c") 'capitalize-word)
+(setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
+(global-set-key (kbd "M-c f") 'avy-goto-char)
+(global-unset-key (kbd "M-z"))
+(global-unset-key (kbd "M-Z"))
+(global-set-key (kbd "M-c z") 'zap-to-char)
+(global-set-key (kbd "M-c Z") 'zap-up-to-char)
+
 (setq tramp-mode nil)
 (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 (require-package 'helm)
