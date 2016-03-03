@@ -80,6 +80,26 @@
 (global-unset-key (kbd "M-Z"))
 (global-set-key (kbd "M-c z") 'zap-to-char)
 (global-set-key (kbd "M-c Z") 'zap-up-to-char)
+(global-set-key (kbd "M-c *") 'isearch-forward-symbol-at-point)
+(defun thuleqaid/gotofile ()
+  (interactive)
+  (let* (
+         (filename (ffap-file-exists-string (ffap-string-at-point)))
+         (filenamelen (length filename))
+         (jumpline 1))
+    (if filename
+        (save-excursion
+          (if (< (point) filenamelen)
+              (goto-char (point-min))
+            (backward-char filenamelen))
+          (nonincremental-re-search-forward (concat (regexp-quote filename) "\\s-+"))
+          (setq jumpline (thing-at-point 'number))
+          (ffap filename)
+          (if jumpline (goto-line jumpline))
+          ))
+    ))
+(global-set-key (kbd "M-c g f") 'ffap)
+(global-set-key (kbd "M-c g F") 'thuleqaid/gotofile)
 
 (setq tramp-mode nil)
 (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
