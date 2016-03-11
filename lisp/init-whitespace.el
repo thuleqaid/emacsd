@@ -34,4 +34,8 @@
 (setq whitespace-style '(face tabs space-mark))
 (global-whitespace-mode t)
 
+(require 'hl-line)
+(custom-set-faces '(hl-line ((t (:inverse-video t)))))
+(global-hl-line-mode t)
+
 (provide 'init-whitespace)

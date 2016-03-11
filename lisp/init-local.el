@@ -30,9 +30,9 @@
 
 ;; ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 
-(defun indent-tabs-mode-setup ()
+(defun thuleqaid/indent-tabs-mode-setup ()
   (setq indent-tabs-mode t))
-(add-hook 'c-mode-hook 'indent-tabs-mode-setup)
+(add-hook 'c-mode-hook 'thuleqaid/indent-tabs-mode-setup)
 (ac-config-default)
 (add-hook 'python-mode-hook 'ac-cc-mode-setup)
 
@@ -81,6 +81,7 @@
 (global-set-key (kbd "M-c z") 'zap-to-char)
 (global-set-key (kbd "M-c Z") 'zap-up-to-char)
 (global-set-key (kbd "M-c *") 'isearch-forward-symbol-at-point)
+(global-set-key (kbd "M-c /") 'isearch-forward-regexp)
 (defun thuleqaid/gotofile ()
   (interactive)
   (let* (
@@ -88,16 +89,16 @@
          (filenamelen (length filename))
          (jumpline 1))
     (if filename
-        (save-excursion
-          (if (< (point) filenamelen)
-              (goto-char (point-min))
-            (backward-char filenamelen))
-          (nonincremental-re-search-forward (concat (regexp-quote filename) "\\s-+"))
-          (setq jumpline (thing-at-point 'number))
-          (ffap filename)
-          (if jumpline (goto-line jumpline))
-          ))
-    ))
+        (progn
+         (save-excursion
+           (if (< (point) filenamelen)
+               (goto-char (point-min))
+             (backward-char filenamelen))
+           (nonincremental-re-search-forward (concat (regexp-quote filename) "\\s-+"))
+           (setq jumpline (thing-at-point 'number)))
+         (ffap filename)
+         (if jumpline (goto-line jumpline)))
+    )))
 (global-set-key (kbd "M-c g f") 'ffap)
 (global-set-key (kbd "M-c g F") 'thuleqaid/gotofile)
 
