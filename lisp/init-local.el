@@ -134,6 +134,8 @@
       helm-gtags-pulse-at-cursor t
       helm-gtags-suggested-key-mapping t
       )
+(if *is-a-windows* (setq helm-gtags-path-style 'absolute))
+
 ;; Enable helm-gtags-mode in Dired so you can jump to any tag
 ;; when navigate project tree with Dired
 (add-hook 'dired-mode-hook 'helm-gtags-mode)
@@ -142,15 +144,15 @@
 (add-hook 'c-mode-hook 'helm-gtags-mode)
 (add-hook 'c++-mode-hook 'helm-gtags-mode)
 ;; Set key bindings
-;; (eval-after-load "helm-gtags"
-;;   '(progn
-;;      (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
-;;      (define-key helm-gtags-mode-map (kbd "M-r") 'helm-gtags-find-rtag)
-;;      (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
-;;      (define-key helm-gtags-mode-map (kbd "M-g M-p") 'helm-gtags-parse-file)
-;;      (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
-;;      (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
-;;      (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)))
+(eval-after-load "helm-gtags"
+  '(progn
+     (define-key helm-gtags-mode-map (kbd "M-c g t") 'helm-gtags-find-tag)
+     (define-key helm-gtags-mode-map (kbd "M-c g r") 'helm-gtags-find-rtag)
+     (define-key helm-gtags-mode-map (kbd "M-c g s") 'helm-gtags-find-symbol)
+     (define-key helm-gtags-mode-map (kbd "M-c g p") 'helm-gtags-parse-file)
+     (define-key helm-gtags-mode-map (kbd "M-c g <") 'helm-gtags-previous-history)
+     (define-key helm-gtags-mode-map (kbd "M-c g >") 'helm-gtags-next-history)
+     (define-key helm-gtags-mode-map (kbd "M-c g ,") 'helm-gtags-pop-stack)))
 (helm-mode 1)
 
 ;;;(require-package 'racer)
