@@ -13,6 +13,7 @@
 
 ;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-mac* (eq system-type 'darwin))
+(defconst *is-a-windows* (eq system-type 'windows-nt))
 
 ;;----------------------------------------------------------------------------
 ;; Temporarily reduce garbage collection during startup
