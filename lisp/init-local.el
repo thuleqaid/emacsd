@@ -132,7 +132,6 @@
       helm-gtags-auto-update t
       helm-gtags-use-input-at-cursor t
       helm-gtags-pulse-at-cursor t
-      helm-gtags-suggested-key-mapping t
       )
 (if *is-a-windows* (setq helm-gtags-path-style 'absolute))
 
@@ -146,10 +145,10 @@
 ;; Set key bindings
 (eval-after-load "helm-gtags"
   '(progn
-     (define-key helm-gtags-mode-map (kbd "M-c g t") 'helm-gtags-find-tag)
-     (define-key helm-gtags-mode-map (kbd "M-c g r") 'helm-gtags-find-rtag)
+     (define-key helm-gtags-mode-map (kbd "M-c g b") 'helm-gtags-select)
+     (define-key helm-gtags-mode-map (kbd "M-c g t") 'helm-gtags-dwim)
      (define-key helm-gtags-mode-map (kbd "M-c g s") 'helm-gtags-find-symbol)
-     (define-key helm-gtags-mode-map (kbd "M-c g p") 'helm-gtags-parse-file)
+     (define-key helm-gtags-mode-map (kbd "M-c g f") 'helm-gtags-find-files)
      (define-key helm-gtags-mode-map (kbd "M-c g <") 'helm-gtags-previous-history)
      (define-key helm-gtags-mode-map (kbd "M-c g >") 'helm-gtags-next-history)
      (define-key helm-gtags-mode-map (kbd "M-c g ,") 'helm-gtags-pop-stack)))
