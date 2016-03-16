@@ -74,6 +74,7 @@
 
 (global-unset-key (kbd "M-c"))
 (global-set-key (kbd "M-c c") 'capitalize-word)
+(global-set-key (kbd "M-c t") 'transpose-words)
 (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
 (global-set-key (kbd "M-c f") 'avy-goto-char)
 (global-unset-key (kbd "M-z"))
@@ -145,13 +146,15 @@
 ;; Set key bindings
 (eval-after-load "helm-gtags"
   '(progn
-     (define-key helm-gtags-mode-map (kbd "M-c g b") 'helm-gtags-select)
-     (define-key helm-gtags-mode-map (kbd "M-c g t") 'helm-gtags-dwim)
-     (define-key helm-gtags-mode-map (kbd "M-c g s") 'helm-gtags-find-symbol)
-     (define-key helm-gtags-mode-map (kbd "M-c g f") 'helm-gtags-find-files)
-     (define-key helm-gtags-mode-map (kbd "M-c g <") 'helm-gtags-previous-history)
-     (define-key helm-gtags-mode-map (kbd "M-c g >") 'helm-gtags-next-history)
-     (define-key helm-gtags-mode-map (kbd "M-c g ,") 'helm-gtags-pop-stack)))
+     (define-key helm-gtags-mode-map (kbd "M-t b") 'helm-gtags-select)
+     (define-key helm-gtags-mode-map (kbd "M-t t") 'helm-gtags-dwim)
+     (define-key helm-gtags-mode-map (kbd "M-t s") 'helm-gtags-find-symbol)
+     (define-key helm-gtags-mode-map (kbd "M-t f") 'helm-gtags-find-files)
+     (define-key helm-gtags-mode-map (kbd "M-t <") 'helm-gtags-previous-history)
+     (define-key helm-gtags-mode-map (kbd "M-t >") 'helm-gtags-next-history)
+     (define-key helm-gtags-mode-map (kbd "M-t r") 'helm-gtags-resume)
+     (define-key helm-gtags-mode-map (kbd "M-t p") 'helm-gtags-parse-file)
+     (define-key helm-gtags-mode-map (kbd "M-t ,") 'helm-gtags-pop-stack)))
 (helm-mode 1)
 
 ;;;(require-package 'racer)
