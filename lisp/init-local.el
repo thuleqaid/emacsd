@@ -24,6 +24,18 @@
 ;设置默认输入法
 (setq default-input-method 'chinese-wbim)
 
+;;设置输入法列表
+(setq my-input-methods
+      '("japanese"
+        "chinese-wbim"))
+(defun my-cycle-input-method ()
+  "Cycle `my-input-method-alist'."
+  (interactive)
+  (let ((cur-input-method (car my-input-methods)))
+    (setq my-input-methods (append (cdr my-input-methods) (list cur-input-method)))
+    (set-input-method cur-input-method)))
+(global-set-key (kbd "M-C-\\") 'my-cycle-input-method)
+
 (require 'calendar-fate)
 (calendar-fate-chinese-character)
 (setq holiday-other-holidays '((holiday-chinese-terms)))
