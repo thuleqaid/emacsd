@@ -45,23 +45,13 @@
 (defun thuleqaid/indent-tabs-mode-setup ()
   (setq indent-tabs-mode t))
 (add-hook 'c-mode-hook 'thuleqaid/indent-tabs-mode-setup)
+(add-hook 'text-mode-hook 'thuleqaid/indent-tabs-mode-setup)
+
 (ac-config-default)
 (add-hook 'python-mode-hook 'ac-cc-mode-setup)
 
 (global-set-key (kbd "<f12>") 'highlight-symbol)
 (global-set-key (kbd "M-<f12>") 'highlight-symbol-remove-all)
-
-;;(global-ede-mode 1)
-;;(require 'semantic/ia)
-;;(setq semantic-default-submodes
-;;      '(global-semantic-idle-scheduler-mode
-;;        global-semanticdb-minor-mode
-;;        global-semantic-idle-summary-mode
-;;        global-semantic-idle-completions-mode
-;;        global-semantic-highlight-func-mode
-;;        global-semantic-decoration-mode
-;;        global-semantic-mru-bookmark-mode))
-;;(semantic-mode 1)
 
 (require-package 'sr-speedbar)
 (setq speedbar-show-unknown-files t)
@@ -89,6 +79,7 @@
 (global-set-key (kbd "M-c t") 'transpose-words)
 (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
 (global-set-key (kbd "M-c f") 'avy-goto-char)
+(global-set-key (kbd "M-c F") 'avy-goto-char-timer)
 (global-unset-key (kbd "M-z"))
 (global-unset-key (kbd "M-Z"))
 (global-set-key (kbd "M-c z") 'zap-to-char)
@@ -168,26 +159,5 @@
      (define-key helm-gtags-mode-map (kbd "M-t p") 'helm-gtags-parse-file)
      (define-key helm-gtags-mode-map (kbd "M-t ,") 'helm-gtags-pop-stack)))
 (helm-mode 1)
-
-;;;(require-package 'racer)
-;;;(require-package 'company)
-;;;(require-package 'company-racer)
-;;;(require-package 'flycheck)
-;;;(require-package 'flycheck-rust)
-;;;(require-package 'rust-mode)
-;;;(setq company-idle-delay 0.2)
-;;;(setq company-minimum-prefix-length 1)
-;;;(setq racer-cmd "/usr/local/bin/racer")
-;;;(setq racer-rust-src-path "/home/tinder/work/rust/rust/src/")
-;;;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-;;;(add-hook 'rust-mode-hook #'racer-mode)
-;;;(add-hook 'racer-mode-hook #'eldoc-mode)
-;;;(add-hook 'racer-mode-hook #'company-mode)
-;;;(setq company-tooltip-align-annotations t)
-;;;(add-hook 'racer-mode-hook
-;;;          '(lambda ()
-;;;             (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-;;;             (set (make-local-variable 'company-backends) '(company-racer))
-;;;             (local-set-key (kbd "TAB") #'racer-complete-or-indent)))
 
 (provide 'init-local)
