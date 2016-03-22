@@ -368,7 +368,7 @@ typical word processor."
        (agenda-path (expand-file-name "agenda/" user-emacs-directory))
        (agenda-file (expand-file-name "overall.org" agenda-path))
        (note-file (expand-file-name "notes.org" agenda-path)))
-  (setq org-agenda-files (list agenda-file))
+  (setq org-agenda-files (list agenda-file note-file))
   (setq org-default-notes-file note-file)
   (setq diary-file (expand-file-name "diary" agenda-path))
   (unless (file-exists-p agenda-path)

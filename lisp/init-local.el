@@ -75,8 +75,16 @@
               auto-insert-alist))
 
 (global-unset-key (kbd "M-c"))
+(global-unset-key (kbd "M-t"))
 (global-set-key (kbd "M-c c") 'capitalize-word)
-(global-set-key (kbd "M-c t") 'transpose-words)
+(global-set-key (kbd "M-c C") 'capitalize-region)
+(global-set-key (kbd "M-c u") 'upcase-word)
+(global-set-key (kbd "M-c U") 'upcase-region)
+(global-set-key (kbd "M-c l") 'downcase-word)
+(global-set-key (kbd "M-c L") 'downcase-region)
+(global-unset-key (kbd "C-t"))
+(global-set-key (kbd "M-c t") 'transpose-chars)
+(global-set-key (kbd "M-c T") 'transpose-words)
 (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
 (global-set-key (kbd "M-c f") 'avy-goto-char)
 (global-set-key (kbd "M-c F") 'avy-goto-char-timer)
@@ -106,8 +114,10 @@
 (global-set-key (kbd "M-c g f") 'ffap)
 (global-set-key (kbd "M-c g F") 'thuleqaid/gotofile)
 
-(setq tramp-mode nil)
-(setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
+(when (version<= emacs-version "24")
+  (setq tramp-mode nil)
+  (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
+
 (require-package 'helm)
 (require 'helm-config)
 ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
