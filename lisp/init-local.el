@@ -1,13 +1,20 @@
-;; set coding priority order (later one with higher priority)
-;(prefer-coding-system 'gb2312)
-;(prefer-coding-system 'sjis)
-; Chinese coding setting in Windons (copy and modify from init-locales.el)
-;(set-language-environment 'chinese-GBK)
-;(setq locale-coding-system 'gbk)
-;(set-default-coding-systems 'gbk)
-;(set-terminal-coding-system 'gbk)
-;(set-selection-coding-system 'gbk)
+(when *is-a-windows*
+  ;; Chinese coding setting in Windons (copy and modify from init-locales.el)
+  (set-language-environment 'chinese-GBK)
+  (setq locale-coding-system 'gbk)
+  (set-default-coding-systems 'gbk)
+  (set-terminal-coding-system 'gbk)
+  (set-selection-coding-system 'gbk)
+  ;; Japanese coding setting in Windons (copy and modify from init-locales.el)
+  ;(set-language-environment 'Japanese)
+  ;(setq locale-coding-system 'japanese-shift-jis)
+  ;(set-default-coding-systems 'japanese-shift-jis)
+  ;(set-terminal-coding-system 'japanese-shift-jis)
+  ;(set-selection-coding-system 'japanese-shift-jis)
+  )
 (setq session-save-file-coding-system 'utf-8)
+;; auto detect file's encoding
+(require 'unicad)
 
 (setq sanityinc/force-default-font-for-symbols t)
 
@@ -114,7 +121,7 @@
 (global-set-key (kbd "M-c g f") 'ffap)
 (global-set-key (kbd "M-c g F") 'thuleqaid/gotofile)
 
-(when (version<= emacs-version "24")
+(when (version< emacs-version "25")
   (setq tramp-mode nil)
   (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
 
@@ -127,7 +134,9 @@
 (global-unset-key (kbd "C-x c"))
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(unless *is-a-windows*
+  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  )
 (global-set-key (kbd "C-x b") 'helm-mini)
 
 (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window

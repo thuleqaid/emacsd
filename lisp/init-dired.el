@@ -11,6 +11,7 @@
 (after-load 'dired
   (require 'dired+)
   (require 'dired-sort)
+  (diredp-toggle-find-file-reuse-dir 1)
   (when (fboundp 'global-dired-hide-details-mode)
     (global-dired-hide-details-mode -1))
   (setq dired-recursive-deletes 'top)

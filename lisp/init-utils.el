@@ -78,14 +78,42 @@
 ;; Browse current HTML file
 ;;----------------------------------------------------------------------------
 (defun browse-current-file ()
-  "Open the current file as a URL using `browse-url'."
+  "Open the HTML file with same basename as current buffer as a URL using `browse-url'."
   (interactive)
-  (let ((file-name (buffer-file-name)))
-    ;; (unless (symbol-function 'tramp-tramp-file-p)
-    ;;   (require 'tramp))
-    (if (tramp-tramp-file-p file-name)
-        (error "Cannot open tramp file")
-      (browse-url (concat "file://" file-name)))))
+  (let* ((curfile (buffer-file-name))
+         (filelist (directory-files (file-name-directory curfile) t (file-name-base curfile)))
+         (restfiles (length filelist))
+         (curext (downcase (file-name-extension curfile))))
+    (while (> restfiles 0)
+      (setq curfile (car filelist))
+      (setq filelist (cdr filelist))
+      (setq restfiles (length filelist))
+      (setq curext (downcase (file-name-extension curfile)))
+      (when (or (string= curext "htm") (string= curext "html"))
+        (setq restfiles -1)))
+    (when (< restfiles 0)
+      ;; (unless (symbol-function 'tramp-tramp-file-p)
+      ;;   (require 'tramp))
+      (if (tramp-tramp-file-p curfile)
+          (error "Cannot open tramp file")
+        (browse-url (concat "file://" curfile))))))
+(global-set-key (kbd "<f8>") 'browse-current-file)
+
+(defun clear-buffer ()
+  "kill all buffers."
+  (interactive)
+  (let ((buffers (buffer-list))
+        (curbuffer (current-buffer)))
+    (dolist (curbuffer buffers)
+      (if (buffer-file-name curbuffer)
+          ;; kill all buffers with a file name
+          (kill-buffer curbuffer)
+        (progn
+          (setq bname (buffer-name curbuffer))
+          ;; kill all other buffers except *scratch* and *Messages*
+          (unless (or (string= bname "*scratch*") (string= bname "*Messages*"))
+            (kill-buffer curbuffer))
+          )))))
 
 
 (provide 'init-utils)
