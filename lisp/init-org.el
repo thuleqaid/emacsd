@@ -397,4 +397,10 @@ typical word processor."
 (after-load 'init (appt-activate 1))
 ;; (appt-activate 1)
 
+(setq org-list-demote-modify-bullet
+      '(("+" . "-") ("-" . "*") ("*" . "+")))
+(defun my-org-confirm-babel-evaluate (lang body)
+  (not (string= lang "plantuml"))) ; don't ask for plantuml
+(setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+
 (provide 'init-org)

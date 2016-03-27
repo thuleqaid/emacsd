@@ -103,17 +103,27 @@
   "kill all buffers."
   (interactive)
   (let ((buffers (buffer-list))
-        (curbuffer (current-buffer)))
+        (curbuffer (current-buffer))
+        bname)
     (dolist (curbuffer buffers)
-      (if (buffer-file-name curbuffer)
-          ;; kill all buffers with a file name
-          (kill-buffer curbuffer)
-        (progn
-          (setq bname (buffer-name curbuffer))
-          ;; kill all other buffers except *scratch* and *Messages*
-          (unless (or (string= bname "*scratch*") (string= bname "*Messages*"))
-            (kill-buffer curbuffer))
-          )))))
+      (setq bname (buffer-name curbuffer))
+      ;; kill all other buffers except *scratch* and *Messages*
+      (unless (or (string= bname "*scratch*") (string= bname "*Messages*"))
+        (kill-buffer curbuffer)))))
+(defun retain-buffer ()
+  "kill all buffers but the current one."
+  (interactive)
+  (let ((buffers (buffer-list))
+        (curbuffer (current-buffer))
+        iterbuffer
+        bname)
+    (dolist (iterbuffer buffers)
+      (unless (equal iterbuffer curbuffer)
+        (setq bname (buffer-name iterbuffer))
+        ;; kill all other buffers except *scratch* and *Messages*
+        (unless (or (string= bname "*scratch*") (string= bname "*Messages*"))
+          (kill-buffer iterbuffer))
+        ))))
 
 
 (provide 'init-utils)
