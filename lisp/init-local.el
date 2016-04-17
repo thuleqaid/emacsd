@@ -120,6 +120,10 @@
     )))
 (global-set-key (kbd "M-c g f") 'ffap)
 (global-set-key (kbd "M-c g F") 'thuleqaid/gotofile)
+(global-unset-key (kbd "C-M-="))
+(global-unset-key (kbd "C-M--"))
+(global-set-key (kbd "M-c +") 'default-text-scale-increase)
+(global-set-key (kbd "M-c -") 'default-text-scale-decrease)
 
 (when (version< emacs-version "25")
   (setq tramp-mode nil)

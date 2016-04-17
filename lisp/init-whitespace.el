@@ -37,5 +37,6 @@
 (require 'hl-line)
 (custom-set-faces '(hl-line ((t (:inverse-video t)))))
 (global-hl-line-mode t)
+;; (blink-cursor-mode -1)
 
 (provide 'init-whitespace)
