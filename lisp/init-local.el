@@ -1,10 +1,10 @@
 (when *is-a-windows*
   ;; Chinese coding setting in Windons (copy and modify from init-locales.el)
-  (set-language-environment 'chinese-GBK)
-  (setq locale-coding-system 'gbk)
-  (set-default-coding-systems 'gbk)
-  (set-terminal-coding-system 'gbk)
-  (set-selection-coding-system 'gbk)
+  ;(set-language-environment 'chinese-GBK)
+  ;(setq locale-coding-system 'gbk)
+  ;(set-default-coding-systems 'gbk)
+  ;(set-terminal-coding-system 'gbk)
+  ;(set-selection-coding-system 'gbk)
   ;; Japanese coding setting in Windons (copy and modify from init-locales.el)
   ;(set-language-environment 'Japanese)
   ;(setq locale-coding-system 'japanese-shift-jis)
@@ -43,9 +43,10 @@
     (set-input-method cur-input-method)))
 (global-set-key (kbd "M-C-\\") 'my-cycle-input-method)
 
-(require 'calendar-fate)
-(calendar-fate-chinese-character)
-(setq holiday-other-holidays '((holiday-chinese-terms)))
+(unless *source-view-only*
+  (require 'calendar-fate)
+  (calendar-fate-chinese-character)
+  (setq holiday-other-holidays '((holiday-chinese-terms))))
 
 ;; ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 

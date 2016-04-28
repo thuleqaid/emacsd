@@ -14,6 +14,7 @@
 ;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-windows* (eq system-type 'windows-nt))
+(defconst *source-view-only* nil)
 
 ;;----------------------------------------------------------------------------
 ;; Temporarily reduce garbage collection during startup
@@ -59,7 +60,8 @@
 (require 'init-grep)
 (require 'init-uniquify)
 (require 'init-ibuffer)
-(require 'init-flycheck)
+(unless *source-view-only*
+  (require 'init-flycheck))
 
 (require 'init-recentf)
 (require 'init-hippie-expand)
@@ -73,22 +75,21 @@
 (require 'init-whitespace)
 (require 'init-fci)
 
-(require 'init-vc)
-(require 'init-git)
-
-(require 'init-compile)
-(require 'init-markdown)
-(require 'init-csv)
-(require 'init-javascript)
-(require 'init-org)
-(require 'init-nxml)
-(require 'init-html)
-(require 'init-css)
-
-(require 'init-paredit)
-(require 'init-lisp)
-(require 'init-slime)
-(require 'init-common-lisp)
+(unless *source-view-only*
+  (require 'init-vc)
+  (require 'init-git)
+  (require 'init-compile)
+  (require 'init-markdown)
+  (require 'init-csv)
+  (require 'init-javascript)
+  (require 'init-org)
+  (require 'init-nxml)
+  (require 'init-html)
+  (require 'init-css)
+  (require 'init-paredit)
+  (require 'init-lisp)
+  (require 'init-slime)
+  (require 'init-common-lisp))
 
 (require 'init-misc)
 
@@ -116,7 +117,8 @@
 ;;----------------------------------------------------------------------------
 ;; Locales (setting them earlier in this file doesn't work in X)
 ;;----------------------------------------------------------------------------
-(require 'init-locales)
+(unless *is-a-windows*
+  (require 'init-locales))
 
 (add-hook 'after-init-hook
           (lambda ()
