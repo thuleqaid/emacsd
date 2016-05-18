@@ -53,7 +53,6 @@
 (defun thuleqaid/indent-tabs-mode-setup ()
   (setq indent-tabs-mode t))
 (add-hook 'c-mode-hook 'thuleqaid/indent-tabs-mode-setup)
-(add-hook 'text-mode-hook 'thuleqaid/indent-tabs-mode-setup)
 
 (ac-config-default)
 (add-hook 'python-mode-hook 'ac-cc-mode-setup)

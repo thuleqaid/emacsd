@@ -402,4 +402,7 @@ typical word processor."
   (not (string= lang "plantuml"))) ; don't ask for plantuml
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
 
+(require 'ox-reveal)
+(setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
+
 (provide 'init-org)
