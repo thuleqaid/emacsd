@@ -18,3 +18,4 @@
 #+OPTIONS: reveal_center:t reveal_progress:t reveal_history:nil reveal_control:t
 #+OPTIONS: reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
 #+OPTIONS: reveal_width:1200 reveal_height:800
+#+LATEX_HEADER: \usepackage{CJKutf8} \begin{CJK}{UTF8}{gkai}
