@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: gnuplot
+# key: gnuplot_
+# --
+#+begin_src gnuplot :file ${1:file} :exports none :results silent
+reset
+set encoding utf8
+set term png font "MSYH"
+set title "Title"
+set xlabel "X"
+set ylabel "Y"
+set xrange [-10:20]
+set xtics -10,5,20
+set yrange [-10:20]
+set ytics -10,2,20
+$0
+#+end_src
+
+[[file:$1]]

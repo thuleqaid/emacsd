@@ -397,9 +397,9 @@ typical word processor."
 ;; (appt-activate 1)
 
 (setq org-list-demote-modify-bullet
-      '(("+" . "-") ("-" . "*") ("*" . "+")))
+      '(("+" . "-") ("-" . "+") ("*" . "+")))
 (defun my-org-confirm-babel-evaluate (lang body)
-  (not (string= lang "plantuml"))) ; don't ask for plantuml
+  (if (member lang '("plantuml" "gnuplot")) nil t)) ; don't ask for plantuml, gnuplot
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
 
 (require 'ox-reveal)
