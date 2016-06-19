@@ -3,6 +3,7 @@
 # key: plantuml_
 # --
 #+begin_src plantuml :file ${1:file} :cmdline -charset UTF-8 :results silent
+skinparam defaultFontName "Microsoft YaHei"
 $0
 #+end_src
 

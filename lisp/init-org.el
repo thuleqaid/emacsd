@@ -401,6 +401,7 @@ typical word processor."
 (defun my-org-confirm-babel-evaluate (lang body)
   (if (member lang '("plantuml" "gnuplot")) nil t)) ; don't ask for plantuml, gnuplot
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+(setq org-use-sub-superscripts nil)
 
 (require 'ox-reveal)
 (setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
