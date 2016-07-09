@@ -363,17 +363,29 @@ typical word processor."
      (sql . nil)
      (sqlite . t))))
 
+;GTD Workflow
+;1. capture and save in notes
+;2. dispatch items in notes to todolist, droplist and reflist
+;3. archive finished items in todolist
 (let* (
        (agenda-path (expand-file-name "agenda/" user-emacs-directory))
-       (agenda-file (expand-file-name "overall.org" agenda-path))
+       (agenda-file (expand-file-name "todolist.org" agenda-path))
+       (agenda-file2 (expand-file-name "droplist.org" agenda-path))
+       (agenda-file3 (expand-file-name "reflist.org" agenda-path))
        (note-file (expand-file-name "notes.org" agenda-path)))
   (setq org-agenda-files (list agenda-file note-file))
   (setq org-default-notes-file note-file)
-  (setq diary-file (expand-file-name "diary" agenda-path))
+  (setq diary-file (expand-file-name "diary" user-emacs-directory))
   (unless (file-exists-p agenda-path)
     (make-directory agenda-path))
   (unless (file-exists-p agenda-file)
     (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file)
+    )
+  (unless (file-exists-p agenda-file2)
+    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file2)
+    )
+  (unless (file-exists-p agenda-file3)
+    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file3)
     )
   (unless (file-exists-p diary-file)
     (append-to-file "# -*- coding:utf-8 -*-\n" nil diary-file)
