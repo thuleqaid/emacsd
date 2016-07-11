@@ -2,10 +2,10 @@
 # name: gnuplot
 # key: gnuplot_
 # --
-#+begin_src gnuplot :file ${1:file} :exports none :cache yes
+#+begin_src gnuplot :file ${1:file} :cache yes
 reset
 set encoding utf8
-set term png font "MSYH"
+set term svg font "MSYH"
 set title "Title"
 set xlabel "X"
 set ylabel "Y"
