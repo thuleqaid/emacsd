@@ -416,6 +416,26 @@ typical word processor."
 (setq org-use-sub-superscripts nil)
 (setq org-export-with-sub-superscripts nil)
 
+(defun thuleqaid/org-babel-image-format ()
+  (interactive)
+  (save-excursion
+    (let ((image-format "png"))
+      (setq image-format (read-from-minibuffer "Image Format(png/svg): ")) ; read target image format
+      (goto-char (point-min)) ; replace gnuplot script for output mode
+      (while (re-search-forward "^\\(\\s *set term \\)\\(\\S +\\) " nil t)
+        (replace-match (format "\\1%s " image-format)))
+      (goto-char (point-min)) ; replace outfile name
+      (while (re-search-forward "^\\(\\s *#\\+begin_src \\(?:plantuml\\|gnuplot\\) :file \\S +\\.\\)\\(\\S +\\) " nil t)
+        (replace-match (format "\\1%s " image-format)))
+      )))
+(defun thuleqaid/org-babel-batch-src ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min)) ; replace outfile name
+    (while (re-search-forward "^\\(\\s *#\\+begin_src \\(?:plantuml\\|gnuplot\\) :file \\S +\\.\\)\\(\\S +\\) " nil t)
+      (org-babel-execute-src-block))
+    ))
+
 (require 'ox-reveal)
 (setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
 

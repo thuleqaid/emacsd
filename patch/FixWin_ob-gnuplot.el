@@ -68,6 +68,9 @@
 
 (defvar *org-babel-gnuplot-missing* nil)
 
+;; (defvar thuleqaid/org-babel-gnuplot-file (member system-type '(cygwin windows-nt ms-dos)) "whether use file-mode or session-mode")
+(defvar thuleqaid/org-babel-gnuplot-file t "whether use file-mode or session-mode")
+
 (defcustom *org-babel-gnuplot-terms*
   '((eps . "postscript eps"))
   "List of file extensions and the associated gnuplot terminal."
@@ -167,7 +170,7 @@ code."
       (when epilogue (setq body (concat body "\n" epilogue))))
     body))
 
-(if (member system-type '(cygwin windows-nt ms-dos))
+(if thuleqaid/org-babel-gnuplot-file
 (defun org-babel-execute:gnuplot (body params)
   "Execute a block of Gnuplot code.
 This function is called by `org-babel-execute-src-block'."
@@ -229,7 +232,7 @@ This function is called by `org-babel-execute-src-block'."
 	nil)))) ;; signal that output has already been written to file
 )
 
-(if (member system-type '(cygwin windows-nt ms-dos))
+(if thuleqaid/org-babel-gnuplot-file
 (defun org-babel-prep-session:gnuplot (session params)
   "Return an error because gnuplot in windows does not support sessions."
   (error "gnuplot does not support sessions"))
@@ -246,7 +249,7 @@ This function is called by `org-babel-execute-src-block'."
     session))
 )
 
-(unless (member system-type '(cygwin windows-nt ms-dos))
+(unless thuleqaid/org-babel-gnuplot-file
 (defun org-babel-load-session:gnuplot (session body params)
   "Load BODY into SESSION."
   (save-window-excursion
@@ -264,7 +267,7 @@ This function is called by `org-babel-execute-src-block'."
    (org-babel-gnuplot-process-vars params)))
 
 (defvar gnuplot-buffer)
-(unless (member system-type '(cygwin windows-nt ms-dos))
+(unless thuleqaid/org-babel-gnuplot-file
 (defun org-babel-gnuplot-initiate-session (&optional session params)
   "Initiate a gnuplot session.
 If there is not a current inferior-process-buffer in SESSION
