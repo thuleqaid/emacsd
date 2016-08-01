@@ -421,5 +421,7 @@ Computes values for 10 years either side of YEAR."
     holiday-list)
   )
 
+(require 'fate-essential)
+
 (provide 'calendar-fate)
 ;;; calendar-fate.el ends here
