@@ -28,6 +28,42 @@
   (calendar-fate-chinese-from-absolute
    (calendar-fate-chinese-datetime date)))
 
+;; 计算指定节气的详细时间
+;; I: year, index
+;; O: '(month day year hour minute second)
+;; Memo: -1<=index[I]<=24
+(defun fate-solar-item-info (year index)
+  (let ((result (make-list 6 0))
+        absolute hour minute second)
+    (cond
+     ((< index -1)
+      ;; 范围外
+      (setq absolute nil)
+      )
+     ((<= index 22)
+      ;; 使用year对应数据
+      (setq absolute (cadr (assoc index (calendar-fate-chinese-year year))))
+      )
+     ((<= index 24)
+      ;; 使用year+1对应数据
+      (setq absolute (cadr (assoc (- index 24) (calendar-fate-chinese-year (1+ year)))))
+      )
+     (t
+      ;; 范围外
+      (setq absolute nil)
+      )
+     )
+    (when absolute
+      (setq hour (* (- absolute (floor absolute)) 24)
+            minute (* (- hour (floor hour)) 60)
+            second (* (- minute (floor minute)) 60)
+            result (append (calendar-gregorian-from-absolute (floor absolute)) (list (floor hour) (floor minute) (floor (+ second 0.5))))
+            )
+      )
+    result
+    )
+  )
+
 ;; 公历转阴历
 ;; I: '(month day year hour minute second)
 ;; O: '(cycle year month day)
@@ -287,6 +323,58 @@
     (setq year2 (+ year1 year2))
     (setq year3 (+ year2 year3 -1))
     (list ts ds gua1 yao1 gua2 yao2 year1 year2 year3)
+    )
+  )
+
+;; 计算指定年份的卦爻信息
+;; I: year
+;; O: '(gua-half-life yao-half-life year-min-half-life year-max-half-life
+;;      gua-da-yun yao-da-yun year-min-da-yun year-max-da-yun
+;;      gua-year yao-year year
+;;      gua-month-1 yao-month-1
+;;      gua-month-2 yao-month-2
+;;      ...
+;;      gua-month-12 yao-month-12)
+(defun heluo_year_info (year)
+  (let* ((year-min (plist-get fate-current-user 'heluo-year-min))
+         (year-mid (plist-get fate-current-user 'heluo-year-mid))
+         (year-max (plist-get fate-current-user 'heluo-year-max))
+         (year-cur (if (< year year-min) year-min
+                     (if (> year year-max) year-max
+                       year)))
+         (result (if (< year-cur year-mid)
+                     (list (plist-get fate-current-user 'heluo-gua1)
+                           (plist-get fate-current-user 'heluo-yao1)
+                           year-min
+                           (1- year-mid))
+                   (list (plist-get fate-current-user 'heluo-gua2)
+                         (plist-get fate-current-user 'heluo-yao2)
+                         year-mid
+                         year-max)))
+         (bitsts (gua_bit_sts (car result)))
+         (age (- year-cur (nth 2 result)))
+         (curyao (nth 1 result))
+         i yaoyears
+         )
+    ;; 计算大运
+    (setq i 0)
+    (while (< i 6)
+      (setq yaoyears (+ (* (aref bitsts curyao) 3) 6))
+      (when (> yaoyears age)
+        (setq result (append result (list (car result)
+                                          curyao
+                                          (- year-cur age)
+                                          (+ (- year-cur age 1) yaoyears))))
+        (setq i 6)
+        )
+      (setq age (- age yaoyears)
+            i (1+ i)
+            curyao (if (>= curyao 6) 1 (1+ curyao)))
+      )
+    (setq age (+ age yaoyears))
+    ;; 计算岁运
+    ;; Todo: Heluo.vim 334
+    ;; 计算月运
     )
   )
 
