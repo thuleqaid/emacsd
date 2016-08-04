@@ -73,6 +73,8 @@
   (calendar-chinese-from-absolute
    (calendar-absolute-from-gregorian date)))
 
+;; 当前文件路径
+(defconst fate-root-dir (file-name-directory #$))
 ;; 当前用户信息
 (defvar fate-current-user '())
 
@@ -101,6 +103,8 @@
     ))
 
 ;;; 河洛
+;; 河洛批言路径
+(defconst fate-heluo-dir (file-name-as-directory (concat fate-root-dir "heluo")))
 ;; 十天干对应的天地数
 ;; 戊一乙癸二，庚三辛四同。壬甲从六数，丁七丙八宫。己九无差别，五数寄于中。
 (defconst heluo_tbl_tianshu [0 6 0 2 0 8 7 0 1 0 9 0 3 0 0 4 0 6 0 2])
@@ -354,7 +358,7 @@
          (bitsts (gua_bit_sts (car result)))
          (age (- year-cur (nth 2 result)))
          (curyao (nth 1 result))
-         i yaoyears
+         i yaoyears curgua curgua2 curyao2
          )
     ;; 计算大运
     (setq i 0)
@@ -371,10 +375,56 @@
             i (1+ i)
             curyao (if (>= curyao 6) 1 (1+ curyao)))
       )
-    (setq age (+ age yaoyears))
+    (setq age (+ age yaoyears)
+          curgua (car result))
     ;; 计算岁运
-    ;; Todo: Heluo.vim 334
+    (if (> yaoyears 6)
+        (progn
+          (when (= (mod (- year-cur age) 2) 1)
+            (setq curgua (logxor curgua (ash 1 (- 6 curyao))))
+            )
+          (when (> age 0)
+            (if (> curyao 3)
+                (setq curgua (logxor curgua (ash 1 (- 9 curyao))))
+              (setq curgua (logxor curgua (ash 1 (- 3 curyao))))
+              )
+            (setq age (1- age)
+                  curyao (1- curyao)
+                  i 0)
+            (while (< i age)
+              (setq curyao (if (>= curyao 6) 1 (1+ curyao))
+                    curgua (logxor curgua (ash 1 (- 6 curyao)))
+                    i (1+ i)
+                    )
+              )
+            )
+          )
+      (progn
+        (setq curyao (1- curyao)
+              i 0)
+        (while (<= i age)
+          (setq curyao (if (>= curyao 6) 1 (1+ curyao))
+                curgua (logxor curgua (ash 1 (- 6 curyao)))
+                i (1+ i)
+                )
+          )
+        )
+      )
+    (setq result (append result (list curgua
+                                      curyao
+                                      year-cur)))
     ;; 计算月运
+    (setq i 0)
+    (while (< i 6)
+      (setq curyao (if (>= curyao 6) 1 (1+ curyao))
+            curgua (logxor curgua (ash 1 (- 6 curyao)))
+            curyao2 (if (> curyao 3) (- curyao 3) (+ curyao 3))
+            curgua2 (logxor curgua (ash 1 (- 6 curyao2)))
+            result (append result (list curgua curyao curgua2 curyao2))
+            i (1+ i)
+            )
+      )
+    result
     )
   )
 
