@@ -104,7 +104,7 @@
 
 ;;; 河洛
 ;; 河洛批言路径
-(defconst fate-heluo-dir (file-name-as-directory (concat fate-root-dir "heluo")))
+(defconst fate-heluo-file (concat fate-root-dir "heluo.txt"))
 ;; 十天干对应的天地数
 ;; 戊一乙癸二，庚三辛四同。壬甲从六数，丁七丙八宫。己九无差别，五数寄于中。
 (defconst heluo_tbl_tianshu [0 6 0 2 0 8 7 0 1 0 9 0 3 0 0 4 0 6 0 2])
@@ -376,6 +376,7 @@
             curyao (if (>= curyao 6) 1 (1+ curyao)))
       )
     (setq age (+ age yaoyears)
+          curyao (if (<= curyao 1) 6 (1- curyao))
           curgua (car result))
     ;; 计算岁运
     (if (> yaoyears 6)
@@ -425,6 +426,133 @@
             )
       )
     result
+    )
+  )
+
+;; 取得指定卦爻的批言
+;; I: gua([0,63]) yao([0,6])
+;; O: '(卦名爻序号
+;;      易经爻辞
+;;      批言小诗1
+;;      ...
+;;      批言小诗n)
+(defun heluo_msg (gua yao)
+  (if (and (integerp gua)
+           (integerp yao)
+           (>= gua 0)
+           (<= gua 63)
+           (>= yao 0)
+           (<= yao 6))
+      (with-current-buffer (find-file-noselect fate-heluo-file)
+        (let ((prefix1 (format "^%d-%d#" gua 0))
+              (prefix2 (format "^%d-%d#" gua yao))
+              (suffix1 "卦")
+              (suffix2 "爻")
+              point11 point12 point21 point22
+              result
+              )
+          (goto-char (point-min))
+          (setq point11 (search-forward-regexp prefix1)
+                point12 (search-forward-regexp suffix1)
+                point21 (if (> yao 0) (search-forward-regexp prefix2) point11)
+                point22 (if (> yao 0) (search-forward-regexp suffix2) point12)
+                result (cons (if (> point21 point11)
+                                 (format "%s%s" (buffer-substring-no-properties point11 point12)
+                                         (buffer-substring-no-properties point21 point22))
+                               (buffer-substring-no-properties point11 point12)
+                               )
+                             (if (> point21 point11)
+                                 (split-string (format "%s%s" (buffer-substring-no-properties point11 point12)
+                                                       (buffer-substring-no-properties point21 (line-end-position))) ":")
+                               (split-string (buffer-substring-no-properties point21 (line-end-position)) ":")
+                               )
+                             ))
+          result
+          )
+        )
+    (list "Error")
+    )
+  )
+
+;; 输出指定年份的批言到当前buffer
+;; I: year
+;; Memo: 采用org mode格式，输出全年及每个月的批言
+(defun heluo_msg_output (year)
+  (let* ((guayao (heluo_year_info year))
+         (curgua (nth 8 guayao))
+         (curyao (nth 9 guayao))
+         (tmpd1 (fate-solar-item-info (nth 10 guayao) 1))
+         (tmpd2 (fate-solar-item-info (1+ (nth 10 guayao)) 1))
+         (curtext (heluo_msg curgua curyao))
+         (pat1 "* %d/%d/%d %d:%d:%d -- %d/%d/%d %d:%d:%d %s\n")
+         (pat2 "  + %s\n")
+         tmpi tmpj
+         )
+    ;; 输出全年批言
+    (insert (format pat1 (nth 2 tmpd1) (nth 0 tmpd1) (nth 1 tmpd1)
+                    (nth 3 tmpd1) (nth 4 tmpd1) (nth 5 tmpd1)
+                    (nth 2 tmpd2) (nth 0 tmpd2) (nth 1 tmpd2)
+                    (nth 3 tmpd2) (nth 4 tmpd2) (nth 5 tmpd2)
+                    (nth 0 curtext)
+                    ))
+    (setq tmpi 1)
+    (while (< tmpi (length curtext))
+      (insert (format pat2 (nth tmpi curtext)))
+      (setq tmpi (1+ tmpi))
+      )
+    ;; 输出每个月的批言
+    (dotimes (tmpj 12)
+      (setq curgua (nth (+ (* tmpj 2) 11) guayao)
+            curyao (nth (+ (* tmpj 2) 12) guayao)
+            tmpd1 (fate-solar-item-info (nth 10 guayao) (1+ (* tmpj 2)))
+            tmpd2 (if (>= tmpj 11)
+                      (fate-solar-item-info (1+ (nth 10 guayao)) 1)
+                    (fate-solar-item-info (nth 10 guayao) (+ 3 (* tmpj 2)))
+                    )
+            curtext (heluo_msg curgua curyao)
+            )
+      (insert "*")
+      (insert (format pat1 (nth 2 tmpd1) (nth 0 tmpd1) (nth 1 tmpd1)
+                      (nth 3 tmpd1) (nth 4 tmpd1) (nth 5 tmpd1)
+                      (nth 2 tmpd2) (nth 0 tmpd2) (nth 1 tmpd2)
+                      (nth 3 tmpd2) (nth 4 tmpd2) (nth 5 tmpd2)
+                      (nth 0 curtext)
+                      ))
+      (setq tmpi 1)
+      (while (< tmpi (length curtext))
+        (insert " ")
+        (insert (format pat2 (nth tmpi curtext)))
+        (setq tmpi (1+ tmpi))
+        )
+      )
+    )
+  )
+
+;; 输出批言到"fate-heluo"buffer
+;; I: year
+;; Memo: 如果省略year，则使用当前时间对应的年份（以立春为界）
+(defun heluo-show (&optional year)
+  (let* ((now (decode-time))
+         (now-formatted (list (nth 4 now) (nth 3 now) (nth 5 now)
+                              (nth 2 now) (nth 1 now) (nth 0 now)))
+         (year-cur (or year
+                       (if (< (calendar-fate-chinese-datetime now-formatted)
+                              (calendar-fate-chinese-datetime (fate-solar-item-info (calendar-extract-year now-formatted) 1)))
+                           (1- (calendar-extract-year now-formatted))
+                         (calendar-extract-year now-formatted)
+                         )))
+         (year-start (1- year-cur))
+         (logbuffer (get-buffer-create "fate-heluo"))
+         cnt
+         )
+    (set-buffer logbuffer)
+    (erase-buffer)
+    (org-mode)
+    (dotimes (cnt 4)
+      (heluo_msg_output (+ year-start cnt))
+      )
+    (org-overview)
+    (switch-to-buffer logbuffer)
     )
   )
 
