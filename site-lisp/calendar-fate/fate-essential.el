@@ -77,6 +77,178 @@
 (defconst fate-root-dir (file-name-directory #$))
 ;; 当前用户信息
 (defvar fate-current-user '())
+;; 用户一览
+(defvar fate-user-list '())
+(defvar fate-user-list-choice '())
+(defvar fate-user-list-map '())
+(defconst fate-user-list-file (concat fate-root-dir "userlist"))
+;; 读取用户列表文件
+(defun fate_load_user_list ()
+  (if (file-exists-p fate-user-list-file)
+      (load-file fate-user-list-file)
+    (with-current-buffer (find-file-noselect fate-user-list-file)
+      (insert "(setq fate-user-list '())")
+      (save-buffer)
+      (kill-buffer (current-buffer))
+      )
+    )
+  (unless fate-timediff-pos-choice
+    (load_timediff)
+    )
+  (if (<= (length fate-user-list) 0)
+      (fate-add-dummy-user "Anonymous" t (date-to-time (current-time-string)) (car fate-timediff-pos-choice) 120)
+    (setq fate-current-user (car fate-user-list))
+    )
+  (fate_user_list_choice)
+  )
+;; 保存用户列表文件
+(defun fate_save_user_list ()
+  (with-current-buffer (find-file-noselect fate-user-list-file)
+    (let ((cb (current-buffer))
+          i)
+      (erase-buffer)
+      (insert "(setq fate-user-list (list")
+      (dotimes (i (length fate-user-list))
+        (insert "\n'")
+        (prin1 (nth i fate-user-list) cb)
+        )
+      (insert "))")
+      )
+    (save-buffer)
+    (kill-buffer (current-buffer))
+    (fate_user_list_choice)
+    )
+  )
+;; 初始化可选的用户列表
+(defun fate_user_list_choice ()
+  (let (i item birthday)
+    (setq fate-user-list-choice '()
+          fate-user-list-map '())
+    (dotimes (i (length fate-user-list))
+      (setq item (nth i fate-user-list)
+            birthday (plist-get item 'birthday)
+            title (format "%s %s %d/%d/%d %d:%d:%d"
+                          (plist-get item 'name)
+                          (if (plist-get item 'male) "M" "F")
+                          (nth 2 birthday) (nth 0 birthday) (nth 1 birthday)
+                          (nth 3 birthday) (nth 4 birthday) (nth 5 birthday)
+                          )
+            fate-user-list-choice (cons title fate-user-list-choice)
+            fate-user-list-map (cons (list title i) fate-user-list-map)
+            )
+      )
+    )
+  )
+
+;; 各日期时差
+(defconst fate-timediff-date-file (concat fate-root-dir "timediff_date.txt"))
+(defvar fate-timediff-date '())
+;; 各城市时差
+(defconst fate-timediff-pos-file (concat fate-root-dir "timediff_pos.txt"))
+(defvar fate-timediff-pos '())
+(defvar fate-timediff-pos-choice '())
+;; 读取时差
+(defun load_timediff ()
+  (setq fate-timediff-date '()
+        fate-timediff-pos '()
+        fate-timediff-pos-choice '())
+  ;; 读取各日期时差
+  (with-current-buffer (find-file-noselect fate-timediff-date-file)
+    (goto-char (point-min))
+    (while (> (line-end-position) (point))
+      (setq fate-timediff-date (cons (split-string (buffer-substring-no-properties (point) (line-end-position))) fate-timediff-date))
+      (beginning-of-line 2)
+      )
+    (kill-buffer (current-buffer))
+    )
+  ;; 读取各城市时差
+  (with-current-buffer (find-file-noselect fate-timediff-pos-file)
+    (goto-char (point-min))
+    (while (> (line-end-position) (point))
+      (setq fate-timediff-pos (cons (split-string (buffer-substring-no-properties (point) (line-end-position))) fate-timediff-pos)
+            fate-timediff-pos-choice (cons (caar fate-timediff-pos) fate-timediff-pos-choice))
+      (beginning-of-line 2)
+      )
+    (setq fate-timediff-pos-choice (cons "Other" fate-timediff-pos-choice))
+    (kill-buffer (current-buffer))
+    )
+  )
+
+;; 增加用户数据
+(defun fate-add-user ()
+  (let (name male birth0 city poslong)
+    (unless fate-timediff-pos-choice
+      (load_timediff)
+      )
+    (setq name (string-trim (read-from-minibuffer "Name: "))
+          male (y-or-n-p "Are you male?")
+          birth0 (safe-date-to-time (org-read-date t))
+          )
+    ;; 读取出生日期（输入必须包括时间）
+    (while (and (= (nth 0 birth0) 0) (= (nth 1 birth0) 0))
+      (setq birth0 (safe-date-to-time (org-read-date t))
+            )
+      )
+    ;; 读取出生城市
+    (setq city (completing-read "Birth City: " fate-timediff-pos-choice nil t))
+    (if (string= city (car fate-timediff-pos-choice))
+        (setq poslong (string-to-number (read-string "Longitude: ")))
+      (setq poslong 0)
+      )
+    (fate-add-dummy-user name male birth0 city poslong)
+    )
+  )
+;; 添加用户（详细字段设置）
+(defun fate-add-dummy-user (name male birth0 city poslong)
+  (let* ((birth1 (decode-time birth0))
+         birth2
+         delta1 delta2
+         birthday birthday2
+         x)
+    (unless fate-timediff-pos-choice
+      (load_timediff)
+      )
+    ;; 计算时差（根据输入的出生日期）
+    (setq delta1 (string-to-number (nth 1 (assoc
+                                           (format "%d-%d"
+                                                   (nth 4 birth1)
+                                                   (nth 3 birth1))
+                                           fate-timediff-date))))
+    ;; 计算时差（通过手动指定出生城市的经度或者选择列表中城市的数据）
+    (if (string= city (car fate-timediff-pos-choice))
+        (setq delta2 (truncate (* (- poslong 120) 240)))
+      (setq delta2 (string-to-number (nth 3 (assoc city fate-timediff-pos))))
+      )
+    ;; 调整出生时间
+    (setq birth0 (list (nth 0 birth0) (+ (nth 1 birth0) delta1 delta2))
+          birth2 (decode-time birth0))
+    (setq birthday (list (nth 4 birth1) (nth 3 birth1) (nth 5 birth1) (nth 2 birth1) (nth 1 birth1) (nth 0 birth1))
+          birthday2 (list (nth 4 birth2) (nth 3 birth2) (nth 5 birth2) (nth 2 birth2) (nth 1 birth2) (nth 0 birth2))
+          x (heluo_basic_calc male birthday)
+          )
+    ;; 基本信息
+    (setq fate-current-user '())
+    (setq fate-current-user (plist-put fate-current-user 'name name))
+    (setq fate-current-user (plist-put fate-current-user 'male male))
+    (setq fate-current-user (plist-put fate-current-user 'city city))
+    (setq fate-current-user (plist-put fate-current-user 'delta1 delta1))
+    (setq fate-current-user (plist-put fate-current-user 'delta2 delta2))
+    (setq fate-current-user (plist-put fate-current-user 'birthday birthday))
+    (setq fate-current-user (plist-put fate-current-user 'birthday-fix birthday2))
+    ;; 河洛相关信息
+    (setq fate-current-user (plist-put fate-current-user 'heluo-tianshu (nth 0 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-dishu (nth 1 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-gua1 (nth 2 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-yao1 (nth 3 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-gua2 (nth 4 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-yao2 (nth 5 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-year-min (nth 6 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-year-mid (nth 7 x)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-year-max (nth 8 x)))
+    (setq fate-user-list (cons fate-current-user fate-user-list))
+    (fate_save_user_list)
+    )
+  )
 
 ;; 八卦：后天卦序
 ;; 一数坎兮二数坤
@@ -557,26 +729,15 @@
   )
 
 ;; 设置当前用户信息
-(defun fate-set-current-user (name male birthday)
-  (let ((x (heluo_basic_calc male birthday)))
-    ;; 基本信息
-    (setq fate-current-user (plist-put fate-current-user 'name name))
-    (setq fate-current-user (plist-put fate-current-user 'male male))
-    (setq fate-current-user (plist-put fate-current-user 'birthday birthday))
-    ;; 河洛相关信息
-    (setq fate-current-user (plist-put fate-current-user 'heluo-tianshu (nth 0 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-dishu (nth 1 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-gua1 (nth 2 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-yao1 (nth 3 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-gua2 (nth 4 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-yao2 (nth 5 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-year-min (nth 6 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-year-mid (nth 7 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-year-max (nth 8 x)))
+(defun fate-choose-current-user ()
+  (let* ((user (completing-read "Choose user: " fate-user-list-choice nil t))
+         (idx (nth 1 (assoc user fate-user-list-map)))
+         )
+    (setq fate-current-user (nth idx fate-user-list))
     )
   )
 
-(fate-set-current-user "anonymous" t '(1 1 1984 0 0 0))
+(fate_load_user_list)
 
 (provide 'fate-essential)
 ;;; fate-essential.el ends here
