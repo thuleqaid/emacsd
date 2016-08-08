@@ -23,6 +23,7 @@
 ;;; (fate-choose-current-user)
 ;;; (heluo-show &optional year)
 ;;; (liuyao-show)
+;;; (liuyao-new)
 
 ;;; Code:
 ;; 公历转阳历
@@ -1074,7 +1075,35 @@
     (switch-to-buffer logbuffer)
     )
   )
-
+;; 随机起六爻卦
+(defun liuyao-new ()
+  (interactive)
+  (let ((gua1 0)                                        ;; 本卦
+        (gua2 0)                                        ;; 变卦
+        (logbuffer (get-buffer-create "fate-liuyao"))   ;; 输出buffer
+        tmpi tmpj tmpm tmpn                             ;; 临时变量
+        )
+    (random t)
+    (dotimes (tmpi 6)
+      (setq tmpj (mod (random) 8))
+      (cond ((= tmpj 0) (setq tmpm 0 tmpn 1))
+            ((= tmpj 7) (setq tmpm 1 tmpn 0))
+            ((= tmpj 1) (setq tmpm 1 tmpn 1))
+            ((= tmpj 2) (setq tmpm 1 tmpn 1))
+            ((= tmpj 4) (setq tmpm 1 tmpn 1))
+            ((= tmpj 3) (setq tmpm 0 tmpn 0))
+            ((= tmpj 5) (setq tmpm 0 tmpn 0))
+            ((= tmpj 6) (setq tmpm 0 tmpn 0))
+            )
+      (setq gua1 (+ (* gua1 2) tmpm)
+            gua2 (+ (* gua2 2) tmpn))
+      )
+    (set-buffer logbuffer)
+    (erase-buffer)
+    (liuyao_zhuanggua gua1 gua2)
+    (switch-to-buffer logbuffer)
+    )
+  )
 
 (fate_load_user_list)
 
