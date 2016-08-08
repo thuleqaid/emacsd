@@ -72,6 +72,26 @@
     )
   )
 
+;; 浮点型绝对日期转换成公历日期
+;; calendar-gregorian-from-absolute函数只能转换整型绝对日期
+;; 本函数反复使用decode-time和encode-time可以防止出现60秒的情况
+;; 例如: 12:23:00会变成12:22:60
+(defun calendar-fate-gregorian-from-absolute (date)
+  (let* ((hour (* (- date (floor date)) 24))
+         (minute (* (- hour (floor hour)) 60))
+         (second (* (- minute (floor minute)) 60))
+         (gdate1 (append
+                  (calendar-gregorian-from-absolute (floor date))
+                  (list (floor hour) (floor minute) (floor (+ second 0.5)))))
+         (gdate2 (list (nth 5 gdate1) (nth 4 gdate1) (nth 3 gdate1)
+                       (nth 1 gdate1) (nth 0 gdate1) (nth 2 gdate1)))
+         (gdate3 (decode-time (apply 'encode-time gdate2)))
+         (gdate4 (list (nth 4 gdate3) (nth 3 gdate3) (nth 5 gdate3)
+                       (nth 2 gdate3) (nth 1 gdate3) (nth 0 gdate3)))
+         )
+    gdate4
+    ))
+
 (defun calendar-fate-chinese-from-absolute (date)
   (let* ((g-year (calendar-extract-year
                   (calendar-gregorian-from-absolute (floor date))))

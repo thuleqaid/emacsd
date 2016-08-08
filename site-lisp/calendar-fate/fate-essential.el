@@ -18,6 +18,11 @@
 ;; along with calendar-fate.  If not, see http://www.gnu.org/licenses.
 
 ;;; Commentary:
+;;; (fate-add-user)
+;;; (fate-remove-user)
+;;; (fate-choose-current-user)
+;;; (heluo-show &optional year)
+;;; (liuyao-show)
 
 ;;; Code:
 ;; 公历转阳历
@@ -34,7 +39,7 @@
 ;; Memo: -1<=index[I]<=24
 (defun fate-solar-item-info (year index)
   (let ((result (make-list 6 0))
-        absolute hour minute second)
+        absolute)
     (cond
      ((< index -1)
       ;; 范围外
@@ -54,11 +59,7 @@
       )
      )
     (when absolute
-      (setq hour (* (- absolute (floor absolute)) 24)
-            minute (* (- hour (floor hour)) 60)
-            second (* (- minute (floor minute)) 60)
-            result (append (calendar-gregorian-from-absolute (floor absolute)) (list (floor hour) (floor minute) (floor (+ second 0.5))))
-            )
+      (setq result (calendar-fate-gregorian-from-absolute absolute))
       )
     result
     )
@@ -176,6 +177,7 @@
 
 ;; 增加用户数据
 (defun fate-add-user ()
+  (interactive)
   (let (name male birth0 city poslong)
     (unless fate-timediff-pos-choice
       (load_timediff)
@@ -704,6 +706,7 @@
 ;; I: year
 ;; Memo: 如果省略year，则使用当前时间对应的年份（以立春为界）
 (defun heluo-show (&optional year)
+  (interactive "nYear:")
   (let* ((now (decode-time))
          (now-formatted (list (nth 4 now) (nth 3 now) (nth 5 now)
                               (nth 2 now) (nth 1 now) (nth 0 now)))
@@ -730,12 +733,348 @@
 
 ;; 设置当前用户信息
 (defun fate-choose-current-user ()
+  (interactive)
   (let* ((user (completing-read "Choose user: " fate-user-list-choice nil t))
          (idx (nth 1 (assoc user fate-user-list-map)))
          )
     (setq fate-current-user (nth idx fate-user-list))
     )
   )
+;; 删除用户信息
+(defun fate-remove-user ()
+  (interactive)
+  (when (> (length fate-user-list) 1)
+    (let* ((user (completing-read "Choose user: " fate-user-list-choice nil t))
+           (idx (nth 1 (assoc user fate-user-list-map)))
+           )
+      (setq fate-current-user (nth idx fate-user-list)
+            fate-user-list (remove fate-current-user fate-user-list)
+            )
+      (fate_save_user_list)
+      (setq fate-current-user (nth 0 fate-user-list))
+      )
+    )
+  )
+
+;; 卦名 6爻干支 5爻干支 ... 1爻干支 世爻位置 本卦 伏神mask
+(defconst gua-64 '(
+                   ("坤" 10 60 50 52 42 32 6 0 0)
+                   ("剥" 3 13 23 52 42 32 5 63 2)
+                   ("比" 25 35 45 52 42 32 3 0 0)
+                   ("观" 28 18 8 52 42 32 4 63 34)
+                   ("豫" 47 57 7 52 42 32 1 36 32)
+                   ("晋" 6 56 46 52 42 32 4 63 32)
+                   ("萃" 44 34 24 52 42 32 2 54 0)
+                   ("否" 59 9 19 52 42 32 3 63 32)
+                   ("谦" 10 60 50 33 43 53 5 54 16)
+                   ("艮" 3 13 23 33 43 53 6 9 0)
+                   ("蹇" 25 35 45 33 43 53 4 54 16)
+                   ("渐" 28 18 8 33 43 53 3 9 2)
+                   ("小过" 47 57 7 33 43 53 4 54 20)
+                   ("旅" 6 56 46 33 43 53 1 45 40)
+                   ("咸" 44 34 24 33 43 53 3 54 16)
+                   ("遯" 59 9 19 33 43 53 2 63 48)
+                   ("师" 10 60 50 55 5 15 3 18 0)
+                   ("蒙" 3 13 23 55 5 15 4 45 4)
+                   ("坎" 25 35 45 55 5 15 6 18 0)
+                   ("涣" 28 18 8 55 5 15 5 45 12)
+                   ("解" 47 57 7 55 5 15 2 36 32)
+                   ("未济" 6 56 46 55 5 15 3 45 8)
+                   ("困" 44 34 24 55 5 15 1 54 0)
+                   ("讼" 59 9 19 55 5 15 4 45 8)
+                   ("升" 10 60 50 58 48 38 4 36 20)
+                   ("蛊" 3 13 23 58 48 38 3 27 2)
+                   ("井" 25 35 45 58 48 38 5 36 20)
+                   ("巽" 28 18 8 58 48 38 6 27 0)
+                   ("恒" 47 57 7 58 48 38 3 36 16)
+                   ("鼎" 6 56 46 58 48 38 2 45 32)
+                   ("大过" 44 34 24 58 48 38 4 36 20)
+                   ("姤" 59 9 19 58 48 38 1 63 16)
+                   ("复" 10 60 50 17 27 37 1 0 16)
+                   ("颐" 3 13 23 17 27 37 4 27 10)
+                   ("屯" 25 35 45 17 27 37 2 18 8)
+                   ("益" 28 18 8 17 27 37 3 27 8)
+                   ("震" 47 57 7 17 27 37 6 36 0)
+                   ("噬嗑" 6 56 46 17 27 37 5 27 0)
+                   ("随" 44 34 24 17 27 37 3 36 4)
+                   ("无妄" 59 9 19 17 27 37 4 27 0)
+                   ("明夷" 10 60 50 36 26 16 4 18 8)
+                   ("贲" 3 13 23 36 26 16 1 9 24)
+                   ("既济" 25 35 45 36 26 16 3 18 8)
+                   ("家人" 28 18 8 36 26 16 2 27 8)
+                   ("丰" 47 57 7 36 26 16 5 18 0)
+                   ("离" 6 56 46 36 26 16 6 45 0)
+                   ("革" 44 34 24 36 26 16 4 18 8)
+                   ("同人" 59 9 19 36 26 16 3 45 0)
+                   ("临" 10 60 50 14 4 54 2 0 0)
+                   ("损" 3 13 23 14 4 54 3 9 8)
+                   ("节" 25 35 45 14 4 54 1 18 0)
+                   ("中孚" 28 18 8 14 4 54 4 9 10)
+                   ("归妹" 47 57 7 14 4 54 3 54 4)
+                   ("睽" 6 56 46 14 4 54 4 9 2)
+                   ("兑" 44 34 24 14 4 54 6 54 0)
+                   ("履" 59 9 19 14 4 54 5 9 2)
+                   ("泰" 10 60 50 41 51 1 3 0 16)
+                   ("大畜" 3 13 23 41 51 1 2 9 24)
+                   ("需" 25 35 45 41 51 1 4 0 16)
+                   ("小畜" 28 18 8 41 51 1 1 27 8)
+                   ("大壮" 47 57 7 41 51 1 4 0 0)
+                   ("大有" 6 56 46 41 51 1 3 63 0)
+                   ("夬" 44 34 24 41 51 1 5 0 16)
+                   ("乾" 59 9 19 41 51 1 6 63 0)
+                   ))
+;; 生成变量的python3代码
+;; # -*- coding:utf-8 -*-
+;; names = (
+;;     "坤", "剥", "比", "观", "豫", "晋", "萃", "否",
+;;     "谦", "艮", "蹇", "渐", "小过", "旅", "咸", "遯",
+;;     "师", "蒙", "坎", "涣", "解", "未济", "困", "讼",
+;;     "升", "蛊", "井", "巽", "恒", "鼎", "大过", "姤",
+;;     "复", "颐", "屯", "益", "震", "噬嗑", "随", "无妄",
+;;     "明夷", "贲", "既济", "家人", "丰", "离", "革", "同人",
+;;     "临", "损", "节", "中孚", "归妹", "睽", "兑", "履",
+;;     "泰", "大畜", "需", "小畜", "大壮", "大有", "夬", "乾"
+;; )
+;; base = (
+;;     (10,60,50,52,42,32),
+;;     (3,13,23,33,43,53),
+;;     (25,35,45,55,5,15),
+;;     (28,18,8,58,48,38),
+;;     (47,57,7,17,27,37),
+;;     (6,56,46,36,26,16),
+;;     (44,34,24,14,4,54),
+;;     (59,9,19,41,51,1)
+;; )
+;; dzwx = (1,1,4,2,2,4,3,3,4,5,5,4)
+;; mask = (0,32,16,8,4,2,4,56)
+;; pos = (6,1,2,3,4,5,4,3)
+;; fh = open('test.txt', 'w', encoding='utf-8')
+;; for i in range(64):
+;;     # push name first
+;;     outlist = [names[i]]
+;;     # push ganzhi for each yao(6->1)
+;;     outlist.extend(base[i%8][0:3])
+;;     outlist.extend(base[i//8][3:])
+;;     wxset = set([dzwx[x % 12] for x in outlist[1:]])
+;;     k = i
+;;     for j in range(len(mask)):
+;;         k ^= mask[j]
+;;         if k%9==0:
+;;             break
+;;     # push self position
+;;     outlist.append(pos[j])
+;;     # push base gua
+;;     outlist.append(k)
+;;     # calculate invisible wx
+;;     k = k // 9
+;;     l = 0
+;;     for j in range(6):
+;;         if dzwx[base[k][j] % 12] not in wxset:
+;;             l |= 1 << j
+;;     outlist.append(l)
+;;     fh.write('("{}" {})\n'.format(outlist[0], ' '.join([str(x) for x in outlist[1:]])))
+;; fh.close()
+;; 八卦五行
+(defconst gua-8-wuxing '(4 4 1 2 2 3 5 5))
+;; 天干五行（癸，甲，乙，。。。，壬）
+(defconst tiangan-wuxing '(1 2 2 3 3 4 4 5 5 1))
+;; 地支五行（亥，子，丑，。。。，戌）
+(defconst dizhi-wuxing '(1 1 4 2 2 4 3 3 4 5 5 4))
+;; 六亲
+(defconst liuqin-name '("兄" "孙" "财" "官" "父"))
+;; 六神
+(defconst liushen-name '("青龙" "朱雀" "勾陈" "滕蛇" "白虎" "玄武"))
+;; 计算卦的六亲
+(defun liuqin (gua &optional basegua)
+  (let (
+        (basewx (nth (floor (/ (nth 8 (nth (or basegua gua) gua-64)) 9)) gua-8-wuxing))
+        (dizhilen (length dizhi-wuxing))
+        (liuqinlen (length liuqin-name))
+        )
+    (list (mod (- (nth (mod (nth 1 (nth gua gua-64)) dizhilen) dizhi-wuxing) basewx) liuqinlen)
+          (mod (- (nth (mod (nth 2 (nth gua gua-64)) dizhilen) dizhi-wuxing) basewx) liuqinlen)
+          (mod (- (nth (mod (nth 3 (nth gua gua-64)) dizhilen) dizhi-wuxing) basewx) liuqinlen)
+          (mod (- (nth (mod (nth 4 (nth gua gua-64)) dizhilen) dizhi-wuxing) basewx) liuqinlen)
+          (mod (- (nth (mod (nth 5 (nth gua gua-64)) dizhilen) dizhi-wuxing) basewx) liuqinlen)
+          (mod (- (nth (mod (nth 6 (nth gua gua-64)) dizhilen) dizhi-wuxing) basewx) liuqinlen)
+          )
+    )
+  )
+;; 六爻排盘文字
+(defconst liuyao-text '("-- --"
+                        "-----"
+                        "世"
+                        "应"
+                        "  "))
+;; 六爻装卦
+(defun liuyao_zhuanggua (gua1 gua2 &optional date)
+  (let* ((gua0 (nth 8 (nth gua1 gua-64)))                       ;; 宫卦
+         (basewx (nth (floor (/ gua0 9)) gua-8-wuxing))         ;; 宫卦五行
+         (lq0 (liuqin gua0 gua0))                               ;; 宫卦六亲
+         (lq1 (liuqin gua1 gua0))                               ;; 本卦六亲
+         (lq2 (liuqin gua2 gua0))                               ;; 变卦六亲
+         (mask0 (nth 9 (nth gua1 gua-64)))                      ;; 伏神mask
+         (mask2 (logxor gua1 gua2))                             ;; 变爻mask
+         (pos0 6)                                               ;; 宫卦世爻位置
+         (pos1 (nth 7 (nth gua1 gua-64)))                       ;; 本卦世爻位置
+         (pos2 (nth 7 (nth gua2 gua-64)))                       ;; 变卦世爻位置
+         (adate (calendar-fate-chinese-datetime date))          ;; 卜卦时间（绝对时间）
+         (gdate (calendar-fate-gregorian-from-absolute adate))  ;; 卜卦时间（公历）
+         (sdate (calendar-fate-chinese-from-absolute adate))    ;; 卜卦时间（阳历）
+         (kong1 (cond ((> (nth 3 sdate) 50) 1)                  ;; 日空1
+                      ((> (nth 3 sdate) 40) 51)
+                      ((> (nth 3 sdate) 30) 41)
+                      ((> (nth 3 sdate) 20) 31)
+                      ((> (nth 3 sdate) 10) 21)
+                      (t 11)
+                      ))
+         (kong2 (1+ kong1))                                     ;; 日空2
+         (ls (cond ((< (mod (1- (nth 3 sdate)) 10) 2) 0)        ;; 初爻六神
+                   ((< (mod (1- (nth 3 sdate)) 10) 4) 1)
+                   ((< (mod (1- (nth 3 sdate)) 10) 5) 2)
+                   ((< (mod (1- (nth 3 sdate)) 10) 6) 3)
+                   ((< (mod (1- (nth 3 sdate)) 10) 8) 4)
+                   (t 5)
+                   ))
+         tmpi tmpj tmpk                                         ;; 临时变量
+         txt0 txt1 txt2                                         ;; 临时变量
+         )
+    (unless (= (point) (line-beginning-position))
+      (insert "\n")
+      )
+    ;; 输出公历时间
+    (insert (format "%d-%d-%d %d:%d\n"
+                    (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
+                    (nth 3 gdate) (nth 4 gdate)
+                    ))
+    ;; 输出阳历时间
+    (insert (format "%s %s %s %s 空%s%s\n"
+                    (calendar-fate-chinese-sexagesimal-name (nth 1 sdate))
+                    (calendar-fate-chinese-sexagesimal-name (nth 2 sdate))
+                    (calendar-fate-chinese-sexagesimal-name (nth 3 sdate))
+                    (calendar-fate-chinese-sexagesimal-name (nth 4 sdate))
+                    (aref chinese-fate-calendar-terrestrial-branch (% (1- kong1) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (% (1- kong2) 12))
+                    ))
+    ;; 输出日期六亲
+    (insert (format "  %s   %s   %s   %s\n"
+                    (nth (mod (- (nth (mod (nth 1 sdate) (length dizhi-wuxing)) dizhi-wuxing) basewx) (length liuqin-name)) liuqin-name)
+                    (nth (mod (- (nth (mod (nth 2 sdate) (length dizhi-wuxing)) dizhi-wuxing) basewx) (length liuqin-name)) liuqin-name)
+                    (nth (mod (- (nth (mod (nth 3 sdate) (length dizhi-wuxing)) dizhi-wuxing) basewx) (length liuqin-name)) liuqin-name)
+                    (nth (mod (- (nth (mod (nth 4 sdate) (length dizhi-wuxing)) dizhi-wuxing) basewx) (length liuqin-name)) liuqin-name)
+                    ))
+    (dotimes (tmpi 6)
+      ;; 设置宫卦、本卦、变卦当前爻的文字
+      (setq txt0 (format "%s%s%s%s"
+                         (nth (logand (ash gua0 (- 0 tmpi)) 1) liuyao-text)
+                         (calendar-fate-chinese-sexagesimal-name (nth (1+ tmpi) (nth gua0 gua-64)))
+                         (cond ((= (- 6 tmpi) pos0) (nth 2 liuyao-text))
+                               ((= (mod (- 6 tmpi) 6) (mod (+ pos0 3) 6)) (nth 3 liuyao-text))
+                               (t (nth 4 liuyao-text)))
+                         (nth (nth tmpi lq0) liuqin-name)
+                         )
+            txt1 (format "%s%s%s%s"
+                         (nth (logand (ash gua1 (- 0 tmpi)) 1) liuyao-text)
+                         (calendar-fate-chinese-sexagesimal-name (nth (1+ tmpi) (nth gua1 gua-64)))
+                         (cond ((= (- 6 tmpi) pos1) (nth 0 (nth gua0 gua-64)))
+                               ((= (mod (- 6 tmpi) 6) (mod (+ pos1 3) 6)) (nth 3 liuyao-text))
+                               (t (nth 4 liuyao-text)))
+                         (nth (nth tmpi lq1) liuqin-name)
+                         )
+            txt2 (format "%s%s%s%s"
+                         (nth (logand (ash gua2 (- 0 tmpi)) 1) liuyao-text)
+                         (calendar-fate-chinese-sexagesimal-name (nth (1+ tmpi) (nth gua2 gua-64)))
+                         (cond ((= (- 6 tmpi) pos2) (nth 2 liuyao-text))
+                               ((= (mod (- 6 tmpi) 6) (mod (+ pos2 3) 6)) (nth 3 liuyao-text))
+                               (t (nth 4 liuyao-text)))
+                         (nth (nth tmpi lq2) liuqin-name)
+                         )
+            )
+      ;; 输出当前爻六神
+      (insert (format "%s " (nth (mod (- ls tmpi -5) (length liushen-name)) liushen-name)))
+      ;; 输出宫卦当前爻文字
+      (setq tmpj (point))
+      (if (> (logand mask0 (ash 1 tmpi)) 0)
+          (progn
+            (insert txt0)
+            (add-face-text-property tmpj (point) '(:foreground "blue") nil)
+            )
+        (progn
+          (insert txt0)
+          (add-face-text-property tmpj (point) '(:foreground "gray") nil)
+          )
+        )
+      (insert "  ")
+      ;; 输出本卦当前爻文字
+      (setq tmpj (point))
+      (if (> (logand mask2 (ash 1 tmpi)) 0)
+          (progn
+            (insert txt1)
+            (add-face-text-property tmpj (point) '(:foreground "red") nil)
+            )
+        (progn
+          (insert txt1)
+          (add-face-text-property tmpj (point) '(:foreground "black") nil)
+          )
+        )
+      (insert "  ")
+      ;; 输出变卦当前爻文字
+      (setq tmpj (point))
+      (if (> (logand mask2 (ash 1 tmpi)) 0)
+          (progn
+            (insert txt2)
+            (add-face-text-property tmpj (point) '(:foreground "red") nil)
+            )
+        (progn
+          (insert txt2)
+          (add-face-text-property tmpj (point) '(:foreground "gray") nil)
+          )
+        )
+      (insert "\n")
+      )
+    )
+  )
+;; 六爻排盘
+(defun liuyao-show ()
+  (interactive)
+  (let* ((input (string-to-number (read-string "硬币背面个数（3硬币6次）："))) ;; 用户输入
+         (yao (list (mod (mod input 10) 4)
+                    (mod (mod (floor (/ input 10)) 10) 4)
+                    (mod (mod (floor (/ input 100)) 10) 4)
+                    (mod (mod (floor (/ input 1000)) 10) 4)
+                    (mod (mod (floor (/ input 10000)) 10) 4)
+                    (mod (mod (floor (/ input 100000)) 10) 4)
+                    ))                                                         ;; 各爻数据
+         (gua1 0)                                                              ;; 本卦
+         (gua2 0)                                                              ;; 变卦
+         (xtime (safe-date-to-time (org-read-date t)))                         ;; 用户输入时间
+         (ytime (decode-time xtime))                                           ;; 转换后时间
+         (logbuffer (get-buffer-create "fate-liuyao"))                         ;; 输出buffer
+         tmpi tmpj                                                             ;; 临时变量
+         )
+    ;; 计算本卦及变卦
+    (dotimes (tmpi 6)
+      (setq tmpj (nth tmpi yao)
+            gua1 (+ gua1 (ash (logand tmpj 1) tmpi))
+            gua2 (+ gua2 (ash (if (> (logxor (logand tmpj 1) (lsh tmpj -1)) 0)
+                                  (logand tmpj 1)
+                                (- 1 (logand tmpj 1))
+                                ) tmpi))
+            )
+      )
+    ;; 读取日期（输入必须包括时间）
+    (while (and (= (nth 0 xtime) 0) (= (nth 1 xtime) 0))
+      (setq xtime (safe-date-to-time (org-read-date t))
+            ytime (decode-time xtime)
+            )
+      )
+    (set-buffer logbuffer)
+    (erase-buffer)
+    (liuyao_zhuanggua gua1 gua2 (list (nth 4 ytime) (nth 3 ytime) (nth 5 ytime) (nth 2 ytime) (nth 1 ytime) (nth 0 ytime)))
+    (switch-to-buffer logbuffer)
+    )
+  )
+
 
 (fate_load_user_list)
 
