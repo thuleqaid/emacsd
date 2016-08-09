@@ -248,23 +248,65 @@
   )
 ;; 计算当前用户的扩展数据
 (defun fate-calculate-current-user ()
-  (let (x)
+  (let ((birthday1 (plist-get fate-current-user 'birthday))
+        (birthday2 (plist-get fate-current-user 'birthday-fix))
+        (ziwei-ju-tbl '((2 2 6 6 3 3 5 5 4 4 6 6)
+                        (6 6 5 5 4 4 3 3 2 2 5 5)
+                        (5 5 3 3 2 2 4 4 6 6 3 3)
+                        (3 3 4 4 6 6 2 2 5 5 4 4)
+                        (4 4 2 2 5 5 6 6 3 3 2 2)))
+        heluo lunar)
     ;; 河洛相关信息
-    (setq x (heluo_basic_calc (plist-get fate-current-user 'male) (plist-get fate-current-user 'birthday)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-tianshu (nth 0 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-dishu (nth 1 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-gua1 (nth 2 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-yao1 (nth 3 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-gua2 (nth 4 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-yao2 (nth 5 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-year-min (nth 6 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-year-mid (nth 7 x)))
-    (setq fate-current-user (plist-put fate-current-user 'heluo-year-max (nth 8 x)))
+    (setq heluo (heluo_basic_calc (plist-get fate-current-user 'male) birthday1))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-tianshu (nth 0 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-dishu (nth 1 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-gua1 (nth 2 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-yao1 (nth 3 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-gua2 (nth 4 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-yao2 (nth 5 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-year-min (nth 6 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-year-mid (nth 7 heluo)))
+    (setq fate-current-user (plist-put fate-current-user 'heluo-year-max (nth 8 heluo)))
+
+    ;; 紫微相关信息
+    (setq lunar (fate-lunar-info birthday2))
+    ;; 阴历年干支，年，月，日，时
+    (setq fate-current-user (plist-put fate-current-user 'ziwei-birthday
+                                       (list (cadr lunar)
+                                             (if (= (cadr lunar) (1+ (mod (- (nth 2 birthday2) 1984) 60)))
+                                                 (nth 2 birthday2)
+                                               (1- (nth 2 birthday2)))
+                                             (nth 2 lunar)
+                                             (nth 3 lunar)
+                                             (if (>= (nth 3 birthday2) 23)
+                                                 1
+                                               (1+ (floor (/ (1+ (nth 3 birthday2)) 2)))
+                                               )
+                                             )))
+    ;; 命宫地支
+    (setq fate-current-user (plist-put fate-current-user 'ziwei-ming
+                                       (1+ (mod (-
+                                                 (nth 2 (plist-get fate-current-user 'ziwei-birthday))
+                                                 (floor (+ 0.9 (nth 4 (plist-get fate-current-user 'ziwei-birthday))))
+                                                 -2)
+                                                12))))
+    ;; 身宫地支
+    (setq fate-current-user (plist-put fate-current-user 'ziwei-shen
+                                       (1+ (mod (+
+                                                 (nth 2 (plist-get fate-current-user 'ziwei-birthday))
+                                                 (floor (+ 0.9 (nth 4 (plist-get fate-current-user 'ziwei-birthday)))))
+                                                12))))
+    ;; 五行局
+    (setq fate-current-user (plist-put fate-current-user 'ziwei-ju
+                                       (nth (1- (plist-get fate-current-user 'ziwei-ming))
+                                            (nth (mod (1- (nth 0 (plist-get fate-current-user 'ziwei-birthday))) 5)
+                                                 ziwei-ju-tbl))))
+
     (setq fate-user-list (cons fate-current-user fate-user-list))
     )
   )
 ;; 重新计算所有用户的扩展数据
-(defun fate-recalulate-user ()
+(defun fate-recalculate-user ()
   (let ((basiclist '())
         item item2 tmpi)
     (dotimes (tmpi (length fate-user-list))
@@ -694,8 +736,8 @@
          (tmpd1 (fate-solar-item-info (nth 10 guayao) 1))
          (tmpd2 (fate-solar-item-info (1+ (nth 10 guayao)) 1))
          (curtext (heluo_msg curgua curyao))
-         (pat1 "* %d/%d/%d %d:%d:%d -- %d/%d/%d %d:%d:%d %s\n")
-         (pat2 "  + %s\n")
+         (pat1 "** %d/%d/%d %d:%d:%d -- %d/%d/%d %d:%d:%d %s\n")
+         (pat2 "   + %s\n")
          tmpi tmpj
          )
     ;; 输出全年批言
@@ -759,10 +801,11 @@
     (set-buffer logbuffer)
     (erase-buffer)
     (org-mode)
+    (insert (format "* %s\n" (plist-get fate-current-user 'name)))
     (dotimes (cnt 4)
       (heluo_msg_output (+ year-start cnt))
       )
-    (org-overview)
+    (org-content 2)
     (switch-to-buffer logbuffer)
     )
   )
