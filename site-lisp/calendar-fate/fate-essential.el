@@ -1250,6 +1250,207 @@
     )
   )
 
+;; 紫微各星曜信息列表（代号，名称，颜色，计算公式）
+(defconst ziwei_star '(;; 14主星
+                       (S0N01 "紫微" "red" '(nth (1- xday) (nth (- xju 2) '((2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 1 1 2 2 3 3 4 4 5)
+                                                                            (5 2 3 6 3 4 7 4 5 8 5 6 9 6 7 10 7 8 11 8 9 12 9 10 1 10 11 2 11 12)
+                                                                            (12 5 2 3 1 6 3 4 2 7 4 5 3 8 5 6 4 9 6 7 5 10 7 8 6 11 8 9 7 12)
+                                                                            (7 12 5 2 3 8 1 6 3 4 9 2 7 4 5 10 3 8 5 6 11 4 9 6 7 12 5 10 7 8)
+                                                                            (10 7 12 5 2 3 11 8 1 6 3 4 12 9 2 7 4 5 1 10 3 8 5 6 2 11 4 9 6 7)
+                                                                            ))))
+                       (S0N02 "天机" "red" '(1+ (mod (- (plist-get info 'S0N01) 2) 12)))
+                       (S0N03 "太阳" "red" '(1+ (mod (- (plist-get info 'S0N01) 4) 12)))
+                       (S0N04 "武曲" "red" '(1+ (mod (- (plist-get info 'S0N01) 5) 12)))
+                       (S0N05 "天同" "red" '(1+ (mod (- (plist-get info 'S0N01) 6) 12)))
+                       (S0N06 "廉贞" "red" '(1+ (mod (- (plist-get info 'S0N01) 9) 12)))
+                       (S0N11 "天府" "red" '(1+ (mod (- 17 (plist-get info 'S0N01)) 12)))
+                       (S0N12 "太阴" "red" '(1+ (mod (plist-get info 'S0N11) 12)))
+                       (S0N13 "贪狼" "red" '(1+ (mod (+ (plist-get info 'S0N11) 1) 12)))
+                       (S0N14 "巨门" "red" '(1+ (mod (+ (plist-get info 'S0N11) 2) 12)))
+                       (S0N15 "天相" "red" '(1+ (mod (+ (plist-get info 'S0N11) 3) 12)))
+                       (S0N16 "天梁" "red" '(1+ (mod (+ (plist-get info 'S0N11) 4) 12)))
+                       (S0N17 "七杀" "red" '(1+ (mod (+ (plist-get info 'S0N11) 5) 12)))
+                       (S0N18 "破军" "red" '(1+ (mod (+ (plist-get info 'S0N11) 9) 12)))
+                       ;; 甲级星
+                       ;; 乙级星
+                       ))
+(defconst ziwei_star2 '((S9N01 "将星" "black" '(nth (mod (1- sgz) 12) '(1 10 7 4 1 10 7 4 1 10 7 4)))
+                        (S9N02 "攀鞍" "black" '(1+ (mod (plist-get info2 'S9N01) 12)))
+                        (S9N03 "岁驿" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 1) 12)))
+                        (S9N04 "息神" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 2) 12)))
+                        (S9N05 "华盖" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 3) 12)))
+                        (S9N06 "劫煞" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 4) 12)))
+                        (S9N07 "灾煞" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 5) 12)))
+                        (S9N08 "天煞" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 6) 12)))
+                        (S9N09 "指背" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 7) 12)))
+                        (S9N10 "咸池" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 8) 12)))
+                        (S9N11 "月煞" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 9) 12)))
+                        (S9N12 "亡神" "black" '(1+ (mod (+ (plist-get info2 'S9N01) 10) 12)))
+                        (S9N21 "岁建" "black" '(1+ (mod (1- sgz) 12)))
+                        (S9N22 "晦气" "black" '(1+ (mod (plist-get info2 'S9N21) 12)))
+                        (S9N23 "丧门" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 1) 12)))
+                        (S9N24 "贯索" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 2) 12)))
+                        (S9N25 "官符" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 3) 12)))
+                        (S9N26 "小耗" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 4) 12)))
+                        (S9N27 "大耗" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 5) 12)))
+                        (S9N28 "龙德" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 6) 12)))
+                        (S9N29 "白虎" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 7) 12)))
+                        (S9N30 "天德" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 8) 12)))
+                        (S9N31 "吊客" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 9) 12)))
+                        (S9N32 "病符" "black" '(1+ (mod (+ (plist-get info2 'S9N21) 10) 12)))
+                        (S9N41 "博士" "black" '(plist-get info 'S1N01))
+                        (S9N42 "力士" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 1) 1) 12)))
+                        (S9N43 "青龙" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 2) 1) 12)))
+                        (S9N44 "小耗" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 3) 1) 12)))
+                        (S9N45 "将军" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 4) 1) 12)))
+                        (S9N46 "奏书" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 5) 1) 12)))
+                        (S9N47 "飞廉" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 6) 1) 12)))
+                        (S9N48 "喜神" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 7) 1) 12)))
+                        (S9N49 "病符" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 8) 1) 12)))
+                        (S9N50 "大耗" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 9) 1) 12)))
+                        (S9N51 "伏兵" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 10) 1) 12)))
+                        (S9N52 "官府" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 11) 1) 12)))
+                        ))
+;; 计算紫微各星曜的位置
+(defun ziwei_calculate ()
+  (let* ((info '())                                                      ;; 临时保存各星曜的位置
+         (result '())                                                    ;; 按宫位记录各星曜的代号
+         (info2 '())                                                     ;; 临时保存各星曜的位置（流年星曜）
+         (result2 '())                                                   ;; 按宫位记录各星曜的代号（流年星曜）
+         (xgz (car (plist-get fate-current-user 'ziwei-birthday)))       ;; 基本信息（生年干支）
+         (xyear (nth 1 (plist-get fate-current-user 'ziwei-birthday)))   ;; 基本信息（出生年份）
+         (xmonth (nth 2 (plist-get fate-current-user 'ziwei-birthday)))  ;; 基本信息（出生月份）
+         (xday (nth 3 (plist-get fate-current-user 'ziwei-birthday)))    ;; 基本信息（出生日期）
+         (xhour (nth 4 (plist-get fate-current-user 'ziwei-birthday)))   ;; 基本信息（出生时辰）
+         (xming (plist-get fate-current-user 'ziwei-ming))               ;; 基本信息（命宫位置）
+         (xshen (plist-get fate-current-user 'ziwei-shen))               ;; 基本信息（身宫位置）
+         (xju (plist-get fate-current-user 'ziwei-ju))                   ;; 基本信息（五行局）
+         (xnv (1+ (mod (+ xgz
+                          (if (plist-get fate-current-user 'male) 1 2))
+                       2)))                                              ;; 基本信息（阳男阴女1，反之2）
+         (sgz 33)                                                        ;; 基本信息（指定年干支）
+         item tmpi tmpj tmplist                                          ;; 临时变量
+         )
+    ;; 计算各星座的位置
+    (dotimes (tmpi (length ziwei_star))
+      (setq item (nth tmpi ziwei_star)
+            tmpj (eval (eval (car (last item))))
+            info (plist-put info (car item) tmpj)
+            )
+      )
+    (dotimes (tmpi (length ziwei_star2))
+      (setq item (nth tmpi ziwei_star2)
+            tmpj (eval (eval (car (last item))))
+            info2 (plist-put info2 (car item) tmpj)
+            )
+      )
+    ;; 整理结果到result数组中
+    (dotimes (tmpi 12)
+      (setq tmplist '())
+      (dotimes (tmpj (length ziwei_star))
+        (when (= (1+ tmpi) (plist-get info (car (nth tmpj ziwei_star))))
+          (setq tmplist (cons (car (nth tmpj ziwei_star)) tmplist))
+          )
+        )
+      (setq result (cons (reverse tmplist) result))
+      )
+    (setq result (reverse result))
+    (dotimes (tmpi 12)
+      (setq tmplist '())
+      (dotimes (tmpj (length ziwei_star2))
+        (when (= (1+ tmpi) (plist-get info2 (car (nth tmpj ziwei_star2))))
+          (setq tmplist (cons (car (nth tmpj ziwei_star2)) tmplist))
+          )
+        )
+      (setq result2 (cons (reverse tmplist) result2))
+      )
+    (setq result2 (reverse result2))
+    ;; ToDo: 计算12宫
+    ;; ToDo: 计算四化
+    ;; ToDo: 排列文字
+    ;; ToDo: 调用ziwei_draw
+    )
+  )
+
+;; 画紫微盘
+;; I: blocks
+;; Memo: blocks[I]是各个区块的文字
+;;       blocks[i](1<=i<=12)表示12宫的文字列数组
+;;       blocks[i][j]表示对应宫位j行的文字
+;;       要求blocks[i](1<=i<=12)中包含的文字列行数一致，并且所有文字列宽度一致
+;;       blocks[0]表示中央区块的文字列数组
+;;       要求length(blocks[0])<=2*length(blocks[1])+1，string-width(blocks[0][0])<=2*string-width(blocks[1][0])+1
+(defun ziwei_draw (blocks)
+  (let* ((cols (string-width (nth 0 (nth 1 blocks))))
+         (rows (length (nth 1 blocks)))
+         (dmytxt (make-string (1+ (* 2 cols)) ? ))
+         (hline (make-string cols ?-))
+         (logbuffer (get-buffer-create "fate-ziwei"))
+         tmpi
+         )
+    (set-buffer logbuffer)
+    (erase-buffer)
+    (insert "+" hline "+" hline "+" hline "+" hline "+\n")
+    ;; 输出第一行
+    (dotimes (tmpi rows)
+      (insert "|" (nth tmpi (nth 6 blocks))
+              "|" (nth tmpi (nth 7 blocks))
+              "|" (nth tmpi (nth 8 blocks))
+              "|" (nth tmpi (nth 9 blocks))
+              "|\n"
+              )
+      )
+    (insert "+" hline "+" hline "+" hline "+" hline "+\n")
+    ;; 输出第二行
+    (dotimes (tmpi rows)
+      (insert "|" (nth tmpi (nth 5 blocks)) "|")
+      (if (<= (length (nth 0 blocks)) tmpi)
+          (insert dmytxt)
+        (insert (nth tmpi (nth 0 blocks)) (make-string (- (string-width dmytxt) (string-width (nth tmpi (nth 0 blocks)))) ? ))
+        )
+      (insert "|" (nth tmpi (nth 10 blocks)) "|\n")
+      )
+    (insert "+" hline "+")
+    ;; 第二行和第三行的分割线位置，需要输出中央区块的内容
+    (if (<= (length (nth 0 blocks)) rows)
+        (insert dmytxt)
+      (insert (nth rows (nth 0 blocks)) (make-string (- (string-width dmytxt) (string-width (nth rows (nth 0 blocks)))) ? ))
+      )
+    (insert "+" hline "+\n")
+    ;; 输出第三行
+    (dotimes (tmpi rows)
+      (insert "|" (nth tmpi (nth 4 blocks)) "|")
+      (if (<= (length (nth 0 blocks)) (+ tmpi rows 1))
+          (insert dmytxt)
+        (insert (nth (+ tmpi rows 1) (nth 0 blocks)) (make-string (- (string-width dmytxt) (string-width (nth (+ tmpi rows 1) (nth 0 blocks)))) ? ))
+        )
+      (insert "|" (nth tmpi (nth 11 blocks)) "|\n")
+      )
+    (insert "+" hline "+" hline "+" hline "+" hline "+\n")
+    ;; 输出第四行
+    (dotimes (tmpi rows)
+      (insert "|" (nth tmpi (nth 3 blocks))
+              "|" (nth tmpi (nth 2 blocks))
+              "|" (nth tmpi (nth 1 blocks))
+              "|" (nth tmpi (nth 12 blocks))
+              "|\n"
+              )
+      )
+    (insert "+" hline "+" hline "+" hline "+" hline "+\n")
+    (switch-to-buffer logbuffer)
+    )
+  )
+;; (setq demo (list (list "abcdefg" "hijklmn" "opqrst" "uvwxyz")
+;;                  (list "abxx" "1234") (list "abxx" "1234")
+;;                  (list "abxx" "1234") (list "abxx" "1234")
+;;                  (list "abxx" "1234") (list "abxx" "1234")
+;;                  (list "abxx" "1234") (list "abxx" "1234")
+;;                  (list "abxx" "1234") (list "abxx" "1234")
+;;                  (list "abxx" "1234") (list "abxx" "1234")
+;;                  )
+;;       )
+;; (ziwei_draw demo)
+
 (fate_load_user_list)
 
 (provide 'fate-essential)
