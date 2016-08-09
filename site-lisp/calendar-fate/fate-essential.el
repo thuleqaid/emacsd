@@ -24,6 +24,7 @@
 ;;; (heluo-show &optional year)
 ;;; (liuyao-show)
 ;;; (liuyao-new)
+;;; Manually execute (fate-recalculate-user) after modifying 'fate-calculate-current-user
 
 ;;; Code:
 ;; 公历转阳历
@@ -98,10 +99,15 @@
     (load_timediff)
     )
   (if (<= (length fate-user-list) 0)
-      (fate-add-dummy-user "Anonymous" t (date-to-time (current-time-string)) (car fate-timediff-pos-choice) 120)
-    (setq fate-current-user (car fate-user-list))
+      (progn
+        (fate-add-dummy-user "Anonymous" t (date-to-time (current-time-string)) (car fate-timediff-pos-choice) 120)
+        (fate_save_user_list)
+        )
+    (progn
+      (setq fate-current-user (car fate-user-list))
+      (fate_user_list_choice)
+      )
     )
-  (fate_user_list_choice)
   )
 ;; 保存用户列表文件
 (defun fate_save_user_list ()
@@ -199,6 +205,7 @@
       (setq poslong 0)
       )
     (fate-add-dummy-user name male birth0 city poslong)
+    (fate_save_user_list)
     )
   )
 ;; 添加用户（详细字段设置）
@@ -206,8 +213,7 @@
   (let* ((birth1 (decode-time birth0))
          birth2
          delta1 delta2
-         birthday birthday2
-         x)
+         birthday birthday2)
     (unless fate-timediff-pos-choice
       (load_timediff)
       )
@@ -227,7 +233,6 @@
           birth2 (decode-time birth0))
     (setq birthday (list (nth 4 birth1) (nth 3 birth1) (nth 5 birth1) (nth 2 birth1) (nth 1 birth1) (nth 0 birth1))
           birthday2 (list (nth 4 birth2) (nth 3 birth2) (nth 5 birth2) (nth 2 birth2) (nth 1 birth2) (nth 0 birth2))
-          x (heluo_basic_calc male birthday)
           )
     ;; 基本信息
     (setq fate-current-user '())
@@ -238,7 +243,14 @@
     (setq fate-current-user (plist-put fate-current-user 'delta2 delta2))
     (setq fate-current-user (plist-put fate-current-user 'birthday birthday))
     (setq fate-current-user (plist-put fate-current-user 'birthday-fix birthday2))
+    (fate-calculate-current-user)
+    )
+  )
+;; 计算当前用户的扩展数据
+(defun fate-calculate-current-user ()
+  (let (x)
     ;; 河洛相关信息
+    (setq x (heluo_basic_calc (plist-get fate-current-user 'male) (plist-get fate-current-user 'birthday)))
     (setq fate-current-user (plist-put fate-current-user 'heluo-tianshu (nth 0 x)))
     (setq fate-current-user (plist-put fate-current-user 'heluo-dishu (nth 1 x)))
     (setq fate-current-user (plist-put fate-current-user 'heluo-gua1 (nth 2 x)))
@@ -249,6 +261,29 @@
     (setq fate-current-user (plist-put fate-current-user 'heluo-year-mid (nth 7 x)))
     (setq fate-current-user (plist-put fate-current-user 'heluo-year-max (nth 8 x)))
     (setq fate-user-list (cons fate-current-user fate-user-list))
+    )
+  )
+;; 重新计算所有用户的扩展数据
+(defun fate-recalulate-user ()
+  (let ((basiclist '())
+        item item2 tmpi)
+    (dotimes (tmpi (length fate-user-list))
+      (setq item (nth tmpi fate-user-list)
+            item2 '()
+            item2 (plist-put item2 'name (plist-get item 'name))
+            item2 (plist-put item2 'male (plist-get item 'male))
+            item2 (plist-put item2 'city (plist-get item 'city))
+            item2 (plist-put item2 'delta1 (plist-get item 'delta1))
+            item2 (plist-put item2 'delta2 (plist-get item 'delta2))
+            item2 (plist-put item2 'birthday (plist-get item 'birthday))
+            item2 (plist-put item2 'birthday-fix (plist-get item 'birthday-fix))
+            basiclist (cons item2 basiclist))
+      )
+    (setq fate-user-list '())
+    (dotimes (tmpi (length basiclist))
+      (setq fate-current-user (nth tmpi basiclist))
+      (fate-calculate-current-user)
+      )
     (fate_save_user_list)
     )
   )
@@ -392,7 +427,7 @@
             )
           ))
       )
-     ((annd (> (aref tmp2 0) 3) (< (aref tmp2 0) 6))
+     ((and (> (aref tmp2 0) 3) (< (aref tmp2 0) 6))
       (if (<= shizhi (aref tmp2 0))
           (progn
             (setq i 1)
