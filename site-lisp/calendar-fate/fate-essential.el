@@ -21,6 +21,7 @@
 ;;; (fate-add-user)
 ;;; (fate-remove-user)
 ;;; (fate-choose-current-user)
+;;; (ziwei-show)
 ;;; (heluo-show &optional year)
 ;;; (liuyao-show)
 ;;; (liuyao-new)
@@ -1277,7 +1278,52 @@
                        (S1N03 "陀罗" "blue" '(1+ (mod (- (plist-get info 'S1N01) 2) 12)))
                        (S1N04 "天魁" "blue" '(nth (mod xgz 10) '(4 2 1 12 12 2 1 2 7 4)))
                        (S1N05 "天钺" "blue" '(nth (mod xgz 10) '(6 8 9 10 10 8 9 8 3 6)))
+                       (S1N11 "天马" "blue" '(nth (mod xgz 12) '(6 3 12 9 6 3 12 9 6 3 12 9)))
+                       (S1N21 "左辅" "blue" '(1+ (mod (+ xmonth 3) 12)))
+                       (S1N22 "右弼" "blue" '(1+ (mod (- 11 xmonth) 12)))
+                       (S1N41 "文昌" "blue" '(1+ (mod (- 11 xhour) 12)))
+                       (S1N42 "文曲" "blue" '(1+ (mod (+ xhour 3) 12)))
+                       (S1N43 "火星" "blue" '(1+ (mod (+ (nth (mod xgz 12)
+                                                              '(10 3 4 2 10 3 4 2 10 3 4 2))
+                                                         xhour -2) 12)))
+                       (S1N44 "铃星" "blue" '(1+ (mod (+ (nth (mod xgz 12)
+                                                              '(11 11 11 4 11 11 11 4 11 11 11 4))
+                                                         xhour -2) 12)))
+                       (S1N45 "地劫" "blue" '(1+ (mod (+ xhour 10) 12)))
+                       (S1N46 "地空" "blue" '(1+ (mod (- 12 xhour) 12)))
+                       (S1N47 "台辅" "blue" '(1+ (mod (+ xhour 5) 12)))
+                       (S1N48 "封诰" "blue" '(1+ (mod (+ xhour 1) 12)))
                        ;; 乙级星
+                       (S2N01 "天官" "gray" '(nth (mod xgz 10) '(7 8 5 6 3 4 10 12 10 11)))
+                       (S2N02 "天福" "gray" '(nth (mod xgz 10) '(6 10 9 1 12 4 3 7 6 7)))
+                       (S2N03 "天厨" "gray" '(nth (mod xgz 10) '(12 6 7 1 6 7 9 3 7 10)))
+                       (S2N11 "天空" "gray" '(1+ (mod (mod xgz 12) 12)))
+                       (S2N12 "天哭" "gray" '(1+ (mod (- 7 (mod xgz 12)) 12)))
+                       (S2N13 "天虚" "gray" '(1+ (mod (+ 5 (mod xgz 12)) 12)))
+                       (S2N14 "龙池" "gray" '(1+ (mod (+ 3 (mod xgz 12)) 12)))
+                       (S2N15 "凤阁" "gray" '(1+ (mod (- 11 (mod xgz 12)) 12)))
+                       (S2N16 "红鸾" "gray" '(1+ (mod (- 4 (mod xgz 12)) 12)))
+                       (S2N17 "天喜" "gray" '(1+ (mod (- 10 (mod xgz 12)) 12)))
+                       (S2N18 "孤辰" "gray" '(nth (mod xgz 12) '(3 3 3 6 6 6 9 9 9 12 12 12)))
+                       (S2N19 "寡宿" "gray" '(nth (mod xgz 12) '(11 11 11 2 2 2 5 5 5 8 8 8)))
+                       (S2N1A "蜚廉" "gray" '(nth (mod xgz 12) '(2 9 10 11 6 7 8 3 4 5 12 1)))
+                       (S2N1B "破碎" "gray" '(nth (mod xgz 12) '(10 6 2 10 6 2 10 6 2 10 6 2)))
+                       (S2N1C "华盖" "gray" '(nth (mod xgz 12) '(8 5 2 11 8 5 2 11 8 5 2 11)))
+                       (S2N1D "咸池" "gray" '(nth (mod xgz 12) '(1 10 7 4 1 10 7 4 1 10 7 4)))
+                       (S2N1E "天德" "gray" '(1+ (mod (+ 8 (mod xgz 12)) 12)))
+                       (S2N1F "月德" "gray" '(1+ (mod (+ 4 (mod xgz 12)) 12)))
+                       (S2N1G "天才" "gray" '(1+ (mod (+ xming -2 (mod xgz 12)) 12)))
+                       (S2N1H "天寿" "gray" '(1+ (mod (+ xshen -2 (mod xgz 12)) 12)))
+                       (S2N21 "天刑" "gray" '(1+ (mod (+ xmonth 8) 12)))
+                       (S2N22 "天姚" "gray" '(1+ (mod xmonth 12)))
+                       (S2N23 "解神" "gray" '(nth (mod xmonth 12) '(7 9 9 11 11 1 1 3 3 5 5 7)))
+                       (S2N24 "天巫" "gray" '(nth (mod xmonth 12) '(12 6 9 3 12 6 9 3 12 6 9 3)))
+                       (S2N25 "天月" "gray" '(nth (mod xmonth 12) '(3 11 6 5 3 8 4 12 8 3 7 11)))
+                       (S2N26 "阴煞" "gray" '(nth (mod xmonth 12) '(5 3 1 11 9 7 5 3 1 11 9 7)))
+                       (S2N31 "三台" "gray" '(1+ (mod (+ xday (plist-get info 'S1N21) -2) 12)))
+                       (S2N32 "八座" "gray" '(1+ (mod (- (plist-get info 'S1N22) xday) 12)))
+                       (S2N33 "恩光" "gray" '(1+ (mod (+ xday (plist-get info 'S1N41) -3) 12)))
+                       (S2N34 "天贵" "gray" '(1+ (mod (+ xday (plist-get info 'S1N42) -3) 12)))
                        ))
 (defconst ziwei_star2 '((S9N01 "将星" "black" '(nth (mod (1- sgz) 12) '(1 10 7 4 1 10 7 4 1 10 7 4)))
                         (S9N02 "攀鞍" "black" '(1+ (mod (plist-get info2 'S9N01) 12)))
@@ -1337,7 +1383,7 @@
                         ("white" "orange")
                         ("black" "cyan")))
 ;; 计算紫微各星曜的位置
-(defun ziwei_calculate (&optional year)
+(defun ziwei_calculate (&optional mode year)
   (let* ((info '())                                                      ;; 临时保存各星曜的位置
          (result (make-vector 12 '()))                                   ;; 按宫位记录各星曜的代号
          (info2 '())                                                     ;; 临时保存各星曜的位置（流年星曜）
@@ -1353,6 +1399,7 @@
          (xnv (1+ (mod (+ xgz
                           (if (plist-get fate-current-user 'male) 1 2))
                        2)))                                              ;; 基本信息（阳男阴女1，反之2）
+         (smode (1+ (mod (1- (or mode 1)) 3)))                            ;; 指定模式（1:命盘 2:大运 3:流年）
          (syear (max (or year (nth 5 (decode-time))) xyear))             ;; 指定年份
          (sage (- (if (>= syear xyear)
                       syear
@@ -1410,8 +1457,9 @@
                               (calendar-fate-chinese-sexagesimal-name (nth 3 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
                               (calendar-fate-chinese-sexagesimal-name (nth 4 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
                               )
-                      (format "流年：%d年" syear)
                       ))
+    (when (> smode 1)
+      (setq block (append block (list (format "流年：%d年" syear)))))
     (setq txt (cons block txt))
     ;; 设置12宫文字
     (dotimes (tmpi 12)
@@ -1428,7 +1476,7 @@
         (aset block 0 (concat (substring starname 0 1) (aref block 0)))
         (aset block 1 (concat (substring starname 1 2) (aref block 1)))
         ;; 标记四化
-        (dotimes (tmpk (min 3 (- rows rows-min -1)))
+        (dotimes (tmpk (min smode 3 (- rows rows-min -1)))
           (let* ((sub4change (memq starcode (nth (mod (1- (nth tmpk hua)) 10) ziwei_4change_tbl)))
                  (subidx (- 4 (length sub4change)))
                  (subtxt (when (< subidx 4) (nth subidx ziwei_4change)))
@@ -1449,7 +1497,7 @@
       (aset block (- rows 2) (substring tmpk 0 1))
       (aset block (1- rows) (substring tmpk 1 2))
       ;; 12宫名字
-      (dotimes (tmpj (min 3 (max 2 (- rows rows-min))))
+      (dotimes (tmpj (min smode 3 (max 2 (- rows rows-min))))
         (let* ((gongname (nth (mod (- (nth tmpj gong) tmpi 1) 12) ziwei_12gong))
                (gongpos (floor (/ (- cols (string-width gongname)) 2)))
                (suffix "")
@@ -1478,7 +1526,7 @@
         )
       ;; 流年星耀
       (setq item (aref result2 tmpi))
-      (dotimes (tmpj (min (length item) (max 2 (- rows rows-min))))
+      (dotimes (tmpj (min (if (> smode 2) 999 0) (length item) (max 2 (- rows rows-min))))
         (setq starcode (nth tmpj item)
               starinfo (assoc starcode ziwei_star2)
               starname (nth 1 starinfo)
@@ -1568,16 +1616,25 @@
     (switch-to-buffer logbuffer)
     )
   )
-;; (setq demo (list (list "abcdefg" "hijklmn" "opqrst" "uvwxyz")
-;;                  (list "abxx" "1234") (list "abxx" "1234")
-;;                  (list "abxx" "1234") (list "abxx" "1234")
-;;                  (list "abxx" "1234") (list "abxx" "1234")
-;;                  (list "abxx" "1234") (list "abxx" "1234")
-;;                  (list "abxx" "1234") (list "abxx" "1234")
-;;                  (list "abxx" "1234") (list "abxx" "1234")
-;;                  )
-;;       )
-;; (ziwei_draw demo)
+;; 紫微排盘
+(defun ziwei-show ()
+  (interactive)
+  (let* ((mode-flag (y-or-n-p "查看命盘？"))
+         mode-flag2 specific-year
+         )
+    (if mode-flag
+        (ziwei_calculate)
+      (progn
+        (setq mode-flag2 (y-or-n-p "查看流年盘？")
+              specific-year (string-to-number (read-from-minibuffer "年份：")))
+        (if mode-flag2
+            (ziwei_calculate 3 specific-year)
+          (ziwei_calculate 2 specific-year)
+          )
+        )
+      )
+    )
+  )
 
 (fate_load_user_list)
 
