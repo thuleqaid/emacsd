@@ -1272,6 +1272,11 @@
                        (S0N17 "七杀" "red" '(1+ (mod (+ (plist-get info 'S0N11) 5) 12)))
                        (S0N18 "破军" "red" '(1+ (mod (+ (plist-get info 'S0N11) 9) 12)))
                        ;; 甲级星
+                       (S1N01 "禄存" "blue" '(nth (mod xgz 10) '(1 3 4 6 7 6 7 9 10 12)))
+                       (S1N02 "擎羊" "blue" '(1+ (mod (plist-get info 'S1N01) 12)))
+                       (S1N03 "陀罗" "blue" '(1+ (mod (- (plist-get info 'S1N01) 2) 12)))
+                       (S1N04 "天魁" "blue" '(nth (mod xgz 10) '(4 2 1 12 12 2 1 2 7 4)))
+                       (S1N05 "天钺" "blue" '(nth (mod xgz 10) '(6 8 9 10 10 8 9 8 3 6)))
                        ;; 乙级星
                        ))
 (defconst ziwei_star2 '((S9N01 "将星" "black" '(nth (mod (1- sgz) 12) '(1 10 7 4 1 10 7 4 1 10 7 4)))
@@ -1311,12 +1316,32 @@
                         (S9N51 "伏兵" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 10) 1) 12)))
                         (S9N52 "官府" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 11) 1) 12)))
                         ))
+;; 紫微12宫文字
+(defconst ziwei_12gong '("命宫" "兄弟" "夫妻" "子女" "财帛" "疾厄" "迁移" "奴仆" "官禄" "田宅" "福德" "父母" "身"))
+;; 四化文字
+(defconst ziwei_4change '("禄" "权" "科" "忌"))
+;; 四化表格
+(defconst ziwei_4change_tbl '((S0N06 S0N18 S0N04 S0N03)
+                              (S0N02 S0N16 S0N01 S0N12)
+                              (S0N05 S0N02 S1N41 S0N06)
+                              (S0N12 S0N05 S0N02 S0N14)
+                              (S0N13 S0N12 S1N22 S0N02)
+                              (S0N04 S0N13 S0N16 S1N42)
+                              (S0N03 S0N04 S0N12 S0N05)
+                              (S0N14 S0N03 S1N42 S1N41)
+                              (S0N16 S0N01 S1N21 S0N04)
+                              (S0N18 S0N14 S0N12 S0N13)
+                              ))
+;; 四化对应颜色（命盘、大运、流年）
+(defconst ziwei_color '(("white" "blue")
+                        ("white" "orange")
+                        ("black" "cyan")))
 ;; 计算紫微各星曜的位置
-(defun ziwei_calculate ()
+(defun ziwei_calculate (&optional year)
   (let* ((info '())                                                      ;; 临时保存各星曜的位置
-         (result '())                                                    ;; 按宫位记录各星曜的代号
+         (result (make-vector 12 '()))                                   ;; 按宫位记录各星曜的代号
          (info2 '())                                                     ;; 临时保存各星曜的位置（流年星曜）
-         (result2 '())                                                   ;; 按宫位记录各星曜的代号（流年星曜）
+         (result2 (make-vector 12 '()))                                  ;; 按宫位记录各星曜的代号（流年星曜）
          (xgz (car (plist-get fate-current-user 'ziwei-birthday)))       ;; 基本信息（生年干支）
          (xyear (nth 1 (plist-get fate-current-user 'ziwei-birthday)))   ;; 基本信息（出生年份）
          (xmonth (nth 2 (plist-get fate-current-user 'ziwei-birthday)))  ;; 基本信息（出生月份）
@@ -1328,8 +1353,30 @@
          (xnv (1+ (mod (+ xgz
                           (if (plist-get fate-current-user 'male) 1 2))
                        2)))                                              ;; 基本信息（阳男阴女1，反之2）
-         (sgz 33)                                                        ;; 基本信息（指定年干支）
-         item tmpi tmpj tmplist                                          ;; 临时变量
+         (syear (max (or year (nth 5 (decode-time))) xyear))             ;; 指定年份
+         (sage (- (if (>= syear xyear)
+                      syear
+                    xyear)
+                  xyear -1))                                             ;; 制定年龄
+         (sgz (1+ (mod (+ xgz sage -2) 60)))                             ;; 指定年干支
+         (gz3 (+ 3 (* 12 (mod (1- xgz) 5))))                             ;; 寅宫干支
+         (direction (- (* 2 xnv) 3))                                     ;; 排宫方向
+         (gong (list xming
+                     (1+ (mod (1- (- xming (* direction (floor (/ (- sage xju) 10))))) 12))
+                     (1+ (mod (1- (1+ (mod (- syear 1984) 60))) 12))
+                     ))                                                  ;; 命宫位置（命盘，大运，流年）
+         (hua (list xgz
+                    (+ gz3 (nth 1 gong) (if (>= (nth 1 gong) 3) -3 9))
+                    (1+ (mod (- syear 1984) 60))
+                    ))                                                   ;; 4化年份（命盘，大运，流年）
+         (rows-min 5)                                                    ;; 一个区块的最小行数
+         (cols-min 12)                                                   ;; 一个区块的最小宽度（一个汉字的宽度为2）
+         (rows (max rows-min 8))                                         ;; 一个区块的行数
+         (cols (max cols-min 20))                                        ;; 一个区块的宽度
+         (block (make-vector rows ""))                                   ;; 一个区块的文字
+         (txt '())                                                       ;; 组装好的各区块的文字
+         starcode starinfo starname starcolor                            ;; 星耀信息
+         item tmpi tmpj tmpk                                             ;; 临时变量
          )
     ;; 计算各星座的位置
     (dotimes (tmpi (length ziwei_star))
@@ -1337,38 +1384,119 @@
             tmpj (eval (eval (car (last item))))
             info (plist-put info (car item) tmpj)
             )
+      (aset result (1- tmpj) (append (aref result (1- tmpj)) (list (car item))))
       )
     (dotimes (tmpi (length ziwei_star2))
       (setq item (nth tmpi ziwei_star2)
             tmpj (eval (eval (car (last item))))
             info2 (plist-put info2 (car item) tmpj)
             )
+      (aset result2 (1- tmpj) (append (aref result2 (1- tmpj)) (list (car item))))
       )
-    ;; 整理结果到result数组中
+    ;; 设置中央区块文字
+    (setq block (list (format "姓名：%s" (plist-get fate-current-user 'name))
+                      (format "公历：%d年%d月%d日 %d:%d:%d"
+                              (nth 2 (plist-get fate-current-user 'birthday-fix))
+                              (nth 0 (plist-get fate-current-user 'birthday-fix))
+                              (nth 1 (plist-get fate-current-user 'birthday-fix))
+                              (nth 3 (plist-get fate-current-user 'birthday-fix))
+                              (nth 4 (plist-get fate-current-user 'birthday-fix))
+                              (nth 5 (plist-get fate-current-user 'birthday-fix))
+                              )
+                      (format "阴历：%d年%d月%d日%s时" xyear xmonth xday (aref chinese-fate-calendar-terrestrial-branch (mod (1- xhour) 12)))
+                      (format "八字：%s %s %s %s"
+                              (calendar-fate-chinese-sexagesimal-name (nth 1 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 2 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 3 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 4 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
+                              )
+                      (format "流年：%d年" syear)
+                      ))
+    (setq txt (cons block txt))
+    ;; 设置12宫文字
     (dotimes (tmpi 12)
-      (setq tmplist '())
-      (dotimes (tmpj (length ziwei_star))
-        (when (= (1+ tmpi) (plist-get info (car (nth tmpj ziwei_star))))
-          (setq tmplist (cons (car (nth tmpj ziwei_star)) tmplist))
+      (setq item (aref result tmpi)
+            block (make-vector rows ""))
+      ;; 设置星耀及四化
+      (dotimes (tmpj (min (/ cols 2) (length item)))
+        (setq starcode (nth tmpj item)
+              starinfo (assoc starcode ziwei_star)
+              starname (nth 1 starinfo)
+              starcolor (nth 2 starinfo)
+              )
+        (add-face-text-property 0 2 (list :foreground starcolor) nil starname)
+        (aset block 0 (concat (substring starname 0 1) (aref block 0)))
+        (aset block 1 (concat (substring starname 1 2) (aref block 1)))
+        ;; 标记四化
+        (dotimes (tmpk (min 3 (- rows rows-min -1)))
+          (let* ((sub4change (memq starcode (nth (mod (1- (nth tmpk hua)) 10) ziwei_4change_tbl)))
+                 (subidx (- 4 (length sub4change)))
+                 (subtxt (when (< subidx 4) (nth subidx ziwei_4change)))
+                 )
+            (if (< subidx 4)
+                (progn
+                  (add-face-text-property 0 1 (list :foreground (nth 0 (nth tmpk ziwei_color)) :background (nth 1 (nth tmpk ziwei_color))) nil subtxt)
+                  )
+              (setq subtxt (make-string (string-width (nth 0 ziwei_4change)) ? ))
+              )
+            (aset block (+ 2 tmpk) (concat subtxt (aref block (+ 2 tmpk))))
+            )
           )
         )
-      (setq result (cons (reverse tmplist) result))
-      )
-    (setq result (reverse result))
-    (dotimes (tmpi 12)
-      (setq tmplist '())
-      (dotimes (tmpj (length ziwei_star2))
-        (when (= (1+ tmpi) (plist-get info2 (car (nth tmpj ziwei_star2))))
-          (setq tmplist (cons (car (nth tmpj ziwei_star2)) tmplist))
+      ;; 12宫干支
+      (setq tmpj (if (< tmpi 2) (+ gz3 tmpi 10) (+ gz3 tmpi -2))
+            tmpk (calendar-fate-chinese-sexagesimal-name tmpj))
+      (aset block (- rows 2) (substring tmpk 0 1))
+      (aset block (1- rows) (substring tmpk 1 2))
+      ;; 12宫名字
+      (dotimes (tmpj (min 3 (max 2 (- rows rows-min))))
+        (let* ((gongname (nth (mod (- (nth tmpj gong) tmpi 1) 12) ziwei_12gong))
+               (gongpos (floor (/ (- cols (string-width gongname)) 2)))
+               (suffix "")
+               )
+          ;; 宫名
+          (if (and (= 0 tmpj) (= tmpi (1- xshen)))
+              (setq gongname (concat (car (last ziwei_12gong)) (substring gongname 0 1)))
+            )
+          (add-face-text-property 0 2 (list :foreground (nth 0 (nth tmpj ziwei_color)) :background (nth 1 (nth tmpj ziwei_color))) nil gongname)
+          ;; 宫名后情报
+          (cond ((= tmpj 0)
+                 (setq suffix (format "%d-" (+ xju (* 10 (mod (* direction (- xming tmpi 1)) 12)))))
+                 )
+                ((= tmpj 1)
+                 )
+                ((= tmpj 2)
+                 ))
+          ;; 组装宫名及宫名后情报
+          (setq gongpos (- gongpos (string-width (aref block (- rows tmpj 1)))))
+          (if (>= gongpos (string-width suffix))
+              (setq gongname (concat gongname suffix (make-string (- gongpos (string-width suffix)) ? )))
+            (setq gongname (concat gongname (make-string gongpos ? )))
+            )
+          (aset block (- rows tmpj 1) (concat gongname (aref block (- rows tmpj 1))))
           )
         )
-      (setq result2 (cons (reverse tmplist) result2))
+      ;; 流年星耀
+      (setq item (aref result2 tmpi))
+      (dotimes (tmpj (min (length item) (max 2 (- rows rows-min))))
+        (setq starcode (nth tmpj item)
+              starinfo (assoc starcode ziwei_star2)
+              starname (nth 1 starinfo)
+              starcolor (nth 2 starinfo)
+              )
+        (add-face-text-property 0 2 (list :foreground starcolor) nil starname)
+        (aset block (- rows tmpj 1) (concat
+                                     starname
+                                     (make-string (- cols (string-width starname) (string-width (aref block (- rows tmpj 1)))) ? )
+                                     (aref block (- rows tmpj 1))))
+        )
+      ;; 补足宽度
+      (dotimes (tmpj rows)
+        (aset block tmpj (concat (make-string (- cols (string-width (aref block tmpj))) ? ) (aref block tmpj)))
+        )
+      (setq txt (append txt (list (append block nil))))
       )
-    (setq result2 (reverse result2))
-    ;; ToDo: 计算12宫
-    ;; ToDo: 计算四化
-    ;; ToDo: 排列文字
-    ;; ToDo: 调用ziwei_draw
+    (ziwei_draw txt)
     )
   )
 

@@ -186,8 +186,8 @@ N congruent to 1 gives the first name, N congruent to 2 gives the second name,
 
 (defun calendar-fate-chinese-sexagesimal-name (n)
   (format "%s%s"
-          (aref chinese-fate-calendar-celestial-stem (% (1- n) 10))
-          (aref chinese-fate-calendar-terrestrial-branch (% (1- n) 12))))
+          (aref chinese-fate-calendar-celestial-stem (mod (1- n) 10))
+          (aref chinese-fate-calendar-terrestrial-branch (mod (1- n) 12))))
 
 (defconst chinese-fate-calendar-celestial-stem
   ["甲" "乙" "丙" "丁" "戊" "己" "庚" "辛" "壬" "癸"])
