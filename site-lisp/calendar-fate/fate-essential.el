@@ -1362,6 +1362,10 @@
                         (S9N51 "伏兵" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 10) 1) 12)))
                         (S9N52 "官府" "black" '(1+ (mod (- (plist-get info2 'S9N41) (* (- (* xnv 2) 3) 11) 1) 12)))
                         ))
+;; 阴历12月文字
+(defconst lunar_monthname '("正月" "二月" "三月" "四月" "五月" "六月"
+                            "七月" "八月" "九月" "十月" "冬月" "腊月"
+                            ))
 ;; 紫微12宫文字
 (defconst ziwei_12gong '("命宫" "兄弟" "夫妻" "子女" "财帛" "疾厄" "迁移" "奴仆" "官禄" "田宅" "福德" "父母" "身"))
 ;; 四化文字
@@ -1412,6 +1416,10 @@
                      (1+ (mod (1- (- xming (* direction (floor (/ (- sage xju) 10))))) 12))
                      (1+ (mod (1- (1+ (mod (- syear 1984) 60))) 12))
                      ))                                                  ;; 命宫位置（命盘，大运，流年）
+         (firstmonth (1+ (mod (1-
+                               (+ (- (nth 2 gong) (floor (+ xmonth 0.9)))
+                                  xhour))
+                              12)))                                      ;; 流正月宫位
          (hua (list xgz
                     (+ gz3 (nth 1 gong) (if (>= (nth 1 gong) 3) -3 9))
                     (1+ (mod (- syear 1984) 60))
@@ -1512,8 +1520,10 @@
                  (setq suffix (format "%d-" (+ xju (* 10 (mod (* direction (- xming tmpi 1)) 12)))))
                  )
                 ((= tmpj 1)
+                 (setq suffix (format "%d" (+ syear (mod (- tmpi firstmonth -1) 12))))
                  )
                 ((= tmpj 2)
+                 (setq suffix (nth (mod (- tmpi firstmonth -1) 12) lunar_monthname))
                  ))
           ;; 组装宫名及宫名后情报
           (setq gongpos (- gongpos (string-width (aref block (- rows tmpj 1)))))
