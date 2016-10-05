@@ -82,6 +82,7 @@
   (require 'init-markdown)
   (require 'init-csv)
   (require 'init-javascript)
+  (require 'init-rust)
   (require 'init-org)
   (require 'init-nxml)
   (require 'init-html)
