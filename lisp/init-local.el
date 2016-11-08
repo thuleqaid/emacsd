@@ -51,7 +51,8 @@
 ;; ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 
 (defun thuleqaid/indent-tabs-mode-setup ()
-  (setq indent-tabs-mode t))
+  (setq indent-tabs-mode t)
+  (c-set-style "stroustrup"))
 (add-hook 'c-mode-hook 'thuleqaid/indent-tabs-mode-setup)
 
 (ac-config-default)
