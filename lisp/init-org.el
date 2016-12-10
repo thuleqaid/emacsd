@@ -439,4 +439,28 @@ typical word processor."
 (require 'ox-reveal)
 (setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
 
+;; Use local copy of MathJax, use CDN version when lack of local files
+(when (file-exists-p (expand-file-name "MathJax" user-emacs-directory))
+  ;URL for CDN version
+  (setq backup-mathjax-file (cadar org-html-mathjax-options))
+  ; Local directory for MathJax
+  (setq local-mathjax-root (format "file:///%s" (expand-file-name "MathJax" user-emacs-directory)))
+  ; MathJax filename with options after filename
+  (setq local-mathjax-file (substring backup-mathjax-file (string-match "MathJax\\.js" backup-mathjax-file)))
+  ; JavaScript after loading local version of MathJax
+  (setq local-mathjax-contrib (format "
+<script>
+if (window.MathJax) {
+  document.write('<script type=\"text\/x-mathjax-config\">MathJax.Ajax.config.path[\"Contrib\"] = \"%s/contrib\";<\\\/script>');
+  } else {
+  document.write('<script src=\"%s\"><\\\/script>');
+}
+</script>
+" local-mathjax-root backup-mathjax-file))
+  ; Update MathJax URL
+  (setq org-html-mathjax-options (cons (list 'path (format "%s/%s" local-mathjax-root local-mathjax-file)) (cdr org-html-mathjax-options)))
+  ; Update HTML template for loading MathJax
+  (setq org-html-mathjax-template (format "%s%s" org-html-mathjax-template local-mathjax-contrib))
+)
+
 (provide 'init-org)
