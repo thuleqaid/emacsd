@@ -2,7 +2,7 @@
 # name: plantuml
 # key: plantuml_
 # --
-#+begin_src plantuml :file ${1:file} :cmdline -charset UTF-8 :cache yes
+#+begin_src plantuml :file `(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`/`(format-time-string "%Y%m%d%H%M%S")`.png :cmdline -charset UTF-8 :cache yes
 skinparam defaultFontName "Microsoft YaHei"
 $0
 #+end_src

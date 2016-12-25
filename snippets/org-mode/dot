@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: dot
+# key: dot_
+# --
+#+begin_src dot :file `(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`/`(format-time-string "%Y%m%d%H%M%S")`.png :cmdline -Tpng :cache yes
+digraph G {
+    edge [fontname="Microsoft YaHei"];
+    node [fontname="Microsoft YaHei"];
+    $0
+}
+#+end_src

@@ -2,10 +2,10 @@
 # name: gnuplot
 # key: gnuplot_
 # --
-#+begin_src gnuplot :file ${1:file} :cache yes
+#+begin_src gnuplot :file `(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`/`(format-time-string "%Y%m%d%H%M%S")`.png :cache yes
 reset
 set encoding utf8
-set term svg font "MSYH"
+set term png font "MSYH"
 set title "Title"
 set xlabel "X"
 set ylabel "Y"
