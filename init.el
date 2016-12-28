@@ -75,6 +75,11 @@
 (require 'init-whitespace)
 (require 'init-fci)
 
+;; system encoding
+(setq ffmpeg-cmd-encoding 'japanese-shift-jis)
+;; ffmpeg -list_devices true -f dshow -i dummy 2>devices.txt
+(setq ffmpeg-audio-device "マイク配列 (Realtek High Definition ")
+
 (unless *source-view-only*
   (require 'init-vc)
   (require 'init-git)
@@ -82,15 +87,17 @@
   (require 'init-markdown)
   (require 'init-csv)
   (require 'init-javascript)
-  (require 'init-rust)
-  (require 'init-org)
   (require 'init-nxml)
   (require 'init-html)
   (require 'init-css)
   (require 'init-paredit)
   (require 'init-lisp)
   (require 'init-slime)
-  (require 'init-common-lisp))
+  (require 'init-common-lisp)
+  ;; Require for init-rust: 1. `cargo install racer` and make sure racer in environment variable "PATH" 2. set environment variable "RUST_SRC_PATH" to rust source path, e.g. "c:\PortableSoft\home\rustc-1.13.0\src"
+  (require 'init-rust)
+  ;; Require for init-org: 1. set ffmpeg-cmd-encoding and ffmpeg-audio-device
+  (require 'init-org))
 
 (require 'init-misc)
 
