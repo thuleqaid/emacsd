@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "hl-sexp" "hl-sexp.el" (22213 51696 647560
-;;;;;;  668000))
+;;;### (autoloads nil "hl-sexp" "hl-sexp.el" (22629 48895 378612
+;;;;;;  595000))
 ;;; Generated autoloads from hl-sexp.el
 
 (autoload 'hl-sexp-mode "hl-sexp" "\

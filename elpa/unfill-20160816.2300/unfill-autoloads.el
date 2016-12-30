@@ -3,7 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "unfill" "unfill.el" (22516 15003 160050 915000))
+;;;### (autoloads nil "unfill" "unfill.el" (22629 48300 859285 577000))
 ;;; Generated autoloads from unfill.el
 
 (autoload 'unfill-paragraph "unfill" "\
@@ -24,10 +24,6 @@ Toggle filling/unfilling of the current region, or current paragraph if no regio
 \(fn)" t nil)
 
 (define-obsolete-function-alias 'toggle-fill-unfill 'unfill-toggle)
-
-;;;***
-
-;;;### (autoloads nil nil ("unfill-pkg.el") (22516 15003 203489 614000))
 
 ;;;***
 

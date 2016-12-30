@@ -500,12 +500,13 @@ typical word processor."
     )
   )
 
-(require 'ox-reveal)
+(require-package 'ox-reveal)
 (setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
 
 ;; Use local copy of MathJax, use CDN version when lack of local files
 (when (file-exists-p (expand-file-name "MathJax" user-emacs-directory))
   ;URL for CDN version
+  (require 'ox-html)
   (setq backup-mathjax-file (cadar org-html-mathjax-options))
   ; Local directory for MathJax
   (setq local-mathjax-root (format "file:///%s" (expand-file-name "MathJax" user-emacs-directory)))

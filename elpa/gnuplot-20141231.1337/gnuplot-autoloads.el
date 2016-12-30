@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "gnuplot" "gnuplot.el" (22213 51863 205194
-;;;;;;  653000))
+;;;### (autoloads nil "gnuplot" "gnuplot.el" (22629 52215 233190
+;;;;;;  984000))
 ;;; Generated autoloads from gnuplot.el
 
 (autoload 'gnuplot-mode "gnuplot" "\
@@ -14,7 +14,7 @@ work with newer and older versions.
 
 Report bugs in `gnuplot-mode' using \\[gnuplot-bug-report].
 
-                            ------O------
+			    ------O------
 
 Gnuplot-mode includes two different systems for keyword
 completion and documentation lookup: a newer one,
@@ -33,7 +33,7 @@ provide `eldoc-mode' syntax hints as you type.  This requires a
 separate file of strings, `gnuplot-eldoc.el', which is also
 provided by recent Gnuplot distributions.
 
-                            ------O------
+			    ------O------
 
 There are several known shortcomings of `gnuplot-mode', version 0.5g
 and up.  Many of the shortcomings involve the graphical interface
@@ -55,7 +55,7 @@ a list:
  5.  The GUI handling of \"hidden3d\" is flaky and \"cntrparam\" is
      unsupported.
 
-                            ------O------
+			    ------O------
 
  Key bindings:
  \\{gnuplot-mode-map}
@@ -84,7 +84,7 @@ Run an inferior Gnuplot process.
 ;;;***
 
 ;;;### (autoloads nil nil ("gnuplot-context.el" "gnuplot-gui.el"
-;;;;;;  "gnuplot-pkg.el") (22213 51863 352594 912000))
+;;;;;;  "gnuplot-pkg.el") (22629 52215 340631 902000))
 
 ;;;***
 

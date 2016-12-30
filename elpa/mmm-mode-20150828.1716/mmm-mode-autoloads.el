@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "mmm-erb" "mmm-erb.el" (22213 51334 135285
-;;;;;;  938000))
+;;;### (autoloads nil "mmm-erb" "mmm-erb.el" (22629 48294 967252
+;;;;;;  604000))
 ;;; Generated autoloads from mmm-erb.el
 
 (autoload 'html-erb-mode "mmm-erb" "\
@@ -19,8 +19,8 @@
 
 ;;;***
 
-;;;### (autoloads nil "mmm-vars" "mmm-vars.el" (22213 51333 855284
-;;;;;;  55000))
+;;;### (autoloads nil "mmm-vars" "mmm-vars.el" (22629 48294 299248
+;;;;;;  867000))
 ;;; Generated autoloads from mmm-vars.el
 
 (autoload 'mmm-add-classes "mmm-vars" "\
@@ -34,7 +34,7 @@ Add the submode classes CLASSES to `mmm-classes-alist'.
 ;;;;;;  "mmm-compat.el" "mmm-cweb.el" "mmm-defaults.el" "mmm-mason.el"
 ;;;;;;  "mmm-mode-pkg.el" "mmm-mode.el" "mmm-myghty.el" "mmm-noweb.el"
 ;;;;;;  "mmm-region.el" "mmm-rpm.el" "mmm-sample.el" "mmm-univ.el"
-;;;;;;  "mmm-utils.el") (22213 51334 791502 686000))
+;;;;;;  "mmm-utils.el") (22629 48296 501089 989000))
 
 ;;;***
 

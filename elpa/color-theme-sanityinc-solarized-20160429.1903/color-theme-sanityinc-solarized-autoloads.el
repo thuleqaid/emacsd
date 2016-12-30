@@ -4,7 +4,7 @@
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
 ;;;### (autoloads nil "color-theme-sanityinc-solarized" "color-theme-sanityinc-solarized.el"
-;;;;;;  (22328 33756 908427 908000))
+;;;;;;  (22629 48227 718876 274000))
 ;;; Generated autoloads from color-theme-sanityinc-solarized.el
 
 (when (boundp 'custom-theme-load-path) (add-to-list 'custom-theme-load-path (file-name-as-directory (file-name-directory load-file-name))))
@@ -23,7 +23,7 @@ Apply the light solarized theme.
 
 ;;;### (autoloads nil nil ("color-theme-sanityinc-solarized-pkg.el"
 ;;;;;;  "sanityinc-solarized-dark-theme.el" "sanityinc-solarized-light-theme.el")
-;;;;;;  (22328 33757 22674 828000))
+;;;;;;  (22629 48228 23473 749000))
 
 ;;;***
 

@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "skewer-less" "skewer-less.el" (22516 15025
-;;;;;;  868182 480000))
+;;;### (autoloads nil "skewer-less" "skewer-less.el" (22629 48876
+;;;;;;  790508 572000))
 ;;; Generated autoloads from skewer-less.el
 
 (autoload 'skewer-less-mode "skewer-less" "\
@@ -24,11 +24,6 @@ When skewer appears to be active, ask for a reload.
 Process the region from BEG to END with \"lessc\", and pass it to `skewer-css'.
 
 \(fn BEG END)" t nil)
-
-;;;***
-
-;;;### (autoloads nil nil ("skewer-less-pkg.el") (22516 15025 912438
-;;;;;;  475000))
 
 ;;;***
 

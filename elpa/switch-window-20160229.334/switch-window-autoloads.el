@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "switch-window" "switch-window.el" (22242 56343
-;;;;;;  468269 105000))
+;;;### (autoloads nil "switch-window" "switch-window.el" (22629 48285
+;;;;;;  351198 791000))
 ;;; Generated autoloads from switch-window.el
 
 (autoload 'switch-window-then-delete "switch-window" "\

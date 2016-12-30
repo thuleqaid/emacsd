@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "chinese-wbim" "chinese-wbim.el" (22215 46464
-;;;;;;  352669 121000))
+;;;### (autoloads nil "chinese-wbim" "chinese-wbim.el" (22629 52236
+;;;;;;  145308 11000))
 ;;; Generated autoloads from chinese-wbim.el
 
 (autoload 'chinese-wbim-create-word-file "chinese-wbim" "\
@@ -23,7 +23,7 @@
 ;;;;;;  "chinese-wbim-eb-map.el" "chinese-wbim-eb.el" "chinese-wbim-extra.el"
 ;;;;;;  "chinese-wbim-pkg.el" "chinese-wbim-py.el" "chinese-wbim-table.el"
 ;;;;;;  "chinese-wbim-wb-gb2312.el" "chinese-wbim-wb-gbk.el" "chinese-wbim-wb.el")
-;;;;;;  (22215 46464 786010 705000))
+;;;;;;  (22629 52236 372222 877000))
 
 ;;;***
 
