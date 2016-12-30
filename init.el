@@ -75,6 +75,10 @@
 (require 'init-whitespace)
 (require 'init-fci)
 
+;; agenda path
+(setq org-agenda-path (expand-file-name "agenda/" user-emacs-directory))
+;; dairy path
+(setq org-diary-path (expand-file-name user-emacs-directory))
 ;; system encoding
 (setq ffmpeg-cmd-encoding 'japanese-shift-jis)
 ;; ffmpeg -list_devices true -f dshow -i dummy 2>devices.txt
@@ -96,7 +100,7 @@
   (require 'init-common-lisp)
   ;; Require for init-rust: 1. `cargo install racer` and make sure racer in environment variable "PATH" 2. set environment variable "RUST_SRC_PATH" to rust source path, e.g. "c:\PortableSoft\home\rustc-1.13.0\src"
   (require 'init-rust)
-  ;; Require for init-org: 1. set ffmpeg-cmd-encoding and ffmpeg-audio-device
+  ;; Require for init-org: 1. set org-agenda-path and org-diary-path 2. set ffmpeg-cmd-encoding and ffmpeg-audio-device
   (require 'init-org))
 
 (require 'init-misc)

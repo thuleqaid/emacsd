@@ -133,23 +133,6 @@
       (remove-hook 'pre-command-hook #'hl-sexp-unhighlight))))
 
 
-
-;;; Support byte-compilation in a sub-process, as
-;;; required by highlight-cl
-
-(defun sanityinc/byte-compile-file-batch (filename)
-  "Byte-compile FILENAME in batch mode, ie. a clean sub-process."
-  (interactive "fFile to byte-compile in batch mode: ")
-  (let ((emacs (car command-line-args)))
-    (compile
-     (concat
-      emacs " "
-      (mapconcat
-       'shell-quote-argument
-       (list "-Q" "-batch" "-f" "batch-byte-compile" filename)
-       " ")))))
-
-
 ;; ----------------------------------------------------------------------------
 ;; Enable desired features for all lisp modes
 ;; ----------------------------------------------------------------------------
@@ -158,14 +141,10 @@
 (after-load 'redshank
   (diminish 'redshank-mode))
 
-(maybe-require-package 'aggressive-indent)
-
 (defun sanityinc/lisp-setup ()
   "Enable features useful in any Lisp mode."
   (rainbow-delimiters-mode t)
   (enable-paredit-mode)
-  (when (fboundp 'aggressive-indent-mode)
-    (aggressive-indent-mode))
   (turn-on-eldoc-mode)
   (redshank-mode)
   (add-hook 'after-save-hook #'check-parens nil t))
@@ -200,10 +179,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.emacs-project\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("archive-contents\\'" . emacs-lisp-mode))
-
-(require-package 'cl-lib-highlight)
-(after-load 'lisp-mode
-  (cl-lib-highlight-initialize))
 
 ;; ----------------------------------------------------------------------------
 ;; Delete .elc files when reverting the .el from VC or magit
@@ -274,32 +249,6 @@
 ;; ERT
 (after-load 'ert
   (define-key ert-results-mode-map (kbd "g") 'ert-results-rerun-all-tests))
-
-
-(defun sanityinc/cl-libify-next ()
-  "Find next symbol from 'cl and replace it with the 'cl-lib equivalent."
-  (interactive)
-  (let ((case-fold-search nil))
-    (re-search-forward
-     (concat
-      "("
-      (regexp-opt
-       ;; Not an exhaustive list
-       '("loop" "incf" "plusp" "first" "decf" "minusp" "assert"
-         "case" "destructuring-bind" "second" "third" "defun*"
-         "defmacro*" "return-from" "labels" "cadar" "fourth"
-         "cadadr") t)
-      "\\_>")))
-  (let ((form (match-string 1)))
-    (backward-sexp)
-    (cond
-     ((string-match "^\\(defun\\|defmacro\\)\\*$")
-      (kill-sexp)
-      (insert (concat "cl-" (match-string 1))))
-     (t
-      (insert "cl-")))
-    (when (fboundp 'aggressive-indent-indent-defun)
-      (aggressive-indent-indent-defun))))
 
 
 (provide 'init-lisp)
