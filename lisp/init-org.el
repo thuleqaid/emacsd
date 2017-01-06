@@ -474,7 +474,7 @@ typical word processor."
   (when (executable-find "ffmpeg")
     (let ((cmdfmt "ffmpeg -f dshow -i audio=\"%s\" %s")
           (resdir (file-name-sans-extension (buffer-file-name)))
-          (docfmt "\n#+BEGIN_HTML\n<audio src=\"%s\" controls=\"controls\"></audio>\n#+END_HTML\n")
+          (docfmt "\n#+BEGIN_EXPORT html\n<audio src=\"%s\" controls=\"controls\"></audio>\n#+END_EXPORT\n")
           )
       (setq thuleqaid/record-start-time (current-time))
       (setq thuleqaid/record-current-file (format "%s/%s.ogg" resdir (format-time-string "%Y%m%d%H%M%S" thuleqaid/record-start-time)))
