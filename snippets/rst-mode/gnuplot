@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: gnuplot
+# key: gnuplot_
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+.. image:: ${1:`(format-time-string "%Y%m%d%H%M%S")`}.png
+..
+  #+begin_src gnuplot :file $1.png :cache yes
+  reset
+  set encoding utf8
+  set term png font "MSYH"
+  set title "Title"
+  set xlabel "X"
+  set ylabel "Y"
+  set xrange [-10:20]
+  set xtics -10,5,20
+  set yrange [-10:20]
+  set ytics -10,2,20
+  $0
+  #+end_src

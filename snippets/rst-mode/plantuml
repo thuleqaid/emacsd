@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: plantuml
+# key: plantuml_
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+.. image:: ${1:`(format-time-string "%Y%m%d%H%M%S")`}.png
+..
+  #+begin_src plantuml :file $1.png :cmdline -charset UTF-8 :cache yes
+  skinparam defaultFontName "Microsoft YaHei"
+  $0
+  #+end_src

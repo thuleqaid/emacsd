@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: dot
+# key: dot_
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+.. image:: ${1:`(format-time-string "%Y%m%d%H%M%S")`}.png
+..
+  #+begin_src dot :file $1.png :cmdline -Tpng :cache yes
+  digraph G {
+    edge [fontname="Microsoft YaHei"];
+    node [fontname="Microsoft YaHei"];
+    $0
+  }
+  #+end_src
