@@ -503,6 +503,8 @@ typical word processor."
 (require-package 'ox-reveal)
 (setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
 
+(require-package 'ox-rst)
+
 ;; Use local copy of MathJax, use CDN version when lack of local files
 (when (file-exists-p (expand-file-name "MathJax" user-emacs-directory))
   ;URL for CDN version
