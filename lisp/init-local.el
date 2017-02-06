@@ -187,4 +187,23 @@
      (define-key helm-gtags-mode-map (kbd "M-t ,") 'helm-gtags-pop-stack)))
 (helm-mode 1)
 
+(setq vipath "C:/Program Files/vim/vim74/gvim.exe")
+(defun run-vi ()
+  (interactive)
+  (let ((exepath (or vipath
+                    (executable-find "gvim")
+                    (executable-find "vim")
+                    (executable-find "vi")
+                    ))
+        )
+    (when (file-executable-p exepath)
+      ;; kill buffer when vim exists
+      (async-start-process "Vim" exepath
+                           (lambda (proc)
+                             (kill-buffer (process-buffer proc))
+                             ))
+      )
+    )
+  )
+
 (provide 'init-local)
