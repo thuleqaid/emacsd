@@ -205,5 +205,23 @@
       )
     )
   )
+(defun run-vi-readonly ()
+  (interactive)
+  (let ((exepath (or vipath
+                    (executable-find "gvim")
+                    (executable-find "vim")
+                    (executable-find "vi")
+                    ))
+        )
+    (when (file-executable-p exepath)
+      ;; kill buffer when vim exists
+      (async-start-process "Vim" exepath
+                           (lambda (proc)
+                             (kill-buffer (process-buffer proc))
+                             )
+                           "-R")
+      )
+    )
+  )
 
 (provide 'init-local)
