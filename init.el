@@ -145,6 +145,7 @@
   (error "Please move init-local.el to ~/.emacs.d/lisp"))
 (require 'init-local nil t)
 
+(require 'init-evil)
 
 (provide 'init)
 
