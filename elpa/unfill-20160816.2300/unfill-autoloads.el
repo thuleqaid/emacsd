@@ -3,7 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "unfill" "unfill.el" (22629 48300 859285 577000))
+;;;### (autoloads nil "unfill" "unfill.el" (22715 27163 0 0))
 ;;; Generated autoloads from unfill.el
 
 (autoload 'unfill-paragraph "unfill" "\

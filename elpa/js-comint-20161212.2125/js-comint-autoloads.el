@@ -3,8 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "js-comint" "js-comint.el" (22629 48858 558406
-;;;;;;  542000))
+;;;### (autoloads nil "js-comint" "js-comint.el" (22715 27190 0 0))
 ;;; Generated autoloads from js-comint.el
 
 (autoload 'js-do-use-nvm "js-comint" "\

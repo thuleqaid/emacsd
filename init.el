@@ -1,18 +1,7 @@
-
-;;; This file bootstraps the configuration, which is divided into
-;;; a number of other files.
-
-(let ((minver "23.3"))
-  (when (version<= emacs-version "23.1")
-    (error "Your Emacs is too old -- this config requires v%s or higher" minver)))
-(when (version<= emacs-version "24")
-  (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
-
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
 ;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
-(defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *is-a-windows* (eq system-type 'windows-nt))
 (defconst *source-view-only* nil)
 
@@ -29,12 +18,9 @@
 ;; Bootstrap config
 ;;----------------------------------------------------------------------------
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(require 'init-compat)
 (require 'init-utils)
-(require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
-;; Calls (package-initialize)
+
 (require 'init-elpa)      ;; Machinery for installing required packages
-(require 'init-exec-path) ;; Set up $PATH
 
 ;;----------------------------------------------------------------------------
 ;; Allow users to provide an optional "init-preload-local.el"
@@ -48,28 +34,21 @@
 (require-package 'wgrep)
 (require-package 'project-local-variables)
 (require-package 'diminish)
-(require-package 'scratch)
 (require-package 'mwe-log-commands)
 
-(require 'init-frame-hooks)
-(require 'init-xterm)
 (require 'init-themes)
-(require 'init-gui-frames)
 (require 'init-dired)
 (require 'init-isearch)
 (require 'init-grep)
-(require 'init-uniquify)
 (require 'init-ibuffer)
 (unless *source-view-only*
   (require 'init-flycheck))
 
-(require 'init-recentf)
-(require 'init-hippie-expand)
 (require 'init-auto-complete)
-(require 'init-windows)
 (require 'init-sessions)
-(require 'init-fonts)
 (require 'init-mmm)
+(require 'init-helm)
+(require 'init-evil)
 
 (require 'init-editing-utils)
 (require 'init-whitespace)
@@ -144,8 +123,6 @@
 (when (file-exists-p (expand-file-name "init-local.el" user-emacs-directory))
   (error "Please move init-local.el to ~/.emacs.d/lisp"))
 (require 'init-local nil t)
-
-(require 'init-evil)
 
 (provide 'init)
 

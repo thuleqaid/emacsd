@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "elisp-slime-nav" "elisp-slime-nav.el" (22629
-;;;;;;  48889 402579 152000))
+;;;### (autoloads nil "elisp-slime-nav" "elisp-slime-nav.el" (22715
+;;;;;;  27195 0 0))
 ;;; Generated autoloads from elisp-slime-nav.el
 
 (autoload 'elisp-slime-nav-mode "elisp-slime-nav" "\

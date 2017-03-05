@@ -1,10 +1,6 @@
 (when (< emacs-major-version 24)
   (require-package 'org))
 (require-package 'org-fstree)
-;;;(when *is-a-mac*
-;;;  (require-package 'org-mac-link)
-;;;  (autoload 'org-mac-grab-link "org-mac-link" nil t)
-;;;  (require-package 'org-mac-iCal))
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
@@ -273,16 +269,6 @@ typical word processor."
 
 
 
-;;;(when (and *is-a-mac* (file-directory-p "/Applications/org-clock-statusbar.app"))
-;;;  (add-hook 'org-clock-in-hook
-;;;            (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
-;;;                                (concat "tell application \"org-clock-statusbar\" to clock in \"" org-clock-current-task "\""))))
-;;;  (add-hook 'org-clock-out-hook
-;;;            (lambda () (call-process "/usr/bin/osascript" nil 0 nil "-e"
-;;;                                "tell application \"org-clock-statusbar\" to clock out"))))
-
-
-
 ;; Remove empty LOGBOOK drawers on clock out
 (defun sanityinc/remove-empty-drawer-on-clock-out ()
   (interactive)
@@ -315,32 +301,8 @@ typical word processor."
   (define-key org-agenda-mode-map (kbd "P") 'org-pomodoro))
 
 
-;; ;; Show iCal calendars in the org agenda
-;; (when (and *is-a-mac* (require 'org-mac-iCal nil t))
-;;   (setq org-agenda-include-diary t
-;;         org-agenda-custom-commands
-;;         '(("I" "Import diary from iCal" agenda ""
-;;            ((org-agenda-mode-hook #'org-mac-iCal)))))
-
-;;   (add-hook 'org-agenda-cleanup-fancy-diary-hook
-;;             (lambda ()
-;;               (goto-char (point-min))
-;;               (save-excursion
-;;                 (while (re-search-forward "^[a-z]" nil t)
-;;                   (goto-char (match-beginning 0))
-;;                   (insert "0:00-24:00 ")))
-;;               (while (re-search-forward "^ [a-z]" nil t)
-;;                 (goto-char (match-beginning 0))
-;;                 (save-excursion
-;;                   (re-search-backward "^[0-9]+:[0-9]+-[0-9]+:[0-9]+ " nil t))
-;;                 (insert (match-string 0))))))
-
-
 (after-load 'org
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
-;;;  (when *is-a-mac*
-;;;    (define-key org-mode-map (kbd "M-h") nil)
-;;;    (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link))
   )
 
 (after-load 'org

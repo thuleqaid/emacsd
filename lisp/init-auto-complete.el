@@ -1,3 +1,13 @@
+;;----------------------------------------------------------------------------
+;; hippie-expand
+;;----------------------------------------------------------------------------
+(setq hippie-expand-try-functions-list
+      '(try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers
+        try-expand-dabbrev-from-kill))
+
 (require-package 'auto-complete)
 (require 'auto-complete-config)
 (global-auto-complete-mode t)
@@ -24,9 +34,6 @@
 	     (fboundp 'auto-complete-mode)
 	     auto-complete-mode)
     #'auto-complete))
-
-(defun sanityinc/never-indent ()
-  (set (make-local-variable 'indent-line-function) (lambda () 'noindent)))
 
 (defun set-auto-complete-as-completion-at-point-function ()
   (setq completion-at-point-functions
@@ -59,6 +66,9 @@
   (< (buffer-size other-buffer) (* 1 1024 1024)))
 
 (setq dabbrev-friend-buffer-function 'sanityinc/dabbrev-friend-buffer)
+
+
+(global-set-key (kbd "M-/") 'hippie-expand)
 
 
 (provide 'init-auto-complete)

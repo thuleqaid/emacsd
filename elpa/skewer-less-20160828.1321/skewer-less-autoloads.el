@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "skewer-less" "skewer-less.el" (22629 48876
-;;;;;;  790508 572000))
+;;;### (autoloads nil "skewer-less" "skewer-less.el" (22715 27193
+;;;;;;  0 0))
 ;;; Generated autoloads from skewer-less.el
 
 (autoload 'skewer-less-mode "skewer-less" "\

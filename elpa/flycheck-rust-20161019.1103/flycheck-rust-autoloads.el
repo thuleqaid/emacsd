@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "flycheck-rust" "flycheck-rust.el" (22629 49018
-;;;;;;  679302 602000))
+;;;### (autoloads nil "flycheck-rust" "flycheck-rust.el" (22715 27217
+;;;;;;  0 0))
 ;;; Generated autoloads from flycheck-rust.el
 
 (autoload 'flycheck-rust-setup "flycheck-rust" "\

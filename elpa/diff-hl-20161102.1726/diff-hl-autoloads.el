@@ -3,8 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "diff-hl" "diff-hl.el" (22629 48244 414969
-;;;;;;  706000))
+;;;### (autoloads nil "diff-hl" "diff-hl.el" (22715 27138 0 0))
 ;;; Generated autoloads from diff-hl.el
 
 (autoload 'diff-hl-mode "diff-hl" "\
@@ -40,8 +39,8 @@ See `diff-hl-mode' for more information on Diff-Hl mode.
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-amend" "diff-hl-amend.el" (22629 48244
-;;;;;;  634970 937000))
+;;;### (autoloads nil "diff-hl-amend" "diff-hl-amend.el" (22715 27138
+;;;;;;  0 0))
 ;;; Generated autoloads from diff-hl-amend.el
 
 (autoload 'diff-hl-amend-mode "diff-hl-amend" "\
@@ -75,8 +74,8 @@ See `diff-hl-amend-mode' for more information on Diff-Hl-Amend mode.
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-dired" "diff-hl-dired.el" (22629 48244
-;;;;;;  990972 929000))
+;;;### (autoloads nil "diff-hl-dired" "diff-hl-dired.el" (22715 27138
+;;;;;;  0 0))
 ;;; Generated autoloads from diff-hl-dired.el
 
 (autoload 'diff-hl-dired-mode "diff-hl-dired" "\
@@ -91,8 +90,8 @@ Toggle VC diff highlighting on the side of a Dired window.
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-flydiff" "diff-hl-flydiff.el" (22629
-;;;;;;  48244 258968 835000))
+;;;### (autoloads nil "diff-hl-flydiff" "diff-hl-flydiff.el" (22715
+;;;;;;  27138 0 0))
 ;;; Generated autoloads from diff-hl-flydiff.el
 
 (defvar diff-hl-flydiff-mode nil "\
@@ -111,8 +110,8 @@ Highlight diffs on-the-fly
 
 ;;;***
 
-;;;### (autoloads nil "diff-hl-margin" "diff-hl-margin.el" (22629
-;;;;;;  48244 62967 736000))
+;;;### (autoloads nil "diff-hl-margin" "diff-hl-margin.el" (22715
+;;;;;;  27138 0 0))
 ;;; Generated autoloads from diff-hl-margin.el
 
 (defvar diff-hl-margin-mode nil "\
@@ -131,8 +130,8 @@ Toggle displaying `diff-hl-mode' highlights on the margin.
 
 ;;;***
 
-;;;### (autoloads nil nil ("diff-hl-pkg.el") (22629 48245 349515
-;;;;;;  705000))
+;;;### (autoloads nil nil ("diff-hl-pkg.el") (22715 27138 389000
+;;;;;;  0))
 
 ;;;***
 
