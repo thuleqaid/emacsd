@@ -1,3 +1,10 @@
+(setq additional-path '("c:\\PortableSoft\\git\\bin"))
+(setq exec-path (append exec-path additional-path))
+(let ((xpath (getenv "PATH")))
+  (dolist (item-path additional-path)
+    (setq xpath (concat xpath ";" item-path)))
+  (setenv "PATH" xpath))
+
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
@@ -65,7 +72,6 @@
 
 (unless *source-view-only*
   (require 'init-vc)
-  (require 'init-git)
   (require 'init-compile)
   (require 'init-markdown)
   (require 'init-csv)
