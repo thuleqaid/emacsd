@@ -76,7 +76,6 @@
   (require 'init-markdown)
   (require 'init-csv)
   (require 'init-javascript)
-  (require 'init-nxml)
   (require 'init-html)
   (require 'init-css)
   (require 'init-paredit)
