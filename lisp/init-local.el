@@ -57,9 +57,6 @@
 (add-hook 'c-mode-hook 'thuleqaid/indent-tabs-mode-setup)
 (add-hook 'c++-mode-hook 'thuleqaid/indent-tabs-mode-setup)
 
-(ac-config-default)
-(add-hook 'python-mode-hook 'ac-cc-mode-setup)
-
 (global-set-key (kbd "<f12>") 'highlight-symbol)
 (global-set-key (kbd "M-<f12>") 'highlight-symbol-remove-all)
 

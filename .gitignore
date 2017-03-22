@@ -38,3 +38,4 @@ site-lisp/package/
 /ido.last
 /recentf
 /viper
+*.pyc
