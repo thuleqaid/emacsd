@@ -80,6 +80,7 @@
   (require 'init-css)
   (require 'init-lisp)
   (require 'init-python)
+  (require 'init-c)
   ;; Require for init-rust: 1. `cargo install racer` and make sure racer in environment variable "PATH" 2. set environment variable "RUST_SRC_PATH" to rust source path, e.g. "c:\PortableSoft\home\rustc-1.13.0\src"
   (require 'init-rust)
   ;; Require for init-org: 1. set org-agenda-path and org-diary-path 2. set ffmpeg-cmd-encoding and ffmpeg-audio-device

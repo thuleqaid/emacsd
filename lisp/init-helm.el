@@ -22,34 +22,7 @@
       helm-imenu-fuzzy-match                t
       helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
       helm-ff-file-name-history-use-recentf t)
-(require-package 'helm-gtags)
-;; Enable helm-gtags-mode
-(setq helm-gtags-ignore-case t
-      helm-gtags-auto-update t
-      helm-gtags-use-input-at-cursor t
-      helm-gtags-pulse-at-cursor t
-      )
-(if *is-a-windows* (setq helm-gtags-path-style 'absolute))
 
-;; Enable helm-gtags-mode in Dired so you can jump to any tag
-;; when navigate project tree with Dired
-(add-hook 'dired-mode-hook 'helm-gtags-mode)
-;; Enable helm-gtags-mode in Eshell for the same reason as above
-(add-hook 'eshell-mode-hook 'helm-gtags-mode)
-(add-hook 'c-mode-hook 'helm-gtags-mode)
-(add-hook 'c++-mode-hook 'helm-gtags-mode)
-;; Set key bindings
-(eval-after-load "helm-gtags"
-  '(progn
-     (define-key helm-gtags-mode-map (kbd "M-t b") 'helm-gtags-select)
-     (define-key helm-gtags-mode-map (kbd "M-t t") 'helm-gtags-dwim)
-     (define-key helm-gtags-mode-map (kbd "M-t s") 'helm-gtags-find-symbol)
-     (define-key helm-gtags-mode-map (kbd "M-t f") 'helm-gtags-find-files)
-     (define-key helm-gtags-mode-map (kbd "M-t <") 'helm-gtags-previous-history)
-     (define-key helm-gtags-mode-map (kbd "M-t >") 'helm-gtags-next-history)
-     (define-key helm-gtags-mode-map (kbd "M-t r") 'helm-gtags-resume)
-     (define-key helm-gtags-mode-map (kbd "M-t p") 'helm-gtags-parse-file)
-     (define-key helm-gtags-mode-map (kbd "M-t ,") 'helm-gtags-pop-stack)))
 (helm-mode 1)
 
 (provide 'init-helm)

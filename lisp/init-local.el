@@ -50,13 +50,6 @@
 
 ;; ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 
-(defun thuleqaid/indent-tabs-mode-setup ()
-  (setq indent-tabs-mode t)
-  (c-set-style "stroustrup")
-  (hide-ifdef-mode))
-(add-hook 'c-mode-hook 'thuleqaid/indent-tabs-mode-setup)
-(add-hook 'c++-mode-hook 'thuleqaid/indent-tabs-mode-setup)
-
 (global-set-key (kbd "<f12>") 'highlight-symbol)
 (global-set-key (kbd "M-<f12>") 'highlight-symbol-remove-all)
 
