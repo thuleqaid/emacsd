@@ -47,6 +47,9 @@
 ;; use c++ include directories because c include directories is a subset of it
 (require-package 'auto-complete-c-headers)
 (defun thuleqaid/ac-c-header-init()
+  ;; Project-Local-Variables
+  (require 'project-local-variables)
+  ;; auto-complete-c-headers
   (require 'auto-complete-c-headers)
   (add-to-list 'ac-sources 'ac-source-c-headers)
   (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++")
@@ -61,6 +64,8 @@
                 thuleqaid/indent-tabs-mode-setup thuleqaid/ac-c-header-init))
   (add-hook 'c-mode-hook hook)
   (add-hook 'c++-mode-hook hook))
+(diminish 'hide-ifdef-mode)
+(diminish 'hs-minor-mode)
 
 (setq
  ;; use gdb-many-windows by default
