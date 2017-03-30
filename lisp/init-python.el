@@ -11,6 +11,19 @@
 
 ;; enable autopep8 formatting on save
 (require-package 'py-autopep8)
-(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+;;; py-autopep8 default action: patch diffs between original file and temp file outputed by autopep8
+;;;   default action will cause additional ^M when editing unix format file in windows
+;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook (lambda ()
+                            (add-hook 'before-save-hook
+                                      (lambda ()
+                                        (mark-whole-buffer)
+                                        (py-autopep8-bf--apply-executable-to-buffer
+                                         "autopep8"
+                                         'py-autopep8--call-executable
+                                         t
+                                         "py"))
+                                      nil t)))
 
 (provide 'init-python)
