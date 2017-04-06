@@ -11,4 +11,6 @@
 (add-hook 'racer-mode-hook 'my/racer-mode-hook)
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
 
+(thuleqaid/coding-system 'rust-format-buffer 'utf-8)
+
 (provide 'init-rust)

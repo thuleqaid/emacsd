@@ -109,6 +109,18 @@
           (kill-buffer iterbuffer))
         ))))
 
+(defun thuleqaid/coding-system (func coding)
+  "Set coding system for external program"
+  (eval-expression
+   `(defadvice ,func (around ,(make-symbol (format "coding-system/%s/%s" func coding)))
+      (let ((coding-system-for-read ',coding)
+            (coding-system-for-write ',coding))
+        ad-do-it
+        )
+      )
+   )
+  )
+
 (global-set-key (kbd "<f8>") 'browse-current-file)
 
 
