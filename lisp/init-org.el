@@ -18,8 +18,7 @@
       org-tags-column 80)
 
 
-;; Lots of stuff from http://doc.norang.ca/org-mode.html
-
+;; download ditaa and plantuml
 (defun sanityinc/grab-ditaa (url jar-name)
   "Download URL and extract JAR-NAME as `org-ditaa-jar-path'."
   ;; TODO: handle errors
@@ -34,7 +33,6 @@
                                    (shell-quote-argument org-ditaa-jar-path)))))
       (when (file-exists-p zip-temp)
         (delete-file zip-temp)))))
-
 (defun sanityinc/grab-plantuml (url)
   "Download URL as `org-plantuml-jar-path'."
   (unwind-protect
@@ -49,44 +47,12 @@
       (unless (file-exists-p org-ditaa-jar-path)
         (sanityinc/grab-ditaa url jar-name))))
   )
-(after-load 'ob-plantuml
-  (let ((jar-name "plantuml.jar")
+(let ((jar-name "plantuml.jar")
         (url "http://jaist.dl.sourceforge.net/project/plantuml/plantuml.jar"))
     (setq org-plantuml-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
     (unless (file-exists-p org-plantuml-jar-path)
       (sanityinc/grab-plantuml url)))
-  )
 
-
-(define-minor-mode prose-mode
-  "Set up a buffer for prose editing.
-This enables or modifies a number of settings so that the
-experience of editing prose is a little more like that of a
-typical word processor."
-  nil " Prose" nil
-  (if prose-mode
-      (progn
-        (setq truncate-lines nil)
-        (setq word-wrap t)
-        (setq cursor-type 'bar)
-        (when (eq major-mode 'org)
-          (kill-local-variable 'buffer-face-mode-face))
-        (buffer-face-mode 1)
-        ;;(delete-selection-mode 1)
-        (set (make-local-variable 'blink-cursor-interval) 0.6)
-        (set (make-local-variable 'show-trailing-whitespace) nil)
-        (flyspell-mode 1)
-        (when (fboundp 'visual-line-mode)
-          (visual-line-mode 1)))
-    (kill-local-variable 'truncate-lines)
-    (kill-local-variable 'word-wrap)
-    (kill-local-variable 'cursor-type)
-    (kill-local-variable 'show-trailing-whitespace)
-    (buffer-face-mode -1)
-    ;; (delete-selection-mode -1)
-    (flyspell-mode -1)
-    (when (fboundp 'visual-line-mode)
-      (visual-line-mode -1))))
 
 ;;(add-hook 'org-mode-hook 'buffer-face-mode)
 
@@ -99,7 +65,7 @@ typical word processor."
 
 (setq org-capture-templates
       `(("t" "todo" entry (file "")  ; "" => org-default-notes-file
-         "* NEXT %?\n%U\n" :clock-resume t)
+         "* TODO %?\n%U\n" :clock-resume t)
         ("n" "note" entry (file "")
          "* %? :NOTE:\n%U\n%a\n" :clock-resume t)
         ))
@@ -121,7 +87,6 @@ typical word processor."
   "Exclude todo keywords with a done state from refile targets."
   (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 (setq org-refile-target-verify-function 'sanityinc/verify-refile-target)
-
 (defun sanityinc/org-refile-anywhere (&optional goto default-buffer rfloc msg)
   "A version of `org-refile' which suppresses `org-refile-target-verify-function'."
   (interactive "P")
@@ -137,96 +102,73 @@ typical word processor."
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
 
-;;; To-do settings
-
-(setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!/!)")
-              (sequence "PROJECT(p)" "|" "DONE(d!/!)" "CANCELLED(c@/!)")
-              (sequence "WAITING(w@/!)" "HOLD(h)" "|" "CANCELLED(c@/!)"))))
-
-(setq org-todo-keyword-faces
-      (quote (("NEXT" :inherit warning)
-              ("PROJECT" :inherit font-lock-string-face))))
-
-
-
 ;;; Agenda views
 
 (setq-default org-agenda-clockreport-parameter-plist '(:link t :maxlevel 3))
 
-
-(let ((active-project-match "-INBOX/PROJECT"))
-
-  (setq org-stuck-projects
-        `(,active-project-match ("NEXT")))
-
-  (setq org-agenda-compact-blocks t
-        org-agenda-sticky t
-        org-agenda-start-on-weekday nil
-        org-agenda-span 'day
-        org-agenda-include-diary nil
-        org-agenda-sorting-strategy
-        '((agenda habit-down time-up user-defined-up effort-up category-keep)
-          (todo category-up effort-up)
-          (tags category-up effort-up)
-          (search category-up))
-        org-agenda-window-setup 'current-window
-        org-agenda-custom-commands
-        `(("N" "Notes" tags "NOTE"
-           ((org-agenda-overriding-header "Notes")
-            (org-tags-match-list-sublevels t)))
-          ("g" "GTD"
-           ((agenda "" nil)
-            (tags "INBOX"
-                  ((org-agenda-overriding-header "Inbox")
-                   (org-tags-match-list-sublevels nil)))
-            ;; (stuck ""
-            ;;        ((org-agenda-overriding-header "Stuck Projects")
-            ;;         (org-agenda-tags-todo-honor-ignore-options t)
-            ;;         (org-tags-match-list-sublevels t)
-            ;;         (org-agenda-todo-ignore-scheduled 'future)))
-            (tags-todo "-INBOX/NEXT"
-                       ((org-agenda-overriding-header "Next Actions")
-                        (org-agenda-tags-todo-honor-ignore-options t)
-                        (org-agenda-todo-ignore-scheduled 'future)
-                        ;; TODO: skip if a parent is WAITING or HOLD
-                        (org-tags-match-list-sublevels t)
-                        (org-agenda-sorting-strategy
-                         '(todo-state-down effort-up category-keep))))
-            (tags-todo ,active-project-match
-                       ((org-agenda-overriding-header "Projects")
-                        (org-tags-match-list-sublevels t)
-                        (org-agenda-sorting-strategy
-                         '(category-keep))))
-            (tags-todo "-INBOX/-NEXT"
-                       ((org-agenda-overriding-header "Orphaned Tasks")
-                        (org-agenda-tags-todo-honor-ignore-options t)
-                        (org-agenda-todo-ignore-scheduled 'future)
-                        ;; TODO: skip if a parent is a project
-                        (org-agenda-skip-function
-                         '(lambda ()
-                            (or (org-agenda-skip-subtree-if 'todo '("PROJECT" "HOLD" "WAITING"))
-                                (org-agenda-skip-subtree-if 'nottododo '("TODO")))))
-                        (org-tags-match-list-sublevels t)
-                        (org-agenda-sorting-strategy
-                         '(category-keep))))
-            (tags-todo "/WAITING"
-                       ((org-agenda-overriding-header "Waiting")
-                        (org-agenda-tags-todo-honor-ignore-options t)
-                        (org-agenda-todo-ignore-scheduled 'future)
-                        (org-agenda-sorting-strategy
-                         '(category-keep))))
-            (tags-todo "-INBOX/HOLD"
-                       ((org-agenda-overriding-header "On Hold")
-                        ;; TODO: skip if a parent is WAITING or HOLD
-                        (org-tags-match-list-sublevels nil)
-                        (org-agenda-sorting-strategy
-                         '(category-keep))))
-            ;; (tags-todo "-NEXT"
-            ;;            ((org-agenda-overriding-header "All other TODOs")
-            ;;             (org-match-list-sublevels t)))
-            )))))
-
+(setq org-agenda-compact-blocks t
+      org-agenda-sticky t
+      org-agenda-start-on-weekday nil
+      org-agenda-span 'day
+      org-agenda-include-diary nil
+      org-agenda-sorting-strategy
+      '((agenda habit-down time-up user-defined-up effort-up category-keep)
+        (todo category-up effort-up)
+        (tags category-up effort-up)
+        (search category-up))
+      org-agenda-window-setup 'current-window
+      org-agenda-custom-commands
+      `(("N" "Notes" tags "NOTE"
+         ((org-agenda-overriding-header "Notes")
+          (org-tags-match-list-sublevels t)))
+        ("G" "GTD"
+         ((agenda "" nil)
+          ;; (agenda "" ((org-agenda-span 7)
+          ;;             (org-agenda-sorting-strategy
+          ;;              (quote ((agenda time-up priority-down tag-up))))
+          ;;             (org-deadline-warning-days 0)))
+          (tags-todo "PROJECT"
+                     ((org-agenda-overriding-header "OFFICE")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (tags-todo "OFFICE"
+                     ((org-agenda-overriding-header "OFFICE")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (tags-todo "HOME"
+                     ((org-agenda-overriding-header "HOME")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (tags-todo "READING"
+                     ((org-agenda-overriding-header "READING")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (todo "APPT"
+                     ((org-agenda-overriding-header "APPT")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (todo "STARTED"
+                     ((org-agenda-overriding-header "STARTED")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (todo "WAITING"
+                     ((org-agenda-overriding-header "WAITING")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          (todo "DEFERRED"
+                     ((org-agenda-overriding-header "DEFERRED")
+                      (org-agenda-tags-todo-honor-ignore-options t)
+                      (org-agenda-todo-ignore-scheduled 'future)
+                      (org-agenda-sorting-strategy '(category-keep))))
+          ))
+        ))
 
 (add-hook 'org-agenda-mode-hook 'hl-line-mode)
 
@@ -326,9 +268,26 @@ typical word processor."
      (sqlite . t))))
 
 ;GTD Workflow
-;1. capture and save in notes/todolist
-;2. add sub org file for each item if necessary
-;3. archive finished items in todolist
+;1. capture and save in notes
+;2. dispatch items in notes into appropriate position in todolist
+;3. archive finished items in gtdfile
+(defun thuleqaid/new-agenda-file (filepath)
+  (let ((tmpl "# -*- mode:org; coding:utf-8 -*-
+
+
+* org-mode configuration
+#+STARTUP: overview
+#+STARTUP: hidestars
+#+STARTUP: logdone
+#+PROPERTY: Effort_ALL  0:10 0:20 0:30 1:00 2:00 4:00 6:00 8:00
+#+COLUMNS: %38ITEM(Details) %TAGS(Context) %7TODO(To Do) %5Effort(Time){:} %6CLOCKSUM{Total}
+#+PROPERTY: Effort_ALL 0 0:10 0:20 0:30 1:00 2:00 3:00 4:00 8:00
+#+TAGS: OFFICE(o) HOME(h) PROJECT(p) READING(r) 
+#+SEQ_TODO: TODO(t) STARTED(s) WAITING(w) APPT(a) | DONE(d) CANCELLED(c) DEFERRED(f)
+"
+              ))
+    (append-to-file tmpl nil filepath))
+  )
 (let ((agenda-file (expand-file-name "todolist.org" org-agenda-path))
       (note-file (expand-file-name "notes.org" org-agenda-path)))
   (setq org-agenda-files (list agenda-file note-file))
@@ -339,7 +298,8 @@ typical word processor."
   (unless (file-exists-p org-diary-path)
     (make-directory org-diary-path))
   (unless (file-exists-p agenda-file)
-    (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file)
+    ;; (append-to-file "# -*- mode:org; coding:utf-8 -*-\n" nil agenda-file)
+    (thuleqaid/new-agenda-file agenda-file)
     )
   (unless (file-exists-p diary-file)
     (append-to-file "# -*- coding:utf-8 -*-\n" nil diary-file)
