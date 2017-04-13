@@ -5,10 +5,10 @@
 (require-package 'ac-etags)
 (require-package 'ctags-update)
 (custom-set-variables
-  '(ac-etags-requires 1))
+ '(ac-etags-requires 1))
 (eval-after-load "etags"
   '(progn
-      (ac-etags-setup)))
+     (ac-etags-setup)))
 (add-hook 'c-mode-common-hook 'ac-etags-ac-setup)
 
 (setq ctags-update-command (executable-find "ctags"))
@@ -52,16 +52,16 @@
   ;; auto-complete-c-headers
   (require 'auto-complete-c-headers)
   (add-to-list 'ac-sources 'ac-source-c-headers)
-  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++")
-  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++/i686-w64-mingw32")
-  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++/backward")
-  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include")
-  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include-fixed")
-  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw32/bin/../lib/gcc/i686-w64-mingw32/6.2.0/../../../../i686-w64-mingw32/include")
+  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++")
+  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++/i686-w64-mingw32")
+  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include/c++/backward")
+  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include")
+  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw/bin/../lib/gcc/i686-w64-mingw32/6.2.0/include-fixed")
+  (add-to-list 'achead:include-directories '"c:/PortableSoft/mingw/bin/../lib/gcc/i686-w64-mingw32/6.2.0/../../../../i686-w64-mingw32/include")
   )
 
 (dolist (hook '(hide-ifdef-mode hs-minor-mode helm-gtags-mode
-                thuleqaid/indent-tabs-mode-setup thuleqaid/ac-c-header-init))
+                                thuleqaid/indent-tabs-mode-setup thuleqaid/ac-c-header-init))
   (add-hook 'c-mode-hook hook)
   (add-hook 'c++-mode-hook hook))
 (diminish 'hide-ifdef-mode)

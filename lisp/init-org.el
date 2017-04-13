@@ -121,49 +121,49 @@
       `(("N" "Notes" tags "NOTE"
          ((org-agenda-overriding-header "Notes")
           (org-tags-match-list-sublevels t)))
-        ("G" "GTD"
+        ("g" "GTD"
          ((agenda "" nil)
           ;; (agenda "" ((org-agenda-span 7)
           ;;             (org-agenda-sorting-strategy
           ;;              (quote ((agenda time-up priority-down tag-up))))
           ;;             (org-deadline-warning-days 0)))
           (tags-todo "PROJECT"
-                     ((org-agenda-overriding-header "OFFICE")
+                     ((org-agenda-overriding-header "Project")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
           (tags-todo "OFFICE"
-                     ((org-agenda-overriding-header "OFFICE")
+                     ((org-agenda-overriding-header "Office")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
           (tags-todo "HOME"
-                     ((org-agenda-overriding-header "HOME")
+                     ((org-agenda-overriding-header "Home")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
           (tags-todo "READING"
-                     ((org-agenda-overriding-header "READING")
+                     ((org-agenda-overriding-header "Reading")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
           (todo "APPT"
-                     ((org-agenda-overriding-header "APPT")
+                     ((org-agenda-overriding-header "Appointment")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
-          (todo "STARTED"
-                     ((org-agenda-overriding-header "STARTED")
+          (todo "-TODO/STARTED"
+                     ((org-agenda-overriding-header "Started")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
-          (todo "WAITING"
-                     ((org-agenda-overriding-header "WAITING")
+          (todo "-TODO/WAITING"
+                     ((org-agenda-overriding-header "Waiting")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
-          (todo "DEFERRED"
-                     ((org-agenda-overriding-header "DEFERRED")
+          (todo "-TODO/DEFERRED"
+                     ((org-agenda-overriding-header "Deferred")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
