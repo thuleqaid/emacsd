@@ -247,6 +247,7 @@
   (define-key org-mode-map (kbd "C-M-<up>") 'org-up-element)
   )
 
+(thuleqaid/coding-system 'org-babel-execute-src-block 'utf-8)
 (after-load 'org
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -423,6 +424,7 @@
   )
 
 (require-package 'ox-reveal)
+(require 'ox-reveal)
 (setq org-reveal-root (format "file:///%s" (expand-file-name "reveal.js" user-emacs-directory)))
 
 (require-package 'ox-rst)
