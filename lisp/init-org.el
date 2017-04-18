@@ -326,7 +326,7 @@
 (setq org-list-demote-modify-bullet
       '(("+" . "-") ("-" . "+") ("*" . "+")))
 (defun my-org-confirm-babel-evaluate (lang body)
-  (if (member lang '("plantuml" "gnuplot")) nil t)) ; don't ask for plantuml, gnuplot
+  (if (member lang '("plantuml" "gnuplot" "dot")) nil t)) ; don't ask for plantuml, gnuplot
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
 (setq org-use-sub-superscripts nil)
 (setq org-export-with-sub-superscripts nil)
