@@ -56,7 +56,7 @@
 ;; (setl ModTag:IncludeFiles (split-string (cdr (assoc "ch" grep-files-aliases)) " "))
 ;; ;; Grep setting
 ;; (setl ModTag:GrepExe "python d:/gitrepo/pytools/py3scripts/Demo/EncodingGrep/eg.py")
-;; (setl ModTag:GrepOption "-G")
+;; (setl ModTag:GrepOption "-SG")
 ;; ;; Author setting
 ;; (setl ModTag:User "Anonymous")
 ;; ;; Project setting
@@ -77,7 +77,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   :type 'string
   :group 'ModTag)
 
-(defcustom ModTag:GrepOption "-G"
+(defcustom ModTag:GrepOption "-SG"
   "Additional options."
   :type 'string
   :group 'ModTag)

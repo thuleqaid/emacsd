@@ -46,10 +46,10 @@
 ;; get c++ include directories with "gcc -xc++ -E -v -"
 ;; use c++ include directories because c include directories is a subset of it
 (require-package 'auto-complete-c-headers)
+;; Project-Local-Variables
+(require 'project-local-variables)
 (require 'modtags)
 (defun thuleqaid/ac-c-header-init()
-  ;; Project-Local-Variables
-  (require 'project-local-variables)
   ;; auto-complete-c-headers
   (require 'auto-complete-c-headers)
   (add-to-list 'ac-sources 'ac-source-c-headers)
