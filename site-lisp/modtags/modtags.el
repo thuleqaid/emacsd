@@ -27,8 +27,8 @@
 ;; Step3(Done) update line count
 ;; Step4 OK/NG modifications
 ;; Step5(Done) Recursively list modifications
-;; Step6 Batch update line count
-;; Step7 Summary line count
+;; Step6(Done) Batch update line count
+;; Step7(Done) Summary line count
 ;; Step8 Static checks(devide 0, infinit loop)
 ;; Step9 Diff files
 
@@ -66,12 +66,19 @@
 ;; set same option as method 1
 
 ;;; Code:
+(require 'compile)
+(require 'subr-x)
+
+(setq ModTag:BuiltInGrep
+      (when load-file-name
+        (expand-file-name "eg.py" (file-name-directory load-file-name))))
+
 (defcustom ModTag:TerminalCoding locale-coding-system
   "System terminal coding."
   :type 'coding-system
   :group 'ModTag)
 
-(defcustom ModTag:GrepExe "python d:/gitrepo/pytools/py3scripts/Demo/EncodingGrep/eg.py"
+(defcustom ModTag:GrepExe (format "%s %s" (or (executable-find "python3") (executable-find "python")) ModTag:BuiltInGrep)
   "Grep-like programs.
 The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=ExcludeDirs --exclude=ExcludeFiles --include=IncludeFiles rootdir\" will be run."
   :type 'string
@@ -84,6 +91,23 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
 
 (defcustom ModTag:User "Anonymous"
   "Username of current programmer."
+  :type 'string
+  :group 'ModTag)
+
+(defcustom ModTag:TagMarkLen 3
+  "Mark length.  All marks should be the same length."
+  :type 'integer
+  :group 'ModTag)
+(defcustom ModTag:TagMarkADD "ADD"
+  "Mark for add modification."
+  :type 'string
+  :group 'ModTag)
+(defcustom ModTag:TagMarkCHG "CHG"
+  "Mark for change modification."
+  :type 'string
+  :group 'ModTag)
+(defcustom ModTag:TagMarkDEL "DEL"
+  "Mark for del modification."
   :type 'string
   :group 'ModTag)
 
@@ -178,10 +202,10 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:ConstructKeywordLine (type)
-  "Construct keyword line."
-  (let ((linecnt (cond ((string-equal type "ADD") "ADD[]_[]")
-                       ((string-equal type "DEL") "DEL[]_[]")
-                       ((string-equal type "CHG") "CHG[]_[] -> []_[]")))
+  "Construct keyword line according to TYPE."
+  (let ((linecnt (cond ((string-equal type ModTag:TagMarkADD) (format "%s[]_[]" ModTag:TagMarkADD))
+                       ((string-equal type ModTag:TagMarkDEL) (format "%s[]_[]" ModTag:TagMarkDEL))
+                       ((string-equal type ModTag:TagMarkCHG) (format "%s[]_[] -> []_[]" ModTag:TagMarkCHG))))
         (datetime (format-time-string ModTag:DateFormat))
         )
     (format "%s%s%s%s%s%s%s%s%s"
@@ -205,8 +229,8 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:ConstructIfLine (type)
-  "Construct #if line before modification."
-  (cond ((string-equal type "ADD")
+  "Construct #if line before modification according to TYPE."
+  (cond ((string-equal type ModTag:TagMarkADD)
          (if ModTag:PreCompileMode
              (if (string-blank-p ModTag:PreCompileSW)
                  (format "#if %s" ModTag:ConstTrue)
@@ -219,8 +243,8 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:ConstructElseLine (type)
-  "Construct #else line between old source and new source."
-  (cond ((string-equal type "CHG")
+  "Construct #else line between old source and new source according to TYPE."
+  (cond ((string-equal type ModTag:TagMarkCHG)
          (if (string-blank-p ModTag:PreCompileSW)
              "#else"
            (format "#else /* %s */" ModTag:PreCompileSW))
@@ -230,8 +254,8 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:ConstructEndLine (type)
-  "Construct #endif line after modification."
-  (cond ((string-equal type "ADD")
+  "Construct #endif line after modification according to TYPE."
+  (cond ((string-equal type ModTag:TagMarkADD)
          (if ModTag:PreCompileMode
              (if (string-blank-p ModTag:PreCompileSW)
                  "#endif"
@@ -251,7 +275,8 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
          (regionp (use-region-p))
          (line1 (if regionp line-r1 line-p))
          (line2 (if regionp
-                    (if (string-equal evil-visual-selection "line")
+                    (if (and (boundp 'evil-visual-selection)
+                             (string-equal evil-visual-selection "line"))
                         line-r2
                       (1+ line-r2))
                   (1+ line-p)))
@@ -261,19 +286,19 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:GotoLine (linenumber)
-  "Goto the beginning of specified line."
+  "Goto the beginning of specified LINENUMBER."
   (goto-char (point-min))
   (beginning-of-line linenumber))
 
 (defun ModTag:InsertLine (text)
-  "Insert text in the current position."
+  "Insert TEXT in the current position."
   (when text
     (insert text)
     (insert "\n"))
   )
 
 (defun ModTag:ModifyTag (type)
-  "Add modification tag."
+  "Add modification tag according to TYPE."
   (let ((pos (ModTag:PointPos))
         (reason (ModTag:ConstructReasonLine))
         insertpos ; cursor position after this function finished
@@ -283,13 +308,13 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
                                         ; region selected
           (deactivate-mark)
           (ModTag:GotoLine (nth 2 pos))
-          (when (string-equal type "CHG")
+          (when (string-equal type ModTag:TagMarkCHG)
             (ModTag:InsertLine (ModTag:ConstructElseLine type))
             (ModTag:InsertLine "")
             )
           (ModTag:InsertLine (ModTag:ConstructEndLine type))
           (ModTag:InsertLine ModTag:TagEnd)
-          (cond ((string-equal type "CHG")
+          (cond ((string-equal type ModTag:TagMarkCHG)
                  (setq insertpos
                        (if ModTag:AllowReason
                            (+ (line-number-at-pos (point)) 1)
@@ -300,7 +325,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
                        (if ModTag:AllowReason
                            (+ (line-number-at-pos (point)) 4)
                          (+ (line-number-at-pos (point)) 3)))
-                 (when (and (string-equal type "ADD")
+                 (when (and (string-equal type ModTag:TagMarkADD)
                             (not ModTag:PreCompileMode))
                    (setq insertpos (1- insertpos))
                    )
@@ -314,7 +339,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
           )
       (progn
                                         ; no-selection
-        (if (string-equal type "ADD")
+        (if (string-equal type ModTag:TagMarkADD)
             (progn
                                         ; insert code before current line
               (ModTag:GotoLine (nth 1 pos))
@@ -334,7 +359,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
           (progn
                                         ; treat current line as selection
             (ModTag:GotoLine (nth 2 pos))
-            (when (string-equal type "CHG")
+            (when (string-equal type ModTag:TagMarkCHG)
               (ModTag:InsertLine (ModTag:ConstructElseLine type))
               (ModTag:InsertLine "")
               (setq insertpos
@@ -344,7 +369,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
               )
             (ModTag:InsertLine (ModTag:ConstructEndLine type))
             (ModTag:InsertLine ModTag:TagEnd)
-            (when (string-equal type "DEL")
+            (when (string-equal type ModTag:TagMarkDEL)
               (setq insertpos
                     (if ModTag:AllowReason
                         (+ (line-number-at-pos (point)) 4)
@@ -401,7 +426,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:CountLinesInRegion (startline endline)
-  "Count lines in the specified range."
+  "Count lines in the between STARTLINE and ENDLINE."
   (save-excursion
     (save-restriction
       (let* ((curline (line-number-at-pos (point)))
@@ -433,27 +458,111 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
       ))
   )
 
+(defun ModTag:PairPrecompile ()
+  "Jump between #if..#el[se|if]..#endif."
+  (let ((pat "^\\s-*#\\(if\\|el\\|end\\)")
+        (pat1 "^\\s-*#if")
+        (pat2 "^\\s-*#el")
+        (pat3 "^\\s-*#end")
+        (pos (line-beginning-position))
+        (pos1 -1)
+        (level 0)
+        (posidx -1)
+        pos2
+        poslist '()
+        poslist-filter '()
+        line
+        )
+    ;; get all #if/#el/#end in the buffer
+    ;; data structure (level type pos ... )
+    ;; type: 1(#if) 2(#el) 3(#end)
+    (goto-char (point-min))
+    (re-search-forward pat nil t)
+    (setq pos2 (line-beginning-position))
+    (while (not (eq pos1 pos2))
+      (when (= pos2 pos)
+        (setq posidx (length poslist)))
+      (setq line (buffer-substring-no-properties pos2 (line-end-position)))
+      (cond ((string-match pat1 line)
+             (progn
+               (setq level (1+ level)
+                     poslist (append poslist (list level 1 pos2)))
+               ))
+            ((string-match pat2 line)
+             (progn
+               (setq poslist (append poslist (list level 2 pos2)))
+               ))
+            ((string-match pat3 line)
+             (progn
+               (setq poslist (append poslist (list level 3 pos2))
+                     level (1- level))
+               ))
+            )
+      (re-search-forward pat nil t)
+      (setq pos1 pos2
+            pos2 (line-beginning-position))
+      )
+    ;; filter #if/#el/#end for the current line
+    (when (>= posidx 0)
+      (setq poslist-filter (list (nth (+ posidx 2) poslist))
+            pos2 0)
+      (when (< (nth (1+ posidx) poslist) 3)
+        (setq pos1 (+ posidx 3))
+        (while (< pos1 (length poslist))
+          (when (= (nth posidx poslist) (nth pos1 poslist))
+            (setq poslist-filter (append poslist-filter (list (nth (+ pos1 2) poslist))))
+            (when (>= (nth (1+ pos1) poslist) 3)
+              (setq pos1 (length poslist))
+              )
+            )
+          (setq pos1 (+ pos1 3))
+          )
+        )
+      (when (> (nth (1+ posidx) poslist) 1)
+        (setq pos1 (- posidx 3))
+        (while (>= pos1 0)
+          (when (= (nth posidx poslist) (nth pos1 poslist))
+            (setq poslist-filter (append (list (nth (+ pos1 2) poslist)) poslist-filter)
+                  pos2 (1+ pos2))
+            (when (<= (nth (1+ pos1) poslist) 1)
+              (setq pos1 -1)
+              )
+            )
+          (setq pos1 (- pos1 3))
+          )
+        )
+      ;; set jump pos
+      (setq pos (nth (mod (1+ pos2) (length poslist-filter)) poslist-filter))
+      )
+    (goto-char pos)
+    )
+  )
+
 (defun ModTag:UpdateLineCount (startline endline)
-  "Update line count of specified range."
-  (let* ((typepos (+ (line-beginning-position (- startline (line-number-at-pos (point)) -2)) (length ModTag:CmtStart)))
-         (type (buffer-substring-no-properties typepos (+ typepos 3)))
+  "Update line count between STARTLINE and ENDLINE."
+  (let* ((linestart (line-beginning-position (- startline (line-number-at-pos (point)) -2)))
          (content-start (if ModTag:AllowReason
                             (+ startline 3)
                           (+ startline 2)))
          (content-end endline)
          (key (ModTag:ConstructKeyword))
          lines lines2 elseline keypos
+         typepos type linestart2
          )
+    (goto-char linestart)
+    (search-forward ModTag:CmtStart)
+    (setq typepos (point)
+          linestart2 (- typepos (length ModTag:CmtStart))
+          type (buffer-substring-no-properties typepos (+ typepos ModTag:TagMarkLen)))
     ;; get end position of line number part
-    (goto-char typepos)
     (search-forward key)
     (setq keypos (- (point) (length key)))
     ;; count lines and update line number part
     (cond
-     ((string-equal "CHG" type)
+     ((string-equal ModTag:TagMarkCHG type)
       ;; count lines
       (goto-char (line-beginning-position (- content-start (line-number-at-pos (point)) -1)))
-      (evil-jump-item)
+      (ModTag:PairPrecompile)
       (setq elseline (line-number-at-pos))
       ;; (message "CHG %d-%d-%d" (1+ content-start) elseline (1- content-end))
       (setq lines (ModTag:CountLinesInRegion (1+ content-start) elseline))
@@ -465,7 +574,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
       )
      (t
       ;; count lines
-      (unless (and (string-equal "ADD" type) (not ModTag:PreCompileMode))
+      (unless (and (string-equal ModTag:TagMarkADD type) (not ModTag:PreCompileMode))
         (setq content-start (1+ content-start)
               content-end (1- content-end))
         )
@@ -481,15 +590,19 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:ModifyTagAdd ()
+  "Add tags for add source."
   (interactive)
-  (ModTag:ModifyTag "ADD"))
+  (ModTag:ModifyTag ModTag:TagMarkADD))
 (defun ModTag:ModifyTagChg ()
+  "Add tags for change source."
   (interactive)
-  (ModTag:ModifyTag "CHG"))
+  (ModTag:ModifyTag ModTag:TagMarkCHG))
 (defun ModTag:ModifyTagDel ()
+  "Add tags for del source."
   (interactive)
-  (ModTag:ModifyTag "DEL"))
+  (ModTag:ModifyTag ModTag:TagMarkDEL))
 (defun ModTag:CountLines ()
+  "Update line count of current buffer."
   (interactive)
   (save-excursion
     (let ((parts (ModTag:ModificationList))
@@ -500,6 +613,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
       ))
   )
 (defun ModTag:ManualCountLines ()
+  "Calculate line count of selection range."
   (interactive)
   (let ((pos (ModTag:PointPos))
         lines
@@ -512,7 +626,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:GrepAction (key root)
-  "Generate grep command and run it."
+  "Generate command for grepping KEY recursively in the ROOT folder and run it."
   (let* ((key (shell-quote-argument key))
          (excludedir (if (> (length ModTag:ExcludeDirs) 0)
                          (concat " --exclude-dir=" (mapconcat #'shell-quote-argument ModTag:ExcludeDirs " --exclude-dir="))
@@ -537,7 +651,7 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
 (defvar ModTag:LastGrepBuffer nil
   "The last buffer in which compilation took place.")
 
-(after-load 'compile
+(with-eval-after-load 'compile
   (defadvice compilation-start (after ModTag:SaveLastGrepBuffer activate)
     (setq ModTag:LastGrepBuffer next-error-last-buffer))
   )
@@ -552,20 +666,23 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
           pos2 ; start pos of line number
           pos3 ; pos of second seperator
           pos4 ; start pos of text
+          prop loc hitfile hitpos
           )
       (set-buffer ModTag:LastGrepBuffer)
       (setq oldpos -1
             pos (goto-char (point-min)))
       (while (not (eq pos oldpos))
-        (when (get-text-property pos 'compilation-message)
-          (setq pos1 (goto-char (next-property-change pos))
-                pos2 (goto-char (next-property-change pos1))
-                pos3 (goto-char (next-property-change pos2))
-                pos4 (goto-char (next-property-change pos3))
+        (setq prop (get-text-property pos 'compilation-message))
+        (when prop
+          (setq loc (compilation--message->loc prop)
+                hitfile (car (caar (cddr loc)))
+                hitpos (cadr loc)
                 )
-          (setq result (cons (list (buffer-substring-no-properties pos pos1)
-                                   (string-to-number (buffer-substring-no-properties pos2 pos3))
-                                   (buffer-substring-no-properties pos4 (line-end-position)))
+          (goto-char (+ pos (length hitfile) (length (number-to-string hitpos))))
+          (search-forward ":")
+          (setq result (cons (list hitfile
+                                   hitpos
+                                   (buffer-substring-no-properties (point) (line-end-position)))
                              result))
           )
         (beginning-of-line 2)
@@ -576,6 +693,73 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
       )
     )
   )
+
+(defun ModTag:Summary ()
+  "Summarize line count."
+  (let ((info (ModTag:GrepResult))
+        (result '())
+        line_a1 line_a2                 ;; line count for ADD
+        line_c1 line_c2 line_c3 line_c4 ;; line count for CHG
+        line_d1 line_d2                 ;; line count for DEL
+        lastinfo
+        line typepos type
+        )
+    (dolist (item info)
+      (setq line (nth 2 item)
+            typepos (+ (string-match (regexp-quote ModTag:CmtStart) line) (length ModTag:CmtStart))
+            type (substring-no-properties line typepos (+ typepos ModTag:TagMarkLen))
+            line_a1 0
+            line_a2 0
+            line_c1 0
+            line_c2 0
+            line_c3 0
+            line_c4 0
+            line_d1 0
+            line_d2 0
+            )
+      (cond ((string-equal type ModTag:TagMarkADD)
+             (progn
+               (string-match "\\[\\([0-9]+\\)\\]_\\[\\([0-9]+\\)\\]" line typepos)
+               (setq line_a1 (string-to-number (match-string 1 line))
+                     line_a2 (string-to-number (match-string 2 line))
+                     )
+               ))
+            ((string-equal type ModTag:TagMarkCHG)
+             (progn
+               (string-match "\\[\\([0-9]+\\)\\]_\\[\\([0-9]+\\)\\] -> \\[\\([0-9]+\\)\\]_\\[\\([0-9]+\\)\\]" line typepos)
+               (setq line_c1 (string-to-number (match-string 1 line))
+                     line_c2 (string-to-number (match-string 2 line))
+                     line_c3 (string-to-number (match-string 3 line))
+                     line_c4 (string-to-number (match-string 4 line))
+                     )
+               ))
+            ((string-equal type ModTag:TagMarkDEL)
+             (progn
+               (string-match "\\[\\([0-9]+\\)\\]_\\[\\([0-9]+\\)\\]" line typepos)
+               (setq line_d1 (string-to-number (match-string 1 line))
+                     line_d2 (string-to-number (match-string 2 line))
+                     )
+               ))
+            )
+      (setq lastinfo (lax-plist-get result (car item)))
+      (if lastinfo
+          (progn
+            (setq line_a1 (+ line_a1 (nth 0 lastinfo))
+                  line_a2 (+ line_a2 (nth 1 lastinfo))
+                  line_c1 (+ line_c1 (nth 2 lastinfo))
+                  line_c2 (+ line_c2 (nth 3 lastinfo))
+                  line_c3 (+ line_c3 (nth 4 lastinfo))
+                  line_c4 (+ line_c4 (nth 5 lastinfo))
+                  line_d1 (+ line_d1 (nth 6 lastinfo))
+                  line_d2 (+ line_d2 (nth 7 lastinfo))
+                  result (lax-plist-put result (car item) (list line_a1 line_a2 line_c1 line_c2 line_c3 line_c4 line_d1 line_d2))
+                  )
+            )
+        (setq result (append result (list (car item) (list line_a1 line_a2 line_c1 line_c2 line_c3 line_c4 line_d1 line_d2))))
+        )
+      )
+    result
+    ))
 
 (defun ModTag:RootDir ()
   "Get project root dir."
@@ -594,18 +778,41 @@ The follwing command \"GrepExe -nH GrepOption -e KeyWord -r --exclude-dir=Exclud
   )
 
 (defun ModTag:GrepFiles ()
+  "Grep files for current modification work."
   (interactive)
   ;; (ModTag:GrepAction (ModTag:ConstructKeyword) (ModTag:RootDir))
   (ModTag:GrepAction (regexp-quote (ModTag:ConstructKeyword)) (ModTag:RootDir))
   )
 
-(after-load 'evil-leader
+(defun ModTag:BatchCountLines ()
+  "Update line count of current modification work after grep."
+  (interactive)
+  "Update line count of every file in the grep result."
+  (let ((info (ModTag:GrepResult))
+        (filelist '())
+        buffer
+        )
+    (dolist (item info)
+      (unless (member (car item) filelist)
+        (setq filelist (push (car item) filelist))
+        (setq buffer (find-file-noselect (car item)))
+        (set-buffer buffer)
+        (ModTag:CountLines)
+        (save-buffer)
+        (kill-buffer buffer)
+        )
+      )
+    )
+  )
+
+(with-eval-after-load 'evil-leader
   (evil-leader/set-key
     "ta" 'ModTag:ModifyTagAdd
     "tc" 'ModTag:ModifyTagChg
     "td" 'ModTag:ModifyTagDel
     "tu" 'ModTag:CountLines
     "tm" 'ModTag:ManualCountLines
+    "tg" 'ModTag:GrepFiles
     )
   )
 
