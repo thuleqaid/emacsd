@@ -442,6 +442,7 @@ Computes values for 10 years either side of YEAR."
   )
 
 (require 'fate-essential)
+(require 'fate-liuyao)
 
 (provide 'calendar-fate)
 ;;; calendar-fate.el ends here
