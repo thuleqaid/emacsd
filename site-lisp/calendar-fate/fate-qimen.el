@@ -98,7 +98,6 @@
          cur-9xing cur-8shen cur-yun
          block tmpi tmpj tmpk
          )
-         (message "%d %d %d" tg-hour sminute tg-minute)
     ;; 设置各宫文字
     (dotimes (tmpi (length info))
       (setq cur-dz (nth 0 (nth tmpi info))
