@@ -60,7 +60,7 @@
                           ((= tg-day 10) 0)
                           (t (cond ((= (floor (/ dz-month 3)) 1) 4)
                                    ((= (floor (/ dz-month 3)) 2) 6)
-                                   ((= (floor (/ dz-month 3)) 2) 0)
+                                   ((= (floor (/ dz-month 3)) 3) 0)
                                    (t 2)
                                    ))
                           ))                                    ;; 青龙（八神）所在位置（坎宫起1，顺数）
