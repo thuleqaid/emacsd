@@ -38,7 +38,7 @@
          (sminute (+ 1
                      (floor (/ (nth 4 gdate) 10))
                      (if (= (mod (nth 3 gdate) 2) 0) 6 0)))     ;; 刻地支（1时辰12刻）
-         (tg-minute (1+ (mod (+ (* 2 tg-hour) -3 sminute) 10))) ;; 刻天干
+         (tg-minute (1+ (mod (+ (* 2 tg-hour) -1 sminute) 10))) ;; 刻天干
          (pos-min (mod (+ lmonth lday shour -2) 8))             ;; 命宫位置（坎宫起1，顺数）
          (pos-yun (mod (+ pos-min sminute -1) 8))               ;; 运宫位置（坎宫起1，顺数）
          (dz-yun (cond ((= pos-yun 0) (if (= (mod tg-hour 2) 0) 12 11))
