@@ -285,14 +285,14 @@
     ;; 命宫地支
     (setq fate-current-user (plist-put fate-current-user 'ziwei-ming
                                        (1+ (mod (-
-                                                 (nth 2 (plist-get fate-current-user 'ziwei-birthday))
+                                                 (floor (+ 0.9 (nth 2 (plist-get fate-current-user 'ziwei-birthday))))
                                                  (floor (+ 0.9 (nth 4 (plist-get fate-current-user 'ziwei-birthday))))
                                                  -2)
                                                 12))))
     ;; 身宫地支
     (setq fate-current-user (plist-put fate-current-user 'ziwei-shen
                                        (1+ (mod (+
-                                                 (nth 2 (plist-get fate-current-user 'ziwei-birthday))
+                                                 (floor (+ 0.9 (nth 2 (plist-get fate-current-user 'ziwei-birthday))))
                                                  (floor (+ 0.9 (nth 4 (plist-get fate-current-user 'ziwei-birthday)))))
                                                 12))))
     ;; 五行局
@@ -1115,18 +1115,18 @@
 
 ;; 计算紫微各星曜的位置
 (defun ziwei_calculate (&optional mode year)
-  (let* ((info '())                                                      ;; 临时保存各星曜的位置
-         (result (make-vector 12 '()))                                   ;; 按宫位记录各星曜的代号
-         (info2 '())                                                     ;; 临时保存各星曜的位置（流年星曜）
-         (result2 (make-vector 12 '()))                                  ;; 按宫位记录各星曜的代号（流年星曜）
-         (xgz (car (plist-get fate-current-user 'ziwei-birthday)))       ;; 基本信息（生年干支）
-         (xyear (nth 1 (plist-get fate-current-user 'ziwei-birthday)))   ;; 基本信息（出生年份）
-         (xmonth (nth 2 (plist-get fate-current-user 'ziwei-birthday)))  ;; 基本信息（出生月份）
-         (xday (nth 3 (plist-get fate-current-user 'ziwei-birthday)))    ;; 基本信息（出生日期）
-         (xhour (nth 4 (plist-get fate-current-user 'ziwei-birthday)))   ;; 基本信息（出生时辰）
-         (xming (plist-get fate-current-user 'ziwei-ming))               ;; 基本信息（命宫位置）
-         (xshen (plist-get fate-current-user 'ziwei-shen))               ;; 基本信息（身宫位置）
-         (xju (plist-get fate-current-user 'ziwei-ju))                   ;; 基本信息（五行局）
+  (let* ((info '())                                                                      ;; 临时保存各星曜的位置
+         (result (make-vector 12 '()))                                                   ;; 按宫位记录各星曜的代号
+         (info2 '())                                                                     ;; 临时保存各星曜的位置（流年星曜）
+         (result2 (make-vector 12 '()))                                                  ;; 按宫位记录各星曜的代号（流年星曜）
+         (xgz (car (plist-get fate-current-user 'ziwei-birthday)))                       ;; 基本信息（生年干支）
+         (xyear (nth 1 (plist-get fate-current-user 'ziwei-birthday)))                   ;; 基本信息（出生年份）
+         (xmonth (floor (+ 0.9 (nth 2 (plist-get fate-current-user 'ziwei-birthday)))))  ;; 基本信息（出生月份）
+         (xday (nth 3 (plist-get fate-current-user 'ziwei-birthday)))                    ;; 基本信息（出生日期）
+         (xhour (nth 4 (plist-get fate-current-user 'ziwei-birthday)))                   ;; 基本信息（出生时辰）
+         (xming (plist-get fate-current-user 'ziwei-ming))                               ;; 基本信息（命宫位置）
+         (xshen (plist-get fate-current-user 'ziwei-shen))                               ;; 基本信息（身宫位置）
+         (xju (plist-get fate-current-user 'ziwei-ju))                                   ;; 基本信息（五行局）
          (xnv (1+ (mod (+ xgz
                           (if (plist-get fate-current-user 'male) 1 2))
                        2)))                                              ;; 基本信息（阳男阴女1，反之2）
@@ -1144,7 +1144,7 @@
                      (1+ (mod (1- (1+ (mod (- syear 1984) 60))) 12))
                      ))                                                  ;; 命宫位置（命盘，大运，流年）
          (firstmonth (1+ (mod (1-
-                               (+ (- (nth 2 gong) (floor (+ xmonth 0.9)))
+                               (+ (- (nth 2 gong) xmonth)
                                   xhour))
                               12)))                                      ;; 流正月宫位
          (sgz3 (+ 3 (* 12 (mod (1- sgz) 5))))                            ;; 流正月干支
@@ -1186,7 +1186,10 @@
                               (nth 4 (plist-get fate-current-user 'birthday-fix))
                               (nth 5 (plist-get fate-current-user 'birthday-fix))
                               )
-                      (format "阴历：%d年%d月%d日%s时" xyear xmonth xday (aref chinese-fate-calendar-terrestrial-branch (mod (1- xhour) 12)))
+                      (if (< (nth 2 (plist-get fate-current-user 'ziwei-birthday)) xmonth)
+                          (format "阴历：%d年闰%d月%d日%s时" xyear (1- xmonth) xday (aref chinese-fate-calendar-terrestrial-branch (mod (1- xhour) 12)))
+                        (format "阴历：%d年%d月%d日%s时" xyear xmonth xday (aref chinese-fate-calendar-terrestrial-branch (mod (1- xhour) 12)))
+                        )
                       (format "八字：%s %s %s %s"
                               (calendar-fate-chinese-sexagesimal-name (nth 1 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
                               (calendar-fate-chinese-sexagesimal-name (nth 2 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
