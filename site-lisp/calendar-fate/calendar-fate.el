@@ -442,6 +442,9 @@ Computes values for 10 years either side of YEAR."
   )
 
 (require 'fate-essential)
+(require 'fate-birthdb)
+(require 'fate-heluo)
+(require 'fate-ziwei)
 (require 'fate-liuyao)
 (require 'fate-qimen)
 
