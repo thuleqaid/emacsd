@@ -159,16 +159,16 @@
          (result (make-vector 12 '()))                                                   ;; 按宫位记录各星曜的代号
          (info2 '())                                                                     ;; 临时保存各星曜的位置（流年星曜）
          (result2 (make-vector 12 '()))                                                  ;; 按宫位记录各星曜的代号（流年星曜）
-         (xgz (car (plist-get fate-current-user 'ziwei-birthday)))                       ;; 基本信息（生年干支）
-         (xyear (nth 1 (plist-get fate-current-user 'ziwei-birthday)))                   ;; 基本信息（出生年份）
-         (xmonth (floor (+ 0.9 (nth 2 (plist-get fate-current-user 'ziwei-birthday)))))  ;; 基本信息（出生月份）
-         (xday (nth 3 (plist-get fate-current-user 'ziwei-birthday)))                    ;; 基本信息（出生日期）
-         (xhour (nth 4 (plist-get fate-current-user 'ziwei-birthday)))                   ;; 基本信息（出生时辰）
-         (xming (plist-get fate-current-user 'ziwei-ming))                               ;; 基本信息（命宫位置）
-         (xshen (plist-get fate-current-user 'ziwei-shen))                               ;; 基本信息（身宫位置）
-         (xju (plist-get fate-current-user 'ziwei-ju))                                   ;; 基本信息（五行局）
+         (xgz (car (plist-get fate-user-current 'ziwei-birthday)))                       ;; 基本信息（生年干支）
+         (xyear (nth 1 (plist-get fate-user-current 'ziwei-birthday)))                   ;; 基本信息（出生年份）
+         (xmonth (floor (+ 0.9 (nth 2 (plist-get fate-user-current 'ziwei-birthday)))))  ;; 基本信息（出生月份）
+         (xday (nth 3 (plist-get fate-user-current 'ziwei-birthday)))                    ;; 基本信息（出生日期）
+         (xhour (nth 4 (plist-get fate-user-current 'ziwei-birthday)))                   ;; 基本信息（出生时辰）
+         (xming (plist-get fate-user-current 'ziwei-ming))                               ;; 基本信息（命宫位置）
+         (xshen (plist-get fate-user-current 'ziwei-shen))                               ;; 基本信息（身宫位置）
+         (xju (plist-get fate-user-current 'ziwei-ju))                                   ;; 基本信息（五行局）
          (xnv (1+ (mod (+ xgz
-                          (if (plist-get fate-current-user 'male) 1 2))
+                          (if (plist-get fate-user-current 'male) 1 2))
                        2)))                                              ;; 基本信息（阳男阴女1，反之2）
          (smode (1+ (mod (1- (or mode 1)) 3)))                            ;; 指定模式（1:命盘 2:大运 3:流年）
          (syear (max (or year (nth 5 (decode-time))) xyear))             ;; 指定年份
@@ -217,24 +217,24 @@
       (aset result2 (1- tmpj) (append (aref result2 (1- tmpj)) (list (car item))))
       )
     ;; 设置中央区块文字
-    (setq block (list (format "姓名：%s" (plist-get fate-current-user 'name))
+    (setq block (list (format "姓名：%s" (plist-get fate-user-current 'name))
                       (format "公历：%d年%d月%d日 %d:%d:%d"
-                              (nth 2 (plist-get fate-current-user 'birthday-fix))
-                              (nth 0 (plist-get fate-current-user 'birthday-fix))
-                              (nth 1 (plist-get fate-current-user 'birthday-fix))
-                              (nth 3 (plist-get fate-current-user 'birthday-fix))
-                              (nth 4 (plist-get fate-current-user 'birthday-fix))
-                              (nth 5 (plist-get fate-current-user 'birthday-fix))
+                              (nth 2 (plist-get fate-user-current 'birthday-fix))
+                              (nth 0 (plist-get fate-user-current 'birthday-fix))
+                              (nth 1 (plist-get fate-user-current 'birthday-fix))
+                              (nth 3 (plist-get fate-user-current 'birthday-fix))
+                              (nth 4 (plist-get fate-user-current 'birthday-fix))
+                              (nth 5 (plist-get fate-user-current 'birthday-fix))
                               )
-                      (if (< (nth 2 (plist-get fate-current-user 'ziwei-birthday)) xmonth)
+                      (if (< (nth 2 (plist-get fate-user-current 'ziwei-birthday)) xmonth)
                           (format "阴历：%d年闰%d月%d日%s时" xyear (1- xmonth) xday (aref chinese-fate-calendar-terrestrial-branch (mod (1- xhour) 12)))
                         (format "阴历：%d年%d月%d日%s时" xyear xmonth xday (aref chinese-fate-calendar-terrestrial-branch (mod (1- xhour) 12)))
                         )
                       (format "八字：%s %s %s %s"
-                              (calendar-fate-chinese-sexagesimal-name (nth 1 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
-                              (calendar-fate-chinese-sexagesimal-name (nth 2 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
-                              (calendar-fate-chinese-sexagesimal-name (nth 3 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
-                              (calendar-fate-chinese-sexagesimal-name (nth 4 (fate-solar-info (plist-get fate-current-user 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 1 (fate-solar-info (plist-get fate-user-current 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 2 (fate-solar-info (plist-get fate-user-current 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 3 (fate-solar-info (plist-get fate-user-current 'birthday-fix))))
+                              (calendar-fate-chinese-sexagesimal-name (nth 4 (fate-solar-info (plist-get fate-user-current 'birthday-fix))))
                               )
                       ))
     (when (> smode 1)
@@ -433,7 +433,7 @@
   )
 
 (defun ziwei-user-calculate ()
-  (let ((birthday (plist-get fate-current-user 'birthday-fix))
+  (let ((birthday (plist-get fate-user-current 'birthday-fix))
         (ziwei-ju-tbl '((2 2 6 6 3 3 5 5 4 4 6 6)
                         (6 6 5 5 4 4 3 3 2 2 5 5)
                         (5 5 3 3 2 2 4 4 6 6 3 3)
@@ -443,7 +443,7 @@
     ;; 紫微相关信息
     (setq lunar (fate-lunar-info birthday))
     ;; 阴历年干支，年，月，日，时
-    (setq fate-current-user (plist-put fate-current-user 'ziwei-birthday
+    (setq fate-user-current (plist-put fate-user-current 'ziwei-birthday
                                        (list (cadr lunar)
                                              (if (= (cadr lunar) (1+ (mod (- (nth 2 birthday) 1984) 60)))
                                                  (nth 2 birthday)
@@ -456,22 +456,22 @@
                                                )
                                              )))
     ;; 命宫地支
-    (setq fate-current-user (plist-put fate-current-user 'ziwei-ming
+    (setq fate-user-current (plist-put fate-user-current 'ziwei-ming
                                        (1+ (mod (-
-                                                 (floor (+ 0.9 (nth 2 (plist-get fate-current-user 'ziwei-birthday))))
-                                                 (floor (+ 0.9 (nth 4 (plist-get fate-current-user 'ziwei-birthday))))
+                                                 (floor (+ 0.9 (nth 2 (plist-get fate-user-current 'ziwei-birthday))))
+                                                 (floor (+ 0.9 (nth 4 (plist-get fate-user-current 'ziwei-birthday))))
                                                  -2)
                                                 12))))
     ;; 身宫地支
-    (setq fate-current-user (plist-put fate-current-user 'ziwei-shen
+    (setq fate-user-current (plist-put fate-user-current 'ziwei-shen
                                        (1+ (mod (+
-                                                 (floor (+ 0.9 (nth 2 (plist-get fate-current-user 'ziwei-birthday))))
-                                                 (floor (+ 0.9 (nth 4 (plist-get fate-current-user 'ziwei-birthday)))))
+                                                 (floor (+ 0.9 (nth 2 (plist-get fate-user-current 'ziwei-birthday))))
+                                                 (floor (+ 0.9 (nth 4 (plist-get fate-user-current 'ziwei-birthday)))))
                                                 12))))
     ;; 五行局
-    (setq fate-current-user (plist-put fate-current-user 'ziwei-ju
-                                       (nth (1- (plist-get fate-current-user 'ziwei-ming))
-                                            (nth (mod (1- (nth 0 (plist-get fate-current-user 'ziwei-birthday))) 5)
+    (setq fate-user-current (plist-put fate-user-current 'ziwei-ju
+                                       (nth (1- (plist-get fate-user-current 'ziwei-ming))
+                                            (nth (mod (1- (nth 0 (plist-get fate-user-current 'ziwei-birthday))) 5)
                                                  ziwei-ju-tbl))))
     )
   )
