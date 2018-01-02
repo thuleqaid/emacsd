@@ -39,6 +39,21 @@
                      (floor (/ (nth 4 gdate) 10))
                      (if (= (mod (nth 3 gdate) 2) 0) 6 0)))     ;; 刻地支（1时辰12刻）
          (tg-minute (1+ (mod (+ (* 2 tg-hour) -1 sminute) 10))) ;; 刻天干
+         (empty-year (1+ (mod (- (nth 1 sdate) (mod (1- (nth 1 sdate)) 10) -9) 12)))  ;; 年空
+         (empty-month (1+ (mod (- (nth 2 sdate) (mod (1- (nth 2 sdate)) 10) -9) 12))) ;; 月空
+         (empty-day (1+ (mod (- (nth 3 sdate) (mod (1- (nth 3 sdate)) 10) -9) 12)))   ;; 日空
+         (empty-hour (1+ (mod (- (nth 4 sdate) (mod (1- (nth 4 sdate)) 10) -9) 12)))  ;; 时空
+         (empty-minute (mod (- sminute -11 tg-minute) 12))                            ;; 刻空
+         (empty-year2 (1+ empty-year))
+         (empty-month2 (1+ empty-month))
+         (empty-day2 (1+ empty-day))
+         (empty-hour2 (1+ empty-hour))
+         (empty-minute2 (1+ empty-minute))
+         (empty-txt-year "年空")
+         (empty-txt-month "月空")
+         (empty-txt-day "日空")
+         (empty-txt-hour "时空")
+         (empty-txt-minute "刻空")
          (pos-min (mod (+ lmonth lday shour -2) 8))             ;; 命宫位置（坎宫起1，顺数）
          (pos-yun (mod (+ pos-min sminute -1) 8))               ;; 运宫位置（坎宫起1，顺数）
          (dz-yun (cond ((= pos-yun 0) (if (= (mod tg-hour 2) 0) 12 11))
@@ -98,6 +113,11 @@
          cur-9xing cur-8shen cur-yun
          block tmpi tmpj tmpk
          )
+    (add-face-text-property 0 (length empty-txt-year) (list :foreground "gray") nil empty-txt-year)
+    (add-face-text-property 0 (length empty-txt-month) (list :foreground "gray") nil empty-txt-month)
+    (add-face-text-property 0 (length empty-txt-day) (list :foreground "gray") nil empty-txt-day)
+    (add-face-text-property 0 (length empty-txt-hour) (list :foreground "gray") nil empty-txt-hour)
+    (add-face-text-property 0 (length empty-txt-minute) (list :foreground "gray") nil empty-txt-minute)
     ;; 设置各宫文字
     (dotimes (tmpi (length info))
       (setq cur-dz (nth 0 (nth tmpi info))
@@ -124,10 +144,25 @@
         )
       (if (< tmpi 4)
           (if (< tmpi 2)
-              (setq block (list (nth cur-9xing txt-9xing)
-                                (nth cur-8shen txt-8shen)
-                                cur-64gua
-                                (nth cur-8men txt-8men)
+              (setq block (list (format "%s %s %s"
+                                        (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
+                                        (nth cur-9xing txt-9xing)
+                                        (if (or (= (1+ cur-dz) empty-year) (= (1+ cur-dz) empty-year2)) empty-txt-year "    "))
+                                (format "%s %s %s"
+                                        (if (or (= cur-dz empty-month) (= cur-dz empty-month2)) empty-txt-month "    ")
+                                        (nth cur-8shen txt-8shen)
+                                        (if (or (= (1+ cur-dz) empty-month) (= (1+ cur-dz) empty-month2)) empty-txt-month "    "))
+                                (format "%s  %s  %s"
+                                        (if (or (= cur-dz empty-day) (= cur-dz empty-day2)) empty-txt-day "    ")
+                                        cur-64gua
+                                        (if (or (= (1+ cur-dz) empty-day) (= (1+ cur-dz) empty-day2)) empty-txt-day "    "))
+                                (format "%s %s %s"
+                                        (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
+                                        (nth cur-8men txt-8men)
+                                        (if (or (= (1+ cur-dz) empty-hour) (= (1+ cur-dz) empty-hour2)) empty-txt-hour "    "))
+                                (format "%s      %s"
+                                        (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
+                                        (if (or (= (1+ cur-dz) empty-minute) (= (1+ cur-dz) empty-minute2)) empty-txt-minute "    "))
                                 (format "%s%s  %s%s"
                                         (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
                                         tmpj
@@ -135,10 +170,25 @@
                                         tmpk
                                         )
                                 ))
-            (setq block (list (nth cur-9xing txt-9xing)
-                              (nth cur-8shen txt-8shen)
-                              cur-64gua
-                              (nth cur-8men txt-8men)
+            (setq block (list (format "%s %s %s"
+                                      (if (or (= (1+ cur-dz) empty-year) (= (1+ cur-dz) empty-year2)) empty-txt-year "    ")
+                                      (nth cur-9xing txt-9xing)
+                                      (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    "))
+                              (format "%s %s %s"
+                                      (if (or (= (1+ cur-dz) empty-month) (= (1+ cur-dz) empty-month2)) empty-txt-month "    ")
+                                      (nth cur-8shen txt-8shen)
+                                      (if (or (= cur-dz empty-month) (= cur-dz empty-month2)) empty-txt-month "    "))
+                              (format "%s  %s  %s"
+                                      (if (or (= (1+ cur-dz) empty-day) (= (1+ cur-dz) empty-day2)) empty-txt-day "    ")
+                                      cur-64gua
+                                      (if (or (= cur-dz empty-day) (= cur-dz empty-day2)) empty-txt-day "    "))
+                              (format "%s %s %s"
+                                      (if (or (= (1+ cur-dz) empty-hour) (= (1+ cur-dz) empty-hour2)) empty-txt-hour "    ")
+                                      (nth cur-8men txt-8men)
+                                      (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    "))
+                              (format "%s      %s"
+                                      (if (or (= (1+ cur-dz) empty-minute) (= (1+ cur-dz) empty-minute2)) empty-txt-minute "    ")
+                                      (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    "))
                               (format "%s%s  %s%s"
                                       (aref chinese-fate-calendar-terrestrial-branch cur-dz)
                                       tmpk
@@ -147,15 +197,85 @@
                                       )
                               ))
             )
-        (setq block (list (nth cur-9xing txt-9xing)
-                          (nth cur-8shen txt-8shen)
-                          cur-64gua
-                          (nth cur-8men txt-8men)
-                          (format "%s%s"
-                                  (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
-                                  tmpj
-                                  )
-                          ))
+        (cond ((= tmpi 4)
+               (setq block (list (format "%s %s     "
+                                         (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
+                                         (nth cur-9xing txt-9xing)
+                                         )
+                                 (format "%s %s     "
+                                         (if (or (= cur-dz empty-month) (= cur-dz empty-month2)) empty-txt-month "    ")
+                                         (nth cur-8shen txt-8shen)
+                                         )
+                                 (format "%s  %s      "
+                                         (if (or (= cur-dz empty-day) (= cur-dz empty-day2)) empty-txt-day "    ")
+                                         cur-64gua
+                                         )
+                                 (format "%s %s     "
+                                         (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
+                                         (nth cur-8men txt-8men)
+                                         )
+                                 (format "%s          "
+                                         (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
+                                         )
+                                 (format "%s%s        "
+                                         (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
+                                         tmpj
+                                         )
+                                 ))
+               )
+              ((= tmpi 6)
+               (setq block (list (format "     %s %s"
+                                         (nth cur-9xing txt-9xing)
+                                         (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
+                                         )
+                                 (format "     %s %s"
+                                         (nth cur-8shen txt-8shen)
+                                         (if (or (= cur-dz empty-month) (= cur-dz empty-month2)) empty-txt-month "    ")
+                                         )
+                                 (format "      %s  %s"
+                                         cur-64gua
+                                         (if (or (= cur-dz empty-day) (= cur-dz empty-day2)) empty-txt-day "    ")
+                                         )
+                                 (format "     %s %s"
+                                         (nth cur-8men txt-8men)
+                                         (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
+                                         )
+                                 (format "          %s"
+                                         (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
+                                         )
+                                 (format "        %s%s"
+                                         (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
+                                         tmpj
+                                         )
+                                 ))
+               )
+              (t
+                              (setq block (list (format "     %s %s"
+                                         (nth cur-9xing txt-9xing)
+                                         (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
+                                         )
+                                 (format "     %s %s"
+                                         (nth cur-8shen txt-8shen)
+                                         (if (or (= cur-dz empty-month) (= cur-dz empty-month2)) empty-txt-month "    ")
+                                         )
+                                 (format "      %s  %s"
+                                         cur-64gua
+                                         (if (or (= cur-dz empty-day) (= cur-dz empty-day2)) empty-txt-day "    ")
+                                         )
+                                 (format "     %s %s"
+                                         (nth cur-8men txt-8men)
+                                         (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
+                                         )
+                                 (format "          %s"
+                                         (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
+                                         )
+                                 (format "%s%s"
+                                         (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
+                                         tmpj
+                                         )
+                                 ))
+               )
+              )
         )
       (setq txt (cons block txt))
       )
@@ -166,10 +286,14 @@
           block (list (nth cur-9xing txt-9xing)
                       (format "%s年%04d%02d%02d" (calendar-fate-chinese-sexagesimal-name (nth 1 sdate)) (nth 2 gdate) (nth 0 gdate) (nth 1 gdate))
                       (format "%s月%02d:%02d:%02d" (calendar-fate-chinese-sexagesimal-name (nth 2 sdate)) (nth 3 gdate) (nth 4 gdate) (nth 5 gdate))
-                      (format "%s日  %s%s月" (calendar-fate-chinese-sexagesimal-name (nth 3 sdate))
+                      (format "%s日        " (calendar-fate-chinese-sexagesimal-name (nth 3 sdate)))
+                      (format "%s时  %s%s月" (calendar-fate-chinese-sexagesimal-name (nth 4 sdate))
                               (if (> (nth 2 ldate) lmonth) (nth 13 lunar_monthname) "  ")
-                              (nth (1- lmonth) lunar_monthname))
-                      (format "%s时  %s%s日" (calendar-fate-chinese-sexagesimal-name (nth 4 sdate))
+                              (nth (1- lmonth) lunar_monthname)
+                              )
+                      (format "%s%s刻  %s%s日"
+                              (aref chinese-fate-calendar-celestial-stem (mod (1- tg-minute) 10))
+                              (aref chinese-fate-calendar-terrestrial-branch (mod (1- sminute) 12))
                               (cond ((= lday 30) "三")
                                     ((> lday 20) "廿")
                                     ((= lday 20) "二")
@@ -203,9 +327,9 @@
     (qimen_draw txt)
     ))
 (defun qimen_draw (blocks)
-  (let* ((rows-min 5)
+  (let* ((rows-min 6)
          (cols-min 14)
-         (rows (max rows-min 5))
+         (rows (max rows-min 6))
          (cols (max cols-min 14))
          (block-rows (length (nth 0 blocks)))
          (row-start (floor (/ (- rows block-rows) 2)))
