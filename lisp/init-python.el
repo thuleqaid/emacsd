@@ -2,7 +2,9 @@
 
 ;; use elpy-config to check required python packages
 (elpy-enable)
-(elpy-use-ipython)
+;(elpy-use-ipython)
+(setq python-shell-interpreter "jupyter"
+      python-shell-interpreter-args "console --simple-prompt")
 
 ;; use flycheck not flymake with elpy
 (when (maybe-require-package 'flycheck nil t)
