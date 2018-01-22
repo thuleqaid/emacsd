@@ -33,6 +33,8 @@
 ;; 各城市时差数据文件
 (defconst fate-timediff-pos-file (concat fate-root-dir "timediff_pos.txt"))
 
+;; 新增用户时是否需要指定出生位置
+(defvar fate-user-specify-pos nil)
 ;; 当前用户信息
 (defvar fate-user-current '())
 ;; 扩展用户信息计算函数列表
@@ -63,11 +65,17 @@
       (setq birth0 (safe-date-to-time (org-read-date t))
             )
       )
-    ;; 读取出生城市
-    (setq city (completing-read "Birth City: " fate-timediff-pos-choice nil t))
-    (if (string= city (car fate-timediff-pos-choice))
-        (setq poslong (string-to-number (read-string "Longitude: ")))
-      (setq poslong 0)
+    (if fate-user-specify-pos
+        (progn
+          ;; 读取出生城市
+          (setq city (completing-read "Birth City: " fate-timediff-pos-choice nil t))
+          (if (string= city (car fate-timediff-pos-choice))
+              (setq poslong (string-to-number (read-string "Longitude: ")))
+            (setq poslong 0)
+            )
+          )
+      (setq city (car fate-timediff-pos-choice)
+            poslong 120)
       )
     (fate_user_add_dummy name male birth0 city poslong)
     (fate_user_list_save)
