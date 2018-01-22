@@ -447,7 +447,8 @@
          (pat2 "   + %s\n")
          (pat3 "**** %d/%d/%d %d:%d:%d -- %d/%d/%d %d:%d:%d %s\n")
          (pat4 "     + %s\n")
-         tmpi tmpj curtext exttext
+         (pat5 "     %s\n")
+         tmpi tmpj curtext exttext tmptext
          )
     ;; 输出先天/后天运批言
     (unless (and lastguayao (= (nth 2 lastguayao) (nth 2 guayao)))
@@ -486,8 +487,21 @@
     (setq exttext (heluo_ext_msg curgua curyao))
     (setq tmpi 1)
     (while (< tmpi (length exttext))
-      (insert (format pat4 (nth tmpi exttext)))
-      (setq tmpi (1+ tmpi))
+      (setq tmptext (format pat5 (nth tmpi exttext))
+            tmpj (floor (/ (string-width tmptext) 80))
+            tmpi (1+ tmpi)
+        )
+      (insert tmptext)
+      ;; 自动换行
+      (when (> tmpj 0)
+        (beginning-of-line 0)
+        (while (> tmpj 0)
+          (move-to-column 80)
+          (insert "\n")
+          (setq tmpj (1- tmpj))
+          )
+        (beginning-of-line 2)
+        )
       )
     (setq tmpi 1)
     (while (< tmpi (length curtext))
