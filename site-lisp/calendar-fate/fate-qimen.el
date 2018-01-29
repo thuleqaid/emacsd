@@ -22,11 +22,23 @@
 ;; qimen-taigong
 
 ;;; Code:
-;; 太公奇门排盘
 (defun qimen-taigong ()
   (interactive)
-  (let* ((adate (calendar-fate-chinese-datetime))               ;; 绝对时间
-         (gdate (calendar-fate-gregorian-from-absolute adate))  ;; 公历时间
+  (let ((adate (calendar-fate-chinese-datetime)))
+    (qimen_clearbuffer)
+    (qimen_taigong adate)
+    )
+  )
+(defun qimen-normal ()
+  (interactive)
+  (let ((adate (calendar-fate-chinese-datetime)))
+    (qimen_clearbuffer)
+    (qimen_normal adate)
+    )
+  )
+;; 太公奇门排盘
+(defun qimen_taigong (adate)
+  (let* ((gdate (calendar-fate-gregorian-from-absolute adate))  ;; 公历时间
          (sdate (calendar-fate-chinese-from-absolute adate))    ;; 阳历时间
          (ldate (fate-lunar-info gdate))                        ;; 阴历时间
          (lmonth (floor (nth 2 ldate)))                         ;; 阴历月
@@ -326,6 +338,167 @@
     ;; 画九宫
     (qimen_draw txt)
     ))
+;; 普通奇门排盘
+(defun qimen_normal (adate)
+  (let* ((flag-ju 2) ;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
+         (flag-9xing t) ;; 九星排法 t:转盘, nil:飞宫
+         (flag-8men t)  ;; 八门排法 t:转盘, nil:飞宫
+         (logbuffer (get-buffer-create "fate-qimen"))
+         ;; 阴阳遁歌诀
+         (yinyang-table '((8 5 2) (9 6 3) (1 7 4)
+                          (3 9 6) (4 1 7) (5 2 8)
+                          (4 1 7) (5 2 8) (6 3 9)
+                          (9 3 6) (8 2 5) (7 1 4)
+                          (2 5 8) (1 4 7) (9 3 6)
+                          (7 1 4) (6 9 3) (5 8 2)
+                          (6 9 3) (5 8 2) (4 7 1)
+                          (1 7 4) (2 8 5) (3 9 6)))
+         (gdate (calendar-fate-gregorian-from-absolute adate)) ;; 公历时间
+         (sdate (calendar-fate-chinese-from-absolute adate)) ;; 阳历时间
+         (org (+ (floor (/ (1- (nth 4 sdate)) 10)) 5)) ;; 甲的遁干
+         (org2 (1+ (mod (1- (nth 4 sdate)) 10)))       ;; 时干
+         (termidx (nth 5 sdate))                       ;; 上一个节气
+         (ju-yinyang (if (or (>= termidx 22) (< termidx 10)) t nil)) ;; 阴遁/阳遁（定局方法1） t:阳遁, nil:阴遁
+         (ju (nth (floor (/ (mod (1- (nth 3 sdate)) 15) 5)) (nth (1- termidx) yinyang-table))) ;; 局数（定局方法1）
+         (info-tiangan '(5 6 7 8 9 10 4 3 2))
+         ;; 转盘顺序
+         (order11 '(0 7 2 3 8 1 6 5))    ;; 转盘的宫位顺序
+         (order12 '(0 5 2 3 5 7 6 1 4)) ;; 宫位(1~9)到order11的index
+         (txt-9xing1 '("天蓬" "天任" "天冲" "天辅"
+                       "天英" "天芮" "天柱" "天心"))
+         (txt-8men1 '("休门" "生门" "伤门" "杜门"
+                      "景门" "死门" "惊门" "开门"))
+         (txt-8shen1 '("值符" "腾蛇" "太阴" "六合"
+                       "白虎" "玄武" "九地" "九天"))
+         ;; 飞宫顺序
+         (txt-9xing2 '("天蓬" "天芮" "天冲"
+                       "天辅" "天禽" "天心"
+                       "天柱" "天任" "天英"))
+         (txt-8men2 '("休门" "死门" "伤门"
+                      "杜门" "中门" "开门"
+                      "惊门" "生门" "景门"))
+         (txt-8shen2 '("值符" "腾蛇" "太阴"
+                       "六合" "勾陈" "太常"
+                       "朱雀" "九地" "九天"))
+         (txt '())
+         (dipan (make-vector 9 ""))
+         (renpan (make-vector 9 ""))
+         (tianpan (make-vector 9 ""))
+         (shenpan (make-vector 9 ""))
+         (shenpan_base (make-vector 9 ""))
+         block basegong rengong tiangong
+         zhifu zhishi
+         tmpi tmpj tmpk
+         )
+    (clear-text-properties txt-9xing1)
+    (clear-text-properties txt-9xing2)
+    (clear-text-properties txt-8men1)
+    (clear-text-properties txt-8men2)
+    (clear-text-properties txt-8shen1)
+    (clear-text-properties txt-8shen2)
+    (add-face-text-property 0 (length (nth 0 txt-8shen1)) (list :foreground "red") nil (nth 0 txt-8shen1))
+    (add-face-text-property 0 (length (nth 0 txt-8shen2)) (list :foreground "red") nil (nth 0 txt-8shen1))
+    ;; 调整阴阳遁及局数
+    (cond ((= flag-ju 2)
+           (setq ju-yinyang (if (= (mod (nth 3 gdate) 2) 1) t nil)
+                 termidx (1+ (mod (+ (if ju-yinyang 0 12) (floor (/ (nth 4 gdate) 5)) 21) 24))
+                 ju (nth (floor (/ (mod (+ (* (nth 4 gdate) 60) (nth 5 gdate)) 300) 100)) (nth (1- termidx) yinyang-table))
+                 )
+           )
+          )
+    ;; 计算地盘天干
+    (dotimes (tmpi 9)
+      (aset dipan (mod (+ ju -1 (* (if ju-yinyang 1 -1) tmpi)) 9)
+            (aref chinese-fate-calendar-celestial-stem (mod (1- (nth tmpi info-tiangan)) 10)))
+      (when (= (nth tmpi info-tiangan) org)
+        ;; 设置值符/值使所在原始宫位
+        (setq basegong (1+ (mod (+ ju -1 (* (if ju-yinyang 1 -1) tmpi)) 9)))
+        )
+      (when (= (nth tmpi info-tiangan) org2)
+        ;; 设置值符所在新宫位
+        (setq tiangong (1+ (mod (+ ju -1 (* (if ju-yinyang 1 -1) tmpi)) 9)))
+        )
+      )
+    (when (= org2 1) (setq tiangong basegong))
+    (setq rengong (1+ (mod (+ basegong -2 (* (if ju-yinyang 1 -1) org2)) 9)))
+    ;; 计算人盘
+    (setq zhishi basegong)
+    (if flag-8men
+        (progn
+          (when (= rengong 5) (setq rengong 2))
+          (setq tmpj (nth (1- rengong) order12)   ;; 值使新宫位
+                tmpk (nth (1- basegong) order12)) ;; 值使旧宫位
+          (add-face-text-property 0 (length (nth tmpk txt-8men1)) (list :foreground "red") nil (nth tmpk txt-8men1))
+          (dotimes (tmpi 8)
+            (aset renpan (nth (mod (+ tmpi tmpj) 8) order11) (nth (mod (+ tmpi tmpk) 8) txt-8men1))
+            )
+          )
+      (progn
+        ))
+    ;; 计算天盘、神盘
+    (setq zhifu basegong)
+    (if flag-9xing
+        (progn
+          (when (= tiangong 5) (setq tiangong 2))
+          (setq tmpj (nth (1- tiangong) order12)  ;; 值符新宫位
+                tmpk (nth (1- basegong) order12)) ;; 值符旧宫位
+          (unless (= 5 basegong)
+            (add-face-text-property 0 (length (nth tmpk txt-9xing1)) (list :foreground "red") nil (nth tmpk txt-9xing1)))
+          (dotimes (tmpi 8)
+            (aset tianpan (nth (mod (+ tmpi tmpj) 8) order11) (format "%s %s" (nth (mod (+ tmpi tmpk) 8) txt-9xing1) (aref dipan (nth (mod (+ tmpi tmpk) 8) order11))))
+            (aset shenpan (nth (mod (+ tmpi tmpj) 8) order11) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 8) txt-8shen1))
+            (aset shenpan_base (nth (mod (+ tmpi tmpk) 8) order11) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 8) txt-8shen1))
+            )
+          )
+      (progn
+        ))
+    ;; 设置各宫文字
+    (dotimes (tmpi 9)
+      (setq block (list (format "%s" (aref shenpan tmpi))
+                        (format "%s" (aref tianpan tmpi))
+                        (format "%s %s" (aref renpan tmpi) (aref dipan tmpi))
+                        (format "%s" (aref shenpan_base tmpi))
+                        ))
+      (add-to-list 'txt block t)
+      )
+    (set-buffer logbuffer)
+    (insert (format "起盘时间：%d/%d/%d %d:%d:%d	%s遁%d局\n" (nth 2 gdate) (nth 0 gdate) (nth 1 gdate) (nth 3 gdate) (nth 4 gdate) (nth 5 gdate) (if ju-yinyang "阳" "阴") ju))
+    (insert (format "四柱：%s   %s   %s   %s\n"
+                    (calendar-fate-chinese-sexagesimal-name (nth 1 sdate))
+                    (calendar-fate-chinese-sexagesimal-name (nth 2 sdate))
+                    (calendar-fate-chinese-sexagesimal-name (nth 3 sdate))
+                    (calendar-fate-chinese-sexagesimal-name (nth 4 sdate))
+                    ))
+    (insert (format "旬空：%s%s   %s%s   %s%s   %s%s\n"
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 1 sdate) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 1 sdate) 9) 10)))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 2 sdate) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 2 sdate) 9) 10)))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 3 sdate) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 3 sdate) 9) 10)))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 4 sdate) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 4 sdate) 9) 10)))) 12))
+                    ))
+    (insert (format "旬首：%s%s %s%s %s%s %s%s\n"
+                    (calendar-fate-chinese-sexagesimal-name (- (* 10 (floor (/ (+ (nth 1 sdate) 9) 10))) 9))
+                    (aref chinese-fate-calendar-celestial-stem (+ (floor (/ (1- (nth 1 sdate)) 10)) 4))
+                    (calendar-fate-chinese-sexagesimal-name (- (* 10 (floor (/ (+ (nth 2 sdate) 9) 10))) 9))
+                    (aref chinese-fate-calendar-celestial-stem (+ (floor (/ (1- (nth 2 sdate)) 10)) 4))
+                    (calendar-fate-chinese-sexagesimal-name (- (* 10 (floor (/ (+ (nth 3 sdate) 9) 10))) 9))
+                    (aref chinese-fate-calendar-celestial-stem (+ (floor (/ (1- (nth 3 sdate)) 10)) 4))
+                    (calendar-fate-chinese-sexagesimal-name (- (* 10 (floor (/ (+ (nth 4 sdate) 9) 10))) 9))
+                    (aref chinese-fate-calendar-celestial-stem (+ (floor (/ (1- (nth 4 sdate)) 10)) 4))
+                    ))
+    ;; 画九宫
+    (qimen_draw txt)
+    ))
+
+(defun qimen_clearbuffer ()
+  (let ((logbuffer (get-buffer-create "fate-qimen")))
+    (set-buffer logbuffer)
+    (erase-buffer)
+    )
+  )
 (defun qimen_draw (blocks)
   (let* ((rows-min 6)
          (cols-min 14)
@@ -353,7 +526,6 @@
          tmpi tmpj tmpk tmptxt
          )
     (set-buffer logbuffer)
-    (erase-buffer)
     (insert mark36 hline mark369 hline mark369 hline mark69 "\n")
     ;; 输出第一行
     (dotimes (tmpi rows)
