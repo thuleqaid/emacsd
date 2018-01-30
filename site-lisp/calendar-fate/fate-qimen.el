@@ -36,6 +36,11 @@
     (qimen_normal adate)
     )
   )
+
+(defconst qimen_normal_qiju 2)   ;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
+(defconst qimen_normal_9xing t)  ;; 九星排法 t:转盘, nil:飞宫
+(defconst qimen_normal_8men t)   ;; 八门排法 t:转盘, nil:飞宫
+
 ;; 太公奇门排盘
 (defun qimen_taigong (adate)
   (let* ((gdate (calendar-fate-gregorian-from-absolute adate))  ;; 公历时间
@@ -340,9 +345,9 @@
     ))
 ;; 普通奇门排盘
 (defun qimen_normal (adate)
-  (let* ((flag-ju 2) ;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
-         (flag-9xing t) ;; 九星排法 t:转盘, nil:飞宫
-         (flag-8men t)  ;; 八门排法 t:转盘, nil:飞宫
+  (let* ((flag-ju qimen_normal_qiju)
+         (flag-9xing qimen_normal_9xing)
+         (flag-8men qimen_normal_8men)
          (logbuffer (get-buffer-create "fate-qimen"))
          ;; 阴阳遁歌诀
          (yinyang-table '((8 5 2) (9 6 3) (1 7 4)
@@ -397,7 +402,7 @@
     (clear-text-properties txt-8shen1)
     (clear-text-properties txt-8shen2)
     (add-face-text-property 0 (length (nth 0 txt-8shen1)) (list :foreground "red") nil (nth 0 txt-8shen1))
-    (add-face-text-property 0 (length (nth 0 txt-8shen2)) (list :foreground "red") nil (nth 0 txt-8shen1))
+    (add-face-text-property 0 (length (nth 0 txt-8shen2)) (list :foreground "red") nil (nth 0 txt-8shen2))
     ;; 调整阴阳遁及局数
     (cond ((= flag-ju 2)
            (setq ju-yinyang (if (= (mod (nth 3 gdate) 2) 1) t nil)
@@ -434,6 +439,12 @@
             )
           )
       (progn
+        (setq tmpj (1- rengong)   ;; 值使新宫位
+              tmpk (1- basegong)) ;; 值使旧宫位
+        (add-face-text-property 0 (length (nth tmpk txt-8men2)) (list :foreground "red") nil (nth tmpk txt-8men2))
+        (dotimes (tmpi 9)
+          (aset renpan (mod (+ tmpi tmpj) 9) (nth (mod (+ tmpi tmpk) 9) txt-8men2))
+          )
         ))
     ;; 计算天盘、神盘
     (setq zhifu basegong)
@@ -451,6 +462,15 @@
             )
           )
       (progn
+        (when (= tiangong 5) (setq tiangong 2))
+        (setq tmpj (1- tiangong)  ;; 值符新宫位
+              tmpk (1- basegong)) ;; 值符旧宫位
+        (add-face-text-property 0 (length (nth tmpk txt-9xing2)) (list :foreground "red") nil (nth tmpk txt-9xing2))
+        (dotimes (tmpi 9)
+          (aset tianpan (mod (+ tmpi tmpj) 9) (format "%s %s" (nth (mod (+ tmpi tmpk) 9) txt-9xing2) (aref dipan (mod (+ tmpi tmpk) 9))))
+          (aset shenpan (mod (+ tmpi tmpj) 9) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 9) txt-8shen2))
+          (aset shenpan_base (mod (+ tmpi tmpk) 9) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 9) txt-8shen2))
+          )
         ))
     ;; 设置各宫文字
     (dotimes (tmpi 9)
@@ -463,6 +483,10 @@
       )
     (set-buffer logbuffer)
     (insert (format "起盘时间：%d/%d/%d %d:%d:%d	%s遁%d局\n" (nth 2 gdate) (nth 0 gdate) (nth 1 gdate) (nth 3 gdate) (nth 4 gdate) (nth 5 gdate) (if ju-yinyang "阳" "阴") ju))
+    (insert (format "起盘方法：%s\n"
+                    (if flag-9xing
+                        (if flag-8men "转盘" "星转门飞")
+                      (if flag-8men "星飞门转" "飞盘"))))
     (insert (format "四柱：%s   %s   %s   %s\n"
                     (calendar-fate-chinese-sexagesimal-name (nth 1 sdate))
                     (calendar-fate-chinese-sexagesimal-name (nth 2 sdate))
