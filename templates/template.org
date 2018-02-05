@@ -6,6 +6,7 @@
 * Footnotes
 
 #+OPTIONS: toc:nil
+#+STARTUP: showeverything
 #+DRAWERS: MEMO
 #+SEQ_TODO: TODO(t!) DOING(a!) WAIT(w@/!) | DONE(d!) CANCELED(c@/!)
 #+Author: Tian Quan

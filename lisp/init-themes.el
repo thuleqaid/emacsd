@@ -196,8 +196,10 @@ This is helpful for writeroom-mode, in particular."
 (add-hook 'visual-fill-column-mode-hook
           'sanityinc/maybe-adjust-visual-fill-column)
 
+;;(setq-default initial-scratch-message
+;;              (concat ";; Happy hacking " user-login-name " - Emacs ♥ you!\n\n"))
 (setq-default initial-scratch-message
-              (concat ";; Happy hacking " user-login-name " - Emacs ♥ you!\n\n"))
+              (concat ";; Happy hacking " (decode-coding-string user-login-name 'gb2312) " - Emacs ♥ you!\n\n"))
 
 
 (global-set-key (kbd "M-C-8") (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))
