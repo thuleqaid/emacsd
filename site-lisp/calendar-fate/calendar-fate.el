@@ -441,12 +441,28 @@ Computes values for 10 years either side of YEAR."
     holiday-list)
   )
 
+(defvar fate-buffer-list '())
+(defun clear-fate-buffer ()
+  (dolist (bufname fate-buffer-list)
+    (when (get-buffer bufname)
+      (kill-buffer bufname))
+      )
+  )
+
+(easy-menu-define fate-menu nil "Menu used for fate." `("Fate"))
+(define-key-after (lookup-key global-map [menu-bar]) [fate] (cons "Fate" fate-menu) 'tools)
+
 (require 'fate-essential)
 (require 'fate-birthdb)
 (require 'fate-heluo)
 (require 'fate-ziwei)
 (require 'fate-liuyao)
 (require 'fate-qimen)
+
+(easy-menu-add-item
+ nil '("Fate")
+ ["Kill Fate Buffers" (clear-fate-buffer) t]
+ )
 
 (provide 'calendar-fate)
 ;;; calendar-fate.el ends here

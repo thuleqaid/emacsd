@@ -68,7 +68,9 @@
     (if fate-user-specify-pos
         (progn
           ;; 读取出生城市
-          (setq city (completing-read "Birth City: " fate-timediff-pos-choice nil t))
+          (setq city (if (fboundp 'ivy-completing-read)
+                         (ivy-completing-read "Birth City: " fate-timediff-pos-choice nil t)
+                       (completing-read "Birth City: " fate-timediff-pos-choice nil t)))
           (if (string= city (car fate-timediff-pos-choice))
               (setq poslong (string-to-number (read-string "Longitude: ")))
             (setq poslong 0)
@@ -84,7 +86,9 @@
 ;; 设置当前用户信息
 (defun fate-user-choose ()
   (interactive)
-  (let* ((user (completing-read "Choose user: " fate-user-list-choice nil t))
+  (let* ((user (if (fboundp 'ivy-completing-read)
+                   (ivy-completing-read "Choose user: " fate-user-list-choice nil t)
+                 (completing-read "Choose user: " fate-user-list-choice nil t)))
          (idx (nth 1 (assoc user fate-user-list-map)))
          )
     (setq fate-user-current (nth idx fate-user-list))
@@ -94,7 +98,9 @@
 (defun fate-user-remove ()
   (interactive)
   (when (> (length fate-user-list) 1)
-    (let* ((user (completing-read "Choose user: " fate-user-list-choice nil t))
+    (let* ((user (if (fboundp 'ivy-completing-read)
+                     (ivy-completing-read "Choose user: " fate-user-list-choice nil t)
+                   (completing-read "Choose user: " fate-user-list-choice nil t)))
            (idx (nth 1 (assoc user fate-user-list-map)))
            )
       (setq fate-user-current (nth idx fate-user-list)
@@ -269,6 +275,17 @@
   )
 
 (fate_user_list_load)
+
+(easy-menu-add-item
+ nil '("Fate")
+ '("User"
+   ("Current" :label (plist-get fate-user-current 'name) :active nil)
+   ["Choose" fate-user-choose t]
+   ["Add" fate-user-add t]
+   ["Remove" fate-user-remove t]
+   ["Update" fate-user-recalculate t]
+   )
+ )
 
 (provide 'fate-birthdb)
 ;;; fate-birthdb.el ends here

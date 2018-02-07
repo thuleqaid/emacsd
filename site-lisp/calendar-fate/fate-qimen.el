@@ -37,9 +37,17 @@
     )
   )
 
-(defconst qimen_normal_qiju 2)   ;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
-(defconst qimen_normal_9xing t)  ;; 九星排法 t:转盘, nil:飞宫
-(defconst qimen_normal_8men t)   ;; 八门排法 t:转盘, nil:飞宫
+(defvar qimen_normal_qiju 2)   ;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
+(defvar qimen_normal_9xing t)  ;; 九星排法 t:转盘, nil:飞宫
+(defvar qimen_normal_8men t)   ;; 八门排法 t:转盘, nil:飞宫
+
+(defun qimen_normal_setting1 (flag_qiju)
+  (setq qimen_normal_qiju flag_qiju)
+  )
+(defun qimen_normal_setting2 (flag_9xing flag_8men)
+  (setq qimen_normal_9xing flag_9xing
+        qimen_normal_8men flag_8men)
+  )
 
 ;; 太公奇门排盘
 (defun qimen_taigong (adate)
@@ -482,7 +490,7 @@
       (add-to-list 'txt block t)
       )
     (set-buffer logbuffer)
-    (insert (format "起盘时间：%d/%d/%d %d:%d:%d	%s遁%d局\n" (nth 2 gdate) (nth 0 gdate) (nth 1 gdate) (nth 3 gdate) (nth 4 gdate) (nth 5 gdate) (if ju-yinyang "阳" "阴") ju))
+    (insert (format "起盘时间：%d/%02d/%02d %02d:%02d:%02d	%s遁%d局\n" (nth 2 gdate) (nth 0 gdate) (nth 1 gdate) (nth 3 gdate) (nth 4 gdate) (nth 5 gdate) (if ju-yinyang "阳" "阴") ju))
     (insert (format "起盘方法：%s\n"
                     (if flag-9xing
                         (if flag-8men "转盘" "星转门飞")
@@ -667,6 +675,24 @@
     (insert mark36 hline mark369 hline mark369 hline mark69 "\n")
     (switch-to-buffer logbuffer)
     ))
+
+(add-to-list 'fate-buffer-list "fate-qimen")
+(easy-menu-add-item
+ nil '("Fate")
+ '("QiMen"
+   ["Normal" qimen-normal t]
+   "---"
+   ["TaiGong" qimen-taigong t]
+   "---"
+   "Normal Setting: Ju"
+   ["15 Days" (qimen_normal_setting1 1) :style radio :selected (= qimen_normal_qiju 1)]
+   ["5 Minutes" (qimen_normal_setting1 2) :style radio :selected (= qimen_normal_qiju 2)]
+   "Normal Setting: Pan"
+   ["Jump" (qimen_normal_setting2 nil nil) :style radio :selected (and (not qimen_normal_9xing) (not qimen_normal_8men))]
+   ["Rotate" (qimen_normal_setting2 t t) :style radio :selected (and qimen_normal_9xing qimen_normal_8men)]
+   ["Xing Jump & Men Rotate" (qimen_normal_setting2 nil t) :style radio :selected (and (not qimen_normal_9xing) qimen_normal_8men)]
+   )
+ )
 
 (provide 'fate-qimen)
 ;;; fate-qimen.el ends here

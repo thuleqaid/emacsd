@@ -563,7 +563,7 @@
     (dotimes (cnt 4)
       (setq lastguayao (heluo_msg_output (+ year-start cnt) lastguayao))
       )
-    (org-content 2)
+    (org-content 4)
     (switch-to-buffer logbuffer)
     )
   )
@@ -586,5 +586,17 @@
   )
 
 (add-to-list 'fate-user-calculate 'heluo-user-calculate)
+
+(add-to-list 'fate-buffer-list "fate-heluo")
+(add-to-list 'fate-buffer-list "heluo.txt")
+(add-to-list 'fate-buffer-list "heluo_ext.txt")
+(easy-menu-add-item
+ nil '("Fate")
+ '("HeLuo"
+   ["Current Year" (heluo-show (nth 5 (decode-time))) t]
+   ["Specified Year" heluo-show t]
+   )
+ )
+
 (provide 'fate-heluo)
 ;;; fate-heluo.el ends here

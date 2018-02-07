@@ -478,5 +478,16 @@
 
 (add-to-list 'fate-user-calculate 'ziwei-user-calculate)
 
+(add-to-list 'fate-buffer-list "fate-ziwei")
+(easy-menu-add-item
+ nil '("Fate")
+ '("ZiWei"
+   ["MingPan" (ziwei_calculate) t]
+   ["DaYun" (ziwei_calculate 2 (nth 5 (decode-time))) t]
+   ["LiuNian" (ziwei_calculate 3 (nth 5 (decode-time))) t]
+   ["Specified Year" ziwei-show t]
+   )
+ )
+
 (provide 'fate-ziwei)
 ;;; fate-ziwei.el ends here

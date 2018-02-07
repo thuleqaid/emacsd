@@ -890,5 +890,18 @@
     )
   )
 
+(add-to-list 'fate-buffer-list "fate-liuyao")
+(easy-menu-add-item
+ nil '("Fate")
+ '("LiuYao"
+   ["Quick" liuyao-quick t]
+   "---"
+   ["Empty" liuyao-empty t]
+   ["QiGua" liuyao-qigua t]
+   ["QiGua With Time" liuyao-qigua-with-time t]
+   ["Update" liuyao-update t]
+   )
+ )
+
 (provide 'fate-liuyao)
 ;;; fate-liuyao.el ends here
