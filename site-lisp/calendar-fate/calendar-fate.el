@@ -28,6 +28,8 @@
 (require 'calendar)
 (require 'cal-china)
 
+(defconst calendar-fate-show-chinese t)
+
 (defun calendar-fate-chinese-character ()
   (setq chinese-calendar-celestial-stem chinese-fate-calendar-celestial-stem)
   (setq chinese-calendar-terrestrial-branch chinese-fate-calendar-terrestrial-branch)
@@ -459,10 +461,20 @@ Computes values for 10 years either side of YEAR."
 (require 'fate-liuyao)
 (require 'fate-qimen)
 
-(easy-menu-add-item
- nil '("Fate")
- ["Kill Fate Buffers" (clear-fate-buffer) t]
- )
+(if calendar-fate-show-chinese
+    (easy-menu-add-item
+     nil '("Fate")
+     ["清除Buffer" (clear-fate-buffer) t]
+     )
+  (easy-menu-add-item
+   nil '("Fate")
+   ["Kill Fate Buffers" (clear-fate-buffer) t]
+   )
+  )
+
+(when calendar-fate-show-chinese
+  (calendar-fate-chinese-character)
+  (setq holiday-other-holidays '((holiday-chinese-terms))))
 
 (provide 'calendar-fate)
 ;;; calendar-fate.el ends here

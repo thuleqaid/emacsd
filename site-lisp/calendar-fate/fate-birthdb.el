@@ -276,16 +276,28 @@
 
 (fate_user_list_load)
 
-(easy-menu-add-item
- nil '("Fate")
- '("User"
-   ("Current" :label (plist-get fate-user-current 'name) :active nil)
-   ["Choose" fate-user-choose t]
-   ["Add" fate-user-add t]
-   ["Remove" fate-user-remove t]
-   ["Update" fate-user-recalculate t]
+(if calendar-fate-show-chinese
+    (easy-menu-add-item
+     nil '("Fate")
+     '("用户管理"
+       ("Current" :label (plist-get fate-user-current 'name) :active nil)
+       ["选择用户" fate-user-choose t]
+       ["增加用户" fate-user-add t]
+       ["删除用户" fate-user-remove t]
+       ["更新用户信息" fate-user-recalculate t]
+       )
+     )
+  (easy-menu-add-item
+   nil '("Fate")
+   '("User"
+     ("Current" :label (plist-get fate-user-current 'name) :active nil)
+     ["Choose" fate-user-choose t]
+     ["Add" fate-user-add t]
+     ["Remove" fate-user-remove t]
+     ["Update" fate-user-recalculate t]
+     )
    )
- )
+  )
 
 (provide 'fate-birthdb)
 ;;; fate-birthdb.el ends here

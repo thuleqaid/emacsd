@@ -891,17 +891,30 @@
   )
 
 (add-to-list 'fate-buffer-list "fate-liuyao")
-(easy-menu-add-item
- nil '("Fate")
- '("LiuYao"
-   ["Quick" liuyao-quick t]
-   "---"
-   ["Empty" liuyao-empty t]
-   ["QiGua" liuyao-qigua t]
-   ["QiGua With Time" liuyao-qigua-with-time t]
-   ["Update" liuyao-update t]
+(if calendar-fate-show-chinese
+    (easy-menu-add-item
+     nil '("Fate")
+     '("六爻"
+       ["快速起卦" liuyao-quick t]
+       "---"
+       ["新卦单" liuyao-empty t]
+       ["当前时间起卦" liuyao-qigua t]
+       ["指定时间起卦" liuyao-qigua-with-time t]
+       ["重新排卦" liuyao-update t]
+       )
+     )
+  (easy-menu-add-item
+   nil '("Fate")
+   '("LiuYao"
+     ["Quick" liuyao-quick t]
+     "---"
+     ["Empty" liuyao-empty t]
+     ["QiGua" liuyao-qigua t]
+     ["QiGua With Time" liuyao-qigua-with-time t]
+     ["Update" liuyao-update t]
+     )
    )
- )
+  )
 
 (provide 'fate-liuyao)
 ;;; fate-liuyao.el ends here

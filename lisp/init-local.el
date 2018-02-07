@@ -44,9 +44,7 @@
 (global-set-key (kbd "M-C-\\") 'my-cycle-input-method)
 
 (unless *source-view-only*
-  (require 'calendar-fate)
-  (calendar-fate-chinese-character)
-  (setq holiday-other-holidays '((holiday-chinese-terms))))
+  (require 'calendar-fate))
 
 ;; ;(setq org-time-stamp-custom-formats '("<%Y/%m/%d>" . "<%Y/%m/%d %H:%M>"))
 

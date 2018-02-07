@@ -479,15 +479,26 @@
 (add-to-list 'fate-user-calculate 'ziwei-user-calculate)
 
 (add-to-list 'fate-buffer-list "fate-ziwei")
-(easy-menu-add-item
- nil '("Fate")
- '("ZiWei"
-   ["MingPan" (ziwei_calculate) t]
-   ["DaYun" (ziwei_calculate 2 (nth 5 (decode-time))) t]
-   ["LiuNian" (ziwei_calculate 3 (nth 5 (decode-time))) t]
-   ["Specified Year" ziwei-show t]
+(if calendar-fate-show-chinese
+    (easy-menu-add-item
+     nil '("Fate")
+     '("紫微斗数"
+       ["命盘" (ziwei_calculate) t]
+       ["大运盘" (ziwei_calculate 2 (nth 5 (decode-time))) t]
+       ["流年盘" (ziwei_calculate 3 (nth 5 (decode-time))) t]
+       ["指定年份" ziwei-show t]
+       )
+     )
+  (easy-menu-add-item
+   nil '("Fate")
+   '("ZiWei"
+     ["MingPan" (ziwei_calculate) t]
+     ["DaYun" (ziwei_calculate 2 (nth 5 (decode-time))) t]
+     ["LiuNian" (ziwei_calculate 3 (nth 5 (decode-time))) t]
+     ["Specified Year" ziwei-show t]
+     )
    )
- )
+  )
 
 (provide 'fate-ziwei)
 ;;; fate-ziwei.el ends here

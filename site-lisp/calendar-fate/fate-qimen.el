@@ -677,22 +677,40 @@
     ))
 
 (add-to-list 'fate-buffer-list "fate-qimen")
-(easy-menu-add-item
- nil '("Fate")
- '("QiMen"
-   ["Normal" qimen-normal t]
-   "---"
-   ["TaiGong" qimen-taigong t]
-   "---"
-   "Normal Setting: Ju"
-   ["15 Days" (qimen_normal_setting1 1) :style radio :selected (= qimen_normal_qiju 1)]
-   ["5 Minutes" (qimen_normal_setting1 2) :style radio :selected (= qimen_normal_qiju 2)]
-   "Normal Setting: Pan"
-   ["Jump" (qimen_normal_setting2 nil nil) :style radio :selected (and (not qimen_normal_9xing) (not qimen_normal_8men))]
-   ["Rotate" (qimen_normal_setting2 t t) :style radio :selected (and qimen_normal_9xing qimen_normal_8men)]
-   ["Xing Jump & Men Rotate" (qimen_normal_setting2 nil t) :style radio :selected (and (not qimen_normal_9xing) qimen_normal_8men)]
+(if calendar-fate-show-chinese
+    (easy-menu-add-item
+     nil '("Fate")
+     '("奇门遁甲"
+       ["起普通奇门盘" qimen-normal t]
+       "---"
+       ["起太公奇门盘" qimen-taigong t]
+       "---"
+       "普通奇门盘设定：起局"
+       ["1节气15日" (qimen_normal_setting1 1) :style toggle :selected (= qimen_normal_qiju 1)]
+       ["1节气5分钟" (qimen_normal_setting1 2) :style toggle :selected (= qimen_normal_qiju 2)]
+       "普通奇门盘设定：排盘"
+       ["飞盘" (qimen_normal_setting2 nil nil) :style toggle :selected (and (not qimen_normal_9xing) (not qimen_normal_8men))]
+       ["转盘" (qimen_normal_setting2 t t) :style toggle :selected (and qimen_normal_9xing qimen_normal_8men)]
+       ["星飞门转" (qimen_normal_setting2 nil t) :style toggle :selected (and (not qimen_normal_9xing) qimen_normal_8men)]
+       )
+     )
+  (easy-menu-add-item
+   nil '("Fate")
+   '("QiMen"
+     ["Normal" qimen-normal t]
+     "---"
+     ["TaiGong" qimen-taigong t]
+     "---"
+     "Normal Setting: Ju"
+     ["15 Days" (qimen_normal_setting1 1) :style toggle :selected (= qimen_normal_qiju 1)]
+     ["5 Minutes" (qimen_normal_setting1 2) :style toggle :selected (= qimen_normal_qiju 2)]
+     "Normal Setting: Pan"
+     ["Jump" (qimen_normal_setting2 nil nil) :style toggle :selected (and (not qimen_normal_9xing) (not qimen_normal_8men))]
+     ["Rotate" (qimen_normal_setting2 t t) :style toggle :selected (and qimen_normal_9xing qimen_normal_8men)]
+     ["Xing Jump & Men Rotate" (qimen_normal_setting2 nil t) :style toggle :selected (and (not qimen_normal_9xing) qimen_normal_8men)]
+     )
    )
- )
+  )
 
 (provide 'fate-qimen)
 ;;; fate-qimen.el ends here

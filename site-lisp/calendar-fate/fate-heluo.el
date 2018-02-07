@@ -590,13 +590,22 @@
 (add-to-list 'fate-buffer-list "fate-heluo")
 (add-to-list 'fate-buffer-list "heluo.txt")
 (add-to-list 'fate-buffer-list "heluo_ext.txt")
-(easy-menu-add-item
- nil '("Fate")
- '("HeLuo"
-   ["Current Year" (heluo-show (nth 5 (decode-time))) t]
-   ["Specified Year" heluo-show t]
+(if calendar-fate-show-chinese
+    (easy-menu-add-item
+     nil '("Fate")
+     '("河洛真数"
+       ["流年" (heluo-show (nth 5 (decode-time))) t]
+       ["指定年份" heluo-show t]
+       )
+     )
+  (easy-menu-add-item
+   nil '("Fate")
+   '("HeLuo"
+     ["Current Year" (heluo-show (nth 5 (decode-time))) t]
+     ["Specified Year" heluo-show t]
+     )
    )
- )
+  )
 
 (provide 'fate-heluo)
 ;;; fate-heluo.el ends here
