@@ -476,6 +476,11 @@
     )
   )
 
+(defun ziwei-export ( )
+  (interactive)
+  (fate-export-html)
+  )
+
 (add-to-list 'fate-user-calculate 'ziwei-user-calculate)
 
 (add-to-list 'fate-buffer-list "fate-ziwei")
@@ -487,6 +492,8 @@
        ["大运盘" (ziwei_calculate 2 (nth 5 (decode-time))) t]
        ["流年盘" (ziwei_calculate 3 (nth 5 (decode-time))) t]
        ["指定年份" ziwei-show t]
+       "---"
+       ["保存" ziwei-export t]
        )
      )
   (easy-menu-add-item
@@ -496,6 +503,8 @@
      ["DaYun" (ziwei_calculate 2 (nth 5 (decode-time))) t]
      ["LiuNian" (ziwei_calculate 3 (nth 5 (decode-time))) t]
      ["Specified Year" ziwei-show t]
+     "---"
+     ["Save" ziwei-export t]
      )
    )
   )

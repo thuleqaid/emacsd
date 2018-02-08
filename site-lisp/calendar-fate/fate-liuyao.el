@@ -37,6 +37,8 @@
 ;; c. liuyao-update
 
 ;;; Code:
+(require 'cl)
+(require 'subr-x)
 ;; 六亲
 (defconst liuqin-name '("兄" "孙" "财" "官" "父"))
 ;; 六神
@@ -890,6 +892,11 @@
     )
   )
 
+(defun liuyao-export ( )
+  (interactive)
+  (fate-export-html)
+  )
+
 (add-to-list 'fate-buffer-list "fate-liuyao")
 (if calendar-fate-show-chinese
     (easy-menu-add-item
@@ -901,6 +908,8 @@
        ["当前时间起卦" liuyao-qigua t]
        ["指定时间起卦" liuyao-qigua-with-time t]
        ["重新排卦" liuyao-update t]
+       "---"
+       ["保存" liuyao-export t]
        )
      )
   (easy-menu-add-item
@@ -912,6 +921,8 @@
      ["QiGua" liuyao-qigua t]
      ["QiGua With Time" liuyao-qigua-with-time t]
      ["Update" liuyao-update t]
+     "---"
+     ["Save" liuyao-export t]
      )
    )
   )

@@ -443,11 +443,11 @@
          (curyao (nth 9 guayao))
          (tmpd1 (fate-solar-item-info (nth 10 guayao) 1))
          (tmpd2 (fate-solar-item-info (1+ (nth 10 guayao)) 1))
-         (pat1 "** %d -- %d %s\n")
-         (pat2 "   + %s\n")
-         (pat3 "**** %d/%d/%d %d:%d:%d -- %d/%d/%d %d:%d:%d %s\n")
-         (pat4 "     + %s\n")
-         (pat5 "     %s\n")
+         (pat1 "* %d -- %d %s\n")
+         (pat2 "  + %s\n")
+         (pat3 "*** %d/%d/%d %d:%d:%d -- %d/%d/%d %d:%d:%d %s\n")
+         (pat4 "    + %s\n")
+         (pat5 "    %s\n")
          tmpi tmpj curtext exttext tmptext
          )
     ;; 输出先天/后天运批言
@@ -559,11 +559,11 @@
     (set-buffer logbuffer)
     (erase-buffer)
     (org-mode)
-    (insert (format "* %s\n" (plist-get fate-user-current 'name)))
+    (insert (format "#+Title: %s\n" (plist-get fate-user-current 'name)))
     (dotimes (cnt 4)
       (setq lastguayao (heluo_msg_output (+ year-start cnt) lastguayao))
       )
-    (org-content 4)
+    (org-content 3)
     (switch-to-buffer logbuffer)
     )
   )
@@ -585,6 +585,11 @@
     )
   )
 
+(defun heluo-export ( )
+  (interactive)
+  (fate-export-org)
+  )
+
 (add-to-list 'fate-user-calculate 'heluo-user-calculate)
 
 (add-to-list 'fate-buffer-list "fate-heluo")
@@ -596,6 +601,8 @@
      '("河洛真数"
        ["流年" (heluo-show (nth 5 (decode-time))) t]
        ["指定年份" heluo-show t]
+       "---"
+       ["保存" heluo-export t]
        )
      )
   (easy-menu-add-item
@@ -603,6 +610,8 @@
    '("HeLuo"
      ["Current Year" (heluo-show (nth 5 (decode-time))) t]
      ["Specified Year" heluo-show t]
+     "---"
+     ["Save" heluo-export t]
      )
    )
   )

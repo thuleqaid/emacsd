@@ -676,6 +676,11 @@
     (switch-to-buffer logbuffer)
     ))
 
+(defun qimen-export ( )
+  (interactive)
+  (fate-export-html)
+  )
+
 (add-to-list 'fate-buffer-list "fate-qimen")
 (if calendar-fate-show-chinese
     (easy-menu-add-item
@@ -692,6 +697,8 @@
        ["飞盘" (qimen_normal_setting2 nil nil) :style toggle :selected (and (not qimen_normal_9xing) (not qimen_normal_8men))]
        ["转盘" (qimen_normal_setting2 t t) :style toggle :selected (and qimen_normal_9xing qimen_normal_8men)]
        ["星飞门转" (qimen_normal_setting2 nil t) :style toggle :selected (and (not qimen_normal_9xing) qimen_normal_8men)]
+       "---"
+       ["保存" qimen-export t]
        )
      )
   (easy-menu-add-item
@@ -708,6 +715,8 @@
      ["Jump" (qimen_normal_setting2 nil nil) :style toggle :selected (and (not qimen_normal_9xing) (not qimen_normal_8men))]
      ["Rotate" (qimen_normal_setting2 t t) :style toggle :selected (and qimen_normal_9xing qimen_normal_8men)]
      ["Xing Jump & Men Rotate" (qimen_normal_setting2 nil t) :style toggle :selected (and (not qimen_normal_9xing) qimen_normal_8men)]
+     "---"
+     ["Save" qimen-export t]
      )
    )
   )
