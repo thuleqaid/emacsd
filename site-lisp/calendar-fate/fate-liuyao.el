@@ -894,7 +894,7 @@
 
 (defun liuyao-export ( )
   (interactive)
-  (fate-export-html)
+  (fate-export-html "liuyao_")
   )
 
 (add-to-list 'fate-buffer-list "fate-liuyao")

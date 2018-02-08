@@ -342,7 +342,8 @@
 (defun ziwei_draw (blocks)
   (let* ((cols (string-width (nth 0 (nth 1 blocks))))
          (rows (length (nth 1 blocks)))
-         (marktype nil)
+         (marktype calendar-fate-border-type)
+         ;;0,3,6,9:clock position. e.g 0:up, 3:right
          (mark06 (if marktype "┃" "|"))
          (mark39 (if marktype "━" "-"))
          (mark03 (if marktype "┗" "+"))
@@ -478,7 +479,7 @@
 
 (defun ziwei-export ( )
   (interactive)
-  (fate-export-html)
+  (fate-export-html "ziwei_")
   )
 
 (add-to-list 'fate-user-calculate 'ziwei-user-calculate)

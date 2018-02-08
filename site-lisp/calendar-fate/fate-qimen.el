@@ -37,9 +37,24 @@
     )
   )
 
-(defvar qimen_normal_qiju 2)   ;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
-(defvar qimen_normal_9xing t)  ;; 九星排法 t:转盘, nil:飞宫
-(defvar qimen_normal_8men t)   ;; 八门排法 t:转盘, nil:飞宫
+;; 定局方法 1:拆补(1节气15日), 2:手表时(1节气5分钟)
+(defcustom qimen_normal_qiju
+  2
+  "1:15Days, 2:5Minutes"
+  :group 'calendar-fate
+  :type '(integer :tag "QiMen Normal Setting: QiJu"))
+;; 九星排法 t:转盘, nil:飞宫
+(defcustom qimen_normal_9xing
+  t
+  "t:Rotate, nil:Jump"
+  :group 'calendar-fate
+  :type '(symbol :tag "QiMen Normal Setting: PaiPan_9Xing"))
+;; 八门排法 t:转盘, nil:飞宫
+(defcustom qimen_normal_8men
+  t
+  "t:Rotate, nil:Jump"
+  :group 'calendar-fate
+  :type '(symbol :tag "QiMen Normal Setting: PaiPan_8Men"))
 
 (defun qimen_normal_setting1 (flag_qiju)
   (setq qimen_normal_qiju flag_qiju)
@@ -475,17 +490,17 @@
               tmpk (1- basegong)) ;; 值符旧宫位
         (add-face-text-property 0 (length (nth tmpk txt-9xing2)) (list :foreground "red") nil (nth tmpk txt-9xing2))
         (dotimes (tmpi 9)
-          (aset tianpan (mod (+ tmpi tmpj) 9) (format "%s %s" (nth (mod (+ tmpi tmpk) 9) txt-9xing2) (aref dipan (mod (+ tmpi tmpk) 9))))
+          (aset tianpan (mod (+ tmpi tmpj) 9) (format "%s  %s" (nth (mod (+ tmpi tmpk) 9) txt-9xing2) (aref dipan (mod (+ tmpi tmpk) 9))))
           (aset shenpan (mod (+ tmpi tmpj) 9) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 9) txt-8shen2))
           (aset shenpan_base (mod (+ tmpi tmpk) 9) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 9) txt-8shen2))
           )
         ))
     ;; 设置各宫文字
     (dotimes (tmpi 9)
-      (setq block (list (format "%s" (aref shenpan tmpi))
+      (setq block (list (format "  %s  " (aref shenpan tmpi))
                         (format "%s" (aref tianpan tmpi))
-                        (format "%s %s" (aref renpan tmpi) (aref dipan tmpi))
-                        (format "%s" (aref shenpan_base tmpi))
+                        (format "%s  %s" (aref renpan tmpi) (aref dipan tmpi))
+                        (format "  %s  " (aref shenpan_base tmpi))
                         ))
       (add-to-list 'txt block t)
       )
@@ -534,12 +549,13 @@
 (defun qimen_draw (blocks)
   (let* ((rows-min 6)
          (cols-min 14)
-         (rows (max rows-min 6))
-         (cols (max cols-min 14))
+         (rows (max rows-min (length (nth 1 blocks))))
+         (cols (max cols-min (string-width (nth 0 (nth 1 blocks)))))
          (block-rows (length (nth 0 blocks)))
          (row-start (floor (/ (- rows block-rows) 2)))
          (row-end (+ row-start block-rows))
-         (marktype nil)
+         (marktype calendar-fate-border-type)
+         ;;0,3,6,9:clock position. e.g 0:up, 3:right
          (mark06 (if marktype "┃" "|"))
          (mark39 (if marktype "━" "-"))
          (mark03 (if marktype "┗" "+"))
@@ -553,7 +569,7 @@
          (mark0369 (if marktype "╋" "+"))
          (markwidth (string-width mark06))
          (hline (make-string (/ cols markwidth) (string-to-char mark39)))
-         (eline (make-string (/ cols markwidth) ? ))
+         (eline (make-string cols ? ))
          (logbuffer (get-buffer-create "fate-qimen"))
          tmpi tmpj tmpk tmptxt
          )
@@ -596,7 +612,7 @@
              )
             )
       )
-    (insert mark36 hline mark369 hline mark369 hline mark69 "\n")
+    (insert mark036 hline mark0369 hline mark0369 hline mark069 "\n")
     ;; 输出第二行
     (dotimes (tmpi rows)
       (cond ((< tmpi row-start)
@@ -634,7 +650,7 @@
              )
             )
       )
-    (insert mark36 hline mark369 hline mark369 hline mark69 "\n")
+    (insert mark036 hline mark0369 hline mark0369 hline mark069 "\n")
     ;; 输出第三行
     (dotimes (tmpi rows)
       (cond ((< tmpi row-start)
@@ -672,13 +688,13 @@
              )
             )
       )
-    (insert mark36 hline mark369 hline mark369 hline mark69 "\n")
+    (insert mark03 hline mark039 hline mark039 hline mark09 "\n")
     (switch-to-buffer logbuffer)
     ))
 
 (defun qimen-export ( )
   (interactive)
-  (fate-export-html)
+  (fate-export-html "qimen_")
   )
 
 (add-to-list 'fate-buffer-list "fate-qimen")

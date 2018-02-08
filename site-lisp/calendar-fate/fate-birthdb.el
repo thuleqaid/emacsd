@@ -24,14 +24,12 @@
 ;;; (fate-user-recalculate)
 
 ;;; Code:
-;; 当前文件路径
-(defconst fate-root-dir (file-name-directory #$))
 ;; 用户一览数据文件
-(defconst fate-user-list-file (concat fate-root-dir "userlist"))
+(defconst fate-user-list-file (concat calendar-fate-data-path "userlist"))
 ;; 各日期时差数据文件
-(defconst fate-timediff-date-file (concat fate-root-dir "timediff_date.txt"))
+(defconst fate-timediff-date-file (concat calendar-fate-source-dir "timediff_date.txt"))
 ;; 各城市时差数据文件
-(defconst fate-timediff-pos-file (concat fate-root-dir "timediff_pos.txt"))
+(defconst fate-timediff-pos-file (concat calendar-fate-source-dir "timediff_pos.txt"))
 
 ;; 新增用户时是否需要指定出生位置
 (defvar fate-user-specify-pos nil)

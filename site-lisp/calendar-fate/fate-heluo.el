@@ -23,8 +23,8 @@
 ;;; Code:
 ;;; 河洛
 ;; 河洛批言路径
-(defconst fate-heluo-file (concat fate-root-dir "heluo.txt"))
-(defconst fate-heluo-ext-file (concat fate-root-dir "heluo_ext.txt"))
+(defconst fate-heluo-file (concat calendar-fate-source-dir "heluo.txt"))
+(defconst fate-heluo-ext-file (concat calendar-fate-source-dir "heluo_ext.txt"))
 ;; 十天干对应的天地数
 ;; 戊一乙癸二，庚三辛四同。壬甲从六数，丁七丙八宫。己九无差别，五数寄于中。
 (defconst heluo_tbl_tianshu [0 6 0 2 0 8 7 0 1 0 9 0 3 0 0 4 0 6 0 2])
@@ -587,7 +587,7 @@
 
 (defun heluo-export ( )
   (interactive)
-  (fate-export-org)
+  (fate-export-org "heluo_")
   )
 
 (add-to-list 'fate-user-calculate 'heluo-user-calculate)

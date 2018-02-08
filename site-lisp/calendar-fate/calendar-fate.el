@@ -29,7 +29,23 @@
 (require 'cal-china)
 (require 'ox)
 
-(defconst calendar-fate-show-chinese t)
+(defcustom calendar-fate-show-chinese
+  t
+  "Whether show Chinese menu or not."
+  :group 'calendar-fate
+  :type '(symbol :tag "Show Chinese Menu"))
+(defcustom calendar-fate-data-path
+  (expand-file-name "fate/" user-emacs-directory)
+  "Folder to save fate data files."
+  :group 'calendar-fate
+  :type '(string :tag "Data Path"))
+(defcustom calendar-fate-border-type
+  t
+  "t:FullWidth Border, nil:HalfWidth Border"
+  :group 'calendar-fate
+  :type '(symbol :tag "Border Type"))
+
+(defconst calendar-fate-source-dir (file-name-directory #$))
 
 (defun calendar-fate-chinese-character ()
   (setq chinese-calendar-celestial-stem chinese-fate-calendar-celestial-stem)
@@ -451,17 +467,33 @@ Computes values for 10 years either side of YEAR."
       (kill-buffer bufname))
       )
   )
-(defun fate-export-org ( )
-  (let ((outfile (read-file-name "Save As *.html: " nil nil nil nil))
-        (org-export-coding-system org-html-coding-system)
-        )
+(defun fate-export-org (&optional prefix suffix)
+  (let* ((fprefix (or prefix ""))
+         (fsuffix (or suffix ""))
+         (outfile (read-file-name "Save As *.html: "
+                                  calendar-fate-data-path
+                                  nil nil
+                                  (format "%s%s%s.html"
+                                          fprefix
+                                          (format-time-string "%Y%m%d%H%M%S")
+                                          fsuffix)))
+         (org-export-coding-system org-html-coding-system)
+         )
     (org-export-to-file 'html outfile)
     (browse-url (concat "file://" outfile))
     )
   )
-(defun fate-export-html ( )
-  (let ((outfile (read-file-name "Save As *.html: " nil nil nil nil))
-        (htmlbuf (htmlize-buffer)))
+(defun fate-export-html (&optional prefix suffix)
+  (let* ((fprefix (or prefix ""))
+         (fsuffix (or suffix ""))
+         (outfile (read-file-name "Save As *.html: "
+                                  calendar-fate-data-path
+                                  nil nil
+                                  (format "%s%s%s.html"
+                                          fprefix
+                                          (format-time-string "%Y%m%d%H%M%S")
+                                          fsuffix)))
+         (htmlbuf (htmlize-buffer)))
     (set-buffer htmlbuf)
     (goto-char (point-min))
     (while (search-forward "========================================" nil t)
@@ -493,6 +525,8 @@ Computes values for 10 years either side of YEAR."
    )
   )
 
+(unless (file-exists-p calendar-fate-data-path)
+  (make-directory calendar-fate-data-path))
 (when calendar-fate-show-chinese
   (calendar-fate-chinese-character)
   (setq holiday-other-holidays '((holiday-chinese-terms))))
