@@ -28,6 +28,7 @@
 (require 'calendar)
 (require 'cal-china)
 (require 'ox)
+(require 'htmlize)
 
 (defcustom calendar-fate-show-chinese
   t
@@ -493,6 +494,8 @@ Computes values for 10 years either side of YEAR."
                                           fprefix
                                           (format-time-string "%Y%m%d%H%M%S")
                                           fsuffix)))
+         (htmlize-output-type "inline-css")
+         (htmlize-html-charset "utf-8")
          (htmlbuf (htmlize-buffer)))
     (set-buffer htmlbuf)
     (goto-char (point-min))

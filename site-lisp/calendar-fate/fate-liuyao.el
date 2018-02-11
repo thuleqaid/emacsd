@@ -317,12 +317,12 @@
          (kong2 (if (> kong1 0) (1+ kong1) 0))                  ;; 日空2
          (ls (cond ((> (nth 2 sdate) 60) 0)                     ;; 初爻六神
                    ((< (nth 2 sdate) 1) 0)
-                   ((< (mod (1- (nth 2 sdate)) 10) 2) 0)
-                   ((< (mod (1- (nth 2 sdate)) 10) 4) 1)
-                   ((< (mod (1- (nth 2 sdate)) 10) 5) 2)
-                   ((< (mod (1- (nth 2 sdate)) 10) 6) 3)
-                   ((< (mod (1- (nth 2 sdate)) 10) 8) 4)
-                   (t 5)
+                   ((< (mod (1- (nth 2 sdate)) 10) 2) 1)
+                   ((< (mod (1- (nth 2 sdate)) 10) 4) 2)
+                   ((< (mod (1- (nth 2 sdate)) 10) 5) 3)
+                   ((< (mod (1- (nth 2 sdate)) 10) 6) 4)
+                   ((< (mod (1- (nth 2 sdate)) 10) 8) 5)
+                   (t 6)
                    ))
          tmpi tmpj tmpk                                         ;; 临时变量
          txt0 txt1 txt2                                         ;; 临时变量
@@ -389,7 +389,7 @@
             )
       ;; 输出当前爻六神
       (if (> ls 0)
-          (insert (format "%s  " (nth (mod (- ls tmpi -5) (length liushen-name)) liushen-name)))
+          (insert (format "%s  " (nth (mod (- ls tmpi -4) (length liushen-name)) liushen-name)))
         (insert "      ")
         )
       ;; 输出宫卦当前爻文字
