@@ -8,8 +8,10 @@
 
 ;;(defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-windows* (eq system-type 'windows-nt))
-(defconst *source-view-only* nil)
 
+(when (version< emacs-version "25")
+  (setq tramp-mode nil)
+  (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
 ;;----------------------------------------------------------------------------
 ;; Temporarily reduce garbage collection during startup
 ;;----------------------------------------------------------------------------
@@ -46,8 +48,7 @@
 (require 'init-isearch)
 (require 'init-grep)
 (require 'init-ibuffer)
-(unless *source-view-only*
-  (require 'init-flycheck))
+(require 'init-flycheck)
 
 (require 'init-auto-complete)
 (require 'init-sessions)
@@ -59,37 +60,25 @@
 (require 'init-whitespace)
 (require 'init-fci)
 
-;; agenda path
-(setq org-agenda-path (expand-file-name "agenda/" user-emacs-directory))
-;; dairy path
-(setq org-diary-path (expand-file-name user-emacs-directory))
-;; system encoding
-(setq ffmpeg-cmd-encoding 'japanese-shift-jis)
-;; ffmpeg -list_devices true -f dshow -i dummy 2>devices.txt
-(setq ffmpeg-audio-device "マイク配列 (Realtek High Definition ")
-
-(unless *source-view-only*
-  (require 'init-vc)
-  (require 'init-compile)
-  (require 'init-markdown)
-  (require 'init-csv)
-  (require 'init-javascript)
-  (require 'init-html)
-  (require 'init-css)
-  (require 'init-lisp)
-  (require 'init-python)
-  (require 'init-c)
-  ;; Require for init-rust: 1. `cargo install racer` and make sure racer in environment variable "PATH" 2. set environment variable "RUST_SRC_PATH" to rust source path, e.g. "c:\PortableSoft\home\rustc-1.13.0\src"
-  (require 'init-rust)
-  ;; Require for init-org: 1. set org-agenda-path and org-diary-path 2. set ffmpeg-cmd-encoding and ffmpeg-audio-device
-  (require 'init-org))
+(require 'init-vc)
+(require 'init-compile)
+(require 'init-markdown)
+(require 'init-csv)
+(require 'init-javascript)
+(require 'init-html)
+(require 'init-css)
+(require 'init-lisp)
+(require 'init-python)
+(require 'init-c)
+;; Require for init-rust: 1. `cargo install racer` and make sure racer in environment variable "PATH" 2. set environment variable "RUST_SRC_PATH" to rust source path, e.g. "c:\PortableSoft\home\rustc-1.13.0\src"
+(require 'init-rust)
+;; Require for init-org: 1. set org-agenda-path and org-diary-path 2. set ffmpeg-cmd-encoding and ffmpeg-audio-device
+(require 'init-org)
 
 (require 'init-misc)
 
 ;; Extra packages which don't require any configuration
 
-(require-package 'gnuplot)
-(require-package 'htmlize)
 (require-package 'regex-tool)
 
 ;;----------------------------------------------------------------------------
@@ -110,8 +99,7 @@
 ;;----------------------------------------------------------------------------
 ;; Locales (setting them earlier in this file doesn't work in X)
 ;;----------------------------------------------------------------------------
-(unless *is-a-windows*
-  (require 'init-locales))
+(require 'init-locales)
 
 (add-hook 'after-init-hook
           (lambda ()

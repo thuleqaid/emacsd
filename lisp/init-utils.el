@@ -15,20 +15,6 @@
   (dolist (pattern patterns)
     (add-to-list 'auto-mode-alist (cons pattern mode))))
 
-
-;;----------------------------------------------------------------------------
-;; String utilities missing from core emacs
-;;----------------------------------------------------------------------------
-(defun sanityinc/string-all-matches (regex str &optional group)
-  "Find all matches for `REGEX' within `STR', returning the full match string or group `GROUP'."
-  (let ((result nil)
-        (pos 0)
-        (group (or group 0)))
-    (while (string-match regex str pos)
-      (push (match-string group str) result)
-      (setq pos (match-end group)))
-    result))
-
 ;;----------------------------------------------------------------------------
 ;; Delete the current file
 ;;----------------------------------------------------------------------------
@@ -83,7 +69,7 @@
       (message "No HTML File Found")
       )))
 
-(defun clear-buffer ()
+(defun kill-all-buffers ()
   "kill all buffers."
   (interactive)
   (let ((buffers (buffer-list))
@@ -93,8 +79,10 @@
       (setq bname (buffer-name curbuffer))
       ;; kill all other buffers except *scratch* and *Messages*
       (unless (or (string= bname "*scratch*") (string= bname "*Messages*"))
-        (kill-buffer curbuffer)))))
-(defun retain-buffer ()
+        (kill-buffer curbuffer)))
+    (switch-to-buffer "*scratch*")))
+
+(defun kill-other-buffers ()
   "kill all buffers but the current one."
   (interactive)
   (let ((buffers (buffer-list))
@@ -108,6 +96,24 @@
         (unless (or (string= bname "*scratch*") (string= bname "*Messages*"))
           (kill-buffer iterbuffer))
         ))))
+
+(defun kill-other-dired-buffers ( &optional current-buf)
+  "kill all dired-buffers and diredp-w32-drivers-mode(w32 use this mode )
+  except current-buf ,if current-buf is nil then kill all"
+  (interactive)
+  (let ((buffers (buffer-list))
+        (curbuffer (current-buffer))
+        iterbuffer
+        )
+    (dolist (iterbuffer buffers)
+      (with-current-buffer iterbuffer
+        (when (and (not (eq curbuffer iterbuffer))
+                   (or (eq 'dired-mode major-mode)
+                       (eq 'diredp-w32-drivers-mode major-mode)
+                       )
+                   )
+          (kill-buffer iterbuffer)
+          )))))
 
 (defun thuleqaid/coding-system (func coding)
   "Set coding system for external program"

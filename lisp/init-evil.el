@@ -43,6 +43,9 @@
     ;"."  'evilnc-copy-and-comment-operator
     ;"\\" 'evilnc-comment-operator ; if you prefer backslash key
   )
+
+  (evil-set-initial-state 'grep-mode 'emacs)
+
 )
 
 (evil-mode 1)

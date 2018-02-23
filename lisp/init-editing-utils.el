@@ -76,11 +76,8 @@
     (unless (or isearch-mode
                 (and (boundp 'multiple-cursors-mode) multiple-cursors-mode))
       ad-do-it)))
-
-;;----------------------------------------------------------------------------
-;; Zap *up* to char is a handy pair for zap-to-char
-;;----------------------------------------------------------------------------
-(autoload 'zap-up-to-char "misc" "Kill up to, but not including ARGth occurrence of CHAR.")
+(global-set-key (kbd "<f12>") 'highlight-symbol)
+(global-set-key (kbd "M-<f12>") 'highlight-symbol-remove-all)
 
 (require-package 'browse-kill-ring)
 (setq browse-kill-ring-separator "\f")
@@ -166,42 +163,6 @@
     (kill-region (point) prev-pos)))
 
 (global-set-key (kbd "C-M-<backspace>") 'kill-back-to-indentation)
-
-
-;;----------------------------------------------------------------------------
-;; Page break lines
-;;----------------------------------------------------------------------------
-(require-package 'page-break-lines)
-(global-page-break-lines-mode)
-(diminish 'page-break-lines-mode)
-
-;;----------------------------------------------------------------------------
-;; Shift lines up and down with M-up and M-down. When paredit is enabled,
-;; it will use those keybindings. For this reason, you might prefer to
-;; use M-S-up and M-S-down, which will work even in lisp modes.
-;;----------------------------------------------------------------------------
-(require-package 'move-dup)
-(global-set-key [M-up] 'md/move-lines-up)
-(global-set-key [M-down] 'md/move-lines-down)
-(global-set-key [M-S-up] 'md/move-lines-up)
-(global-set-key [M-S-down] 'md/move-lines-down)
-
-(global-set-key (kbd "C-c p") 'md/duplicate-down)
-(global-set-key (kbd "C-c P") 'md/duplicate-up)
-
-;;----------------------------------------------------------------------------
-;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL
-;;----------------------------------------------------------------------------
-(defun backward-up-sexp (arg)
-  "Jump up to the start of the ARG'th enclosing sexp."
-  (interactive "p")
-  (let ((ppss (syntax-ppss)))
-    (cond ((elt ppss 3)
-           (goto-char (elt ppss 8))
-           (backward-up-sexp (1- arg)))
-          ((backward-up-list arg)))))
-
-(global-set-key [remap backward-up-list] 'backward-up-sexp) ; C-M-u, C-M-up
 
 
 ;;----------------------------------------------------------------------------

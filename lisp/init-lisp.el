@@ -341,4 +341,26 @@
     (add-to-list 'slime-lisp-implementations
                  '(ccl ("ccl") :coding-system utf-8-unix))))
 
+;;----------------------------------------------------------------------------
+;; Page break lines
+;;----------------------------------------------------------------------------
+(require-package 'page-break-lines)
+(global-page-break-lines-mode)
+(diminish 'page-break-lines-mode)
+
+;;----------------------------------------------------------------------------
+;; Fix backward-up-list to understand quotes, see http://bit.ly/h7mdIL
+;;----------------------------------------------------------------------------
+(defun backward-up-sexp (arg)
+  "Jump up to the start of the ARG'th enclosing sexp."
+  (interactive "p")
+  (let ((ppss (syntax-ppss)))
+    (cond ((elt ppss 3)
+           (goto-char (elt ppss 8))
+           (backward-up-sexp (1- arg)))
+          ((backward-up-list arg)))))
+
+(global-set-key [remap backward-up-list] 'backward-up-sexp) ; C-M-u, C-M-up
+
+
 (provide 'init-lisp)

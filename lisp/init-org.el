@@ -1,6 +1,18 @@
 (when (< emacs-major-version 24)
   (require-package 'org))
 (require-package 'org-fstree)
+(require-package 'gnuplot)
+(require-package 'htmlize)
+(require 'calendar-fate)
+
+;; agenda path
+(setq org-agenda-path (expand-file-name "agenda/" user-emacs-directory))
+;; dairy path
+(setq org-diary-path (expand-file-name user-emacs-directory))
+;; system encoding
+(setq ffmpeg-cmd-encoding 'gbk)
+;; ffmpeg -list_devices true -f dshow -i dummy 2>devices.txt
+(setq ffmpeg-audio-device "マイク配列 (Realtek High Definition ")
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)

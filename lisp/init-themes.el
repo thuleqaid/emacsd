@@ -1,57 +1,3 @@
-(when (< emacs-major-version 24)
-  (require-package 'color-theme))
-
-(require-package 'color-theme-sanityinc-solarized)
-(require-package 'color-theme-sanityinc-tomorrow)
-
-;;------------------------------------------------------------------------------
-;; Old-style color theming support (via color-theme.el)
-;;------------------------------------------------------------------------------
-(defcustom window-system-color-theme 'color-theme-sanityinc-solarized-dark
-  "Color theme to use in window-system frames.
-If Emacs' native theme support is available, this setting is
-ignored: use `custom-enabled-themes' instead."
-  :type 'symbol)
-(defcustom tty-color-theme 'color-theme-terminal
-  "Color theme to use in TTY frames.
-If Emacs' native theme support is available, this setting is
-ignored: use `custom-enabled-themes' instead."
-  :type 'symbol)
-(unless (boundp 'custom-enabled-themes)
-  (defun color-theme-terminal ()
-    (interactive)
-    (color-theme-sanityinc-solarized-dark))
-  (defun apply-best-color-theme-for-frame-type (frame)
-    (with-selected-frame frame
-      (funcall (if window-system
-                   window-system-color-theme
-                 tty-color-theme))))
-  (defun reapply-color-themes ()
-    (interactive)
-    (mapcar 'apply-best-color-theme-for-frame-type (frame-list)))
-  (set-variable 'color-theme-is-global nil)
-  (add-hook 'after-make-frame-functions 'apply-best-color-theme-for-frame-type)
-  (add-hook 'after-init-hook 'reapply-color-themes)
-  (apply-best-color-theme-for-frame-type (selected-frame)))
-
-;;------------------------------------------------------------------------------
-;; New-style theme support, in which per-frame theming is not possible
-;;------------------------------------------------------------------------------
-
-;; If you don't customize it, this is the theme you get.
-;(setq-default custom-enabled-themes '(sanityinc-solarized-light))
-(setq-default custom-enabled-themes nil)
-
-;; Ensure that themes will be applied even if they have not been customized
-(defun reapply-themes ()
-  "Forcibly load the themes listed in `custom-enabled-themes'."
-  (dolist (theme custom-enabled-themes)
-    (unless (custom-theme-p theme)
-      (load-theme theme)))
-  (custom-set-variables `(custom-enabled-themes (quote ,custom-enabled-themes))))
-(add-hook 'after-init-hook 'reapply-themes)
-
-
 ;;----------------------------------------------------------------------------
 ;; Suppress GUI features
 ;;----------------------------------------------------------------------------
@@ -109,7 +55,7 @@ ignored: use `custom-enabled-themes' instead."
 ;;----------------------------------------------------------------------------
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'reverse)
-(setq uniquify-separator " 窶｢ ")
+(setq uniquify-separator " @ ")
 (setq uniquify-after-kill-buffer-p t)
 (setq uniquify-ignore-buffers-re "^\\*")
 
@@ -161,19 +107,6 @@ ignored: use `custom-enabled-themes' instead."
     (delete-other-windows)
     (funcall (split-window-func-with-other-buffer 'split-window-vertically))))
 
-;; Borrowed from http://postmomentum.ch/blog/201304/blog-on-emacs
-(defun sanityinc/split-window()
-  "Split the window to see the most recent buffer in the other window.
-Call a second time to restore the original window configuration."
-  (interactive)
-  (if (eq last-command 'sanityinc/split-window)
-      (progn
-        (jump-to-register :sanityinc/split-window)
-        (setq this-command 'sanityinc/unsplit-window))
-    (window-configuration-to-register :sanityinc/split-window)
-    (switch-to-buffer-other-window nil)))
-
-
 ;;; Character sets
 (defcustom sanityinc/force-default-font-for-symbols nil
   "When non-nil, force Emacs to use your default font for symbols."
@@ -211,7 +144,6 @@ This is helpful for writeroom-mode, in particular."
 (global-set-key (kbd "C-x o") 'switch-window)
 (global-set-key "\C-x|" 'split-window-horizontally-instead)
 (global-set-key "\C-x_" 'split-window-vertically-instead)
-(global-set-key (kbd "<f7>") 'sanityinc/split-window)
 (global-set-key (kbd "C-M-=") 'default-text-scale-increase)
 (global-set-key (kbd "C-M--") 'default-text-scale-decrease)
 
