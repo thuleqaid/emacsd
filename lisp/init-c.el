@@ -34,6 +34,7 @@
   '(progn
      (evil-define-minor-mode-key 'normal 'helm-gtags-mode "\\gb" 'helm-gtags-select)
      (evil-define-minor-mode-key 'normal 'helm-gtags-mode "\\gt" 'helm-gtags-dwim)
+     (evil-define-minor-mode-key 'normal 'helm-gtags-mode "\\gT" 'helm-gtags-find-pattern)
      (evil-define-minor-mode-key 'normal 'helm-gtags-mode "\\gf" 'helm-gtags-find-files)
      (evil-define-minor-mode-key 'normal 'helm-gtags-mode "\\g<" 'helm-gtags-previous-history)
      (evil-define-minor-mode-key 'normal 'helm-gtags-mode "\\g>" 'helm-gtags-next-history)

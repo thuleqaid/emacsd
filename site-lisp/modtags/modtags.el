@@ -67,6 +67,7 @@
 
 ;;; Code:
 (require 'compile)
+(require 'grep)
 (require 'subr-x)
 
 (setq ModTag:BuiltInGrep
