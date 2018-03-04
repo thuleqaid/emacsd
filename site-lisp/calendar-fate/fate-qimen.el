@@ -29,6 +29,67 @@
     (qimen_taigong adate)
     )
   )
+(defun qimen-taigong-ming ()
+  (interactive)
+  (let* ((adate (calendar-fate-chinese-datetime))
+         (sinfo (fate-solar-info (plist-get fate-user-current 'birthday)))
+         (dz_ming (1+ (mod (1- (nth 1 sinfo)) 12)))
+         (dz_yun (1+ (mod (- (mod (1- (nth 2 sinfo)) 12)
+                             (mod (1- (nth 4 sinfo)) 12))
+                          12)))
+         (pos_ming (cond ((= dz_ming 1) 1)
+                         ((= dz_ming 2) 2)
+                         ((= dz_ming 3) 2)
+                         ((= dz_ming 4) 3)
+                         ((= dz_ming 5) 4)
+                         ((= dz_ming 6) 4)
+                         ((= dz_ming 7) 5)
+                         ((= dz_ming 8) 6)
+                         ((= dz_ming 9) 6)
+                         ((= dz_ming 10) 7)
+                         ((= dz_ming 11) 0)
+                         ((= dz_ming 12) 0)
+                         ))
+         (pos_yun (cond ((= dz_yun 1) 1)
+                        ((= dz_yun 2) 2)
+                        ((= dz_yun 3) 2)
+                        ((= dz_yun 4) 3)
+                        ((= dz_yun 5) 4)
+                        ((= dz_yun 6) 4)
+                        ((= dz_yun 7) 5)
+                        ((= dz_yun 8) 6)
+                        ((= dz_yun 9) 6)
+                        ((= dz_yun 10) 7)
+                        ((= dz_yun 11) 0)
+                        ((= dz_yun 12) 0)
+                        ))
+         (user_info '())
+         )
+    (qimen_clearbuffer)
+    (setq user_info (plist-put user_info 'pos-min pos_ming)
+          user_info (plist-put user_info 'pos-yun pos_yun)
+          user_info (plist-put user_info 'dz-yun dz_yun)
+          )
+    (insert (format "%s\n" (plist-get fate-user-current 'name)))
+    (insert (format "四柱：%s   %s   %s   %s\n"
+                    (calendar-fate-chinese-sexagesimal-name (nth 1 sinfo))
+                    (calendar-fate-chinese-sexagesimal-name (nth 2 sinfo))
+                    (calendar-fate-chinese-sexagesimal-name (nth 3 sinfo))
+                    (calendar-fate-chinese-sexagesimal-name (nth 4 sinfo))
+                    ))
+    (insert (format "旬空：%s%s   %s%s   %s%s   %s%s\n"
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 1 sinfo) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 1 sinfo) 9) 10)))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 2 sinfo) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 2 sinfo) 9) 10)))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 3 sinfo) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 3 sinfo) 9) 10)))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (* 10 (floor (/ (+ (nth 4 sinfo) 9) 10))) 12))
+                    (aref chinese-fate-calendar-terrestrial-branch (mod (1+ (* 10 (floor (/ (+ (nth 4 sinfo) 9) 10)))) 12))
+                    ))
+    (qimen_taigong adate user_info)
+    )
+  )
 (defun qimen-normal ()
   (interactive)
   (let ((adate (calendar-fate-chinese-datetime)))
@@ -65,7 +126,7 @@
   )
 
 ;; 太公奇门排盘
-(defun qimen_taigong (adate)
+(defun qimen_taigong (adate &optional custom_info)
   (let* ((gdate (calendar-fate-gregorian-from-absolute adate))  ;; 公历时间
          (sdate (calendar-fate-chinese-from-absolute adate))    ;; 阳历时间
          (ldate (fate-lunar-info gdate))                        ;; 阴历时间
@@ -94,17 +155,23 @@
          (empty-txt-day "日空")
          (empty-txt-hour "时空")
          (empty-txt-minute "刻空")
-         (pos-min (mod (+ lmonth lday shour -2) 8))             ;; 命宫位置（坎宫起1，顺数）
-         (pos-yun (mod (+ pos-min sminute -1) 8))               ;; 运宫位置（坎宫起1，顺数）
-         (dz-yun (cond ((= pos-yun 0) (if (= (mod tg-hour 2) 0) 12 11))
-                       ((= pos-yun 1)  1)
-                       ((= pos-yun 2) (if (= (mod tg-hour 2) 0) 2 3))
-                       ((= pos-yun 3)  4)
-                       ((= pos-yun 4) (if (= (mod tg-hour 2) 0) 6 5))
-                       ((= pos-yun 5)  7)
-                       ((= pos-yun 6) (if (= (mod tg-hour 2) 0) 8 9))
-                       ((= pos-yun 7) 10)
-                       ))                                       ;; 运宫地支位置
+         (pos-min (if custom_info (plist-get custom_info 'pos-min)
+                      (mod (+ lmonth lday shour -2) 8)          ;; 命宫位置（坎宫起1，顺数）
+                      ))
+         (pos-yun (if custom_info (plist-get custom_info 'pos-yun)
+                      (mod (+ pos-min sminute -1) 8)            ;; 运宫位置（坎宫起1，顺数）
+                      ))
+         (dz-yun (if custom_info (plist-get custom_info 'dz-yun)            ;; 运宫地支位置
+                     (cond ((= pos-yun 0) (if (= (mod tg-hour 2) 0) 12 11))
+                           ((= pos-yun 1)  1)
+                           ((= pos-yun 2) (if (= (mod tg-hour 2) 0) 2 3))
+                           ((= pos-yun 3)  4)
+                           ((= pos-yun 4) (if (= (mod tg-hour 2) 0) 6 5))
+                           ((= pos-yun 5)  7)
+                           ((= pos-yun 6) (if (= (mod tg-hour 2) 0) 8 9))
+                           ((= pos-yun 7) 10)
+                           )
+                     ))
          (pos-8shen (cond ((= tg-day 2) 5)
                           ((= tg-day 3) 2)
                           ((= tg-day 4) 7)
@@ -705,6 +772,7 @@
        ["起普通奇门盘" qimen-normal t]
        "---"
        ["起太公奇门盘" qimen-taigong t]
+       ["起太公奇门命盘" qimen-taigong-ming t]
        "---"
        "普通奇门盘设定：起局"
        ["1节气15日" (qimen_normal_setting1 1) :style toggle :selected (= qimen_normal_qiju 1)]
@@ -723,6 +791,7 @@
      ["Normal" qimen-normal t]
      "---"
      ["TaiGong" qimen-taigong t]
+     ["TaiGong Ming" qimen-taigong-ming t]
      "---"
      "Normal Setting: Ju"
      ["15 Days" (qimen_normal_setting1 1) :style toggle :selected (= qimen_normal_qiju 1)]
