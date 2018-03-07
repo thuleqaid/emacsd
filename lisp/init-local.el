@@ -21,6 +21,7 @@
       (append '(
                 (org-mode . "template.org")
                 (python-mode . "template.py")
+                (rst-mode . "template.rst")
                 )
               auto-insert-alist))
 
