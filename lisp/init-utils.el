@@ -58,8 +58,8 @@
     (if (> restfiles 0)
         (progn
           (setq curfile (car filelist))
-          ;; (unless (symbol-function 'tramp-tramp-file-p)
-          ;;   (require 'tramp))
+          (unless (symbol-function 'tramp-tramp-file-p)
+            (require 'tramp))
           (if (tramp-tramp-file-p curfile)
               (error "Cannot open tramp file")
             (progn

@@ -144,18 +144,8 @@
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
-          (tags-todo "OFFICE"
-                     ((org-agenda-overriding-header "Office")
-                      (org-agenda-tags-todo-honor-ignore-options t)
-                      (org-agenda-todo-ignore-scheduled 'future)
-                      (org-agenda-sorting-strategy '(category-keep))))
           (tags-todo "HOME"
                      ((org-agenda-overriding-header "Home")
-                      (org-agenda-tags-todo-honor-ignore-options t)
-                      (org-agenda-todo-ignore-scheduled 'future)
-                      (org-agenda-sorting-strategy '(category-keep))))
-          (tags-todo "READING"
-                     ((org-agenda-overriding-header "Reading")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
@@ -164,18 +154,8 @@
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
-          (todo "-TODO/STARTED"
-                     ((org-agenda-overriding-header "Started")
-                      (org-agenda-tags-todo-honor-ignore-options t)
-                      (org-agenda-todo-ignore-scheduled 'future)
-                      (org-agenda-sorting-strategy '(category-keep))))
-          (todo "-TODO/WAITING"
+          (todo "WAITING"
                      ((org-agenda-overriding-header "Waiting")
-                      (org-agenda-tags-todo-honor-ignore-options t)
-                      (org-agenda-todo-ignore-scheduled 'future)
-                      (org-agenda-sorting-strategy '(category-keep))))
-          (todo "-TODO/DEFERRED"
-                     ((org-agenda-overriding-header "Deferred")
                       (org-agenda-tags-todo-honor-ignore-options t)
                       (org-agenda-todo-ignore-scheduled 'future)
                       (org-agenda-sorting-strategy '(category-keep))))
@@ -292,10 +272,9 @@
 #+STARTUP: overview
 #+STARTUP: hidestars
 #+STARTUP: logdone
-#+PROPERTY: Effort_ALL  0:10 0:20 0:30 1:00 2:00 4:00 6:00 8:00
 #+COLUMNS: %38ITEM(Details) %TAGS(Context) %7TODO(To Do) %5Effort(Time){:} %6CLOCKSUM{Total}
 #+PROPERTY: Effort_ALL 0 0:10 0:20 0:30 1:00 2:00 3:00 4:00 8:00
-#+TAGS: OFFICE(o) HOME(h) PROJECT(p) READING(r) 
+#+TAGS: HOME(h) PROJECT(p)
 #+SEQ_TODO: TODO(t) STARTED(s) WAITING(w) APPT(a) | DONE(d) CANCELLED(c) DEFERRED(f)
 "
               ))
