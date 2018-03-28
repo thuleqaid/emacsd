@@ -303,10 +303,10 @@
 (setq org-agenda-include-diary t)
 (org-agenda-to-appt)
 (setq appt-display-format 'window)
-(setq appt-display-duration 60)
+(setq appt-display-duration 30)
 (setq appt-audible t)
 (setq appt-display-mode-line t)
-(setq appt-message-warning-time 10)
+(setq appt-message-warning-time 15)
 (setq appt-display-diary t)
 (setq calendar-date-style 'iso)
 (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
@@ -452,5 +452,12 @@ if (window.MathJax) {
   ; Update HTML template for loading MathJax
   (setq org-html-mathjax-template (format "%s%s" org-html-mathjax-template local-mathjax-contrib))
 )
+
+(require-package 'evil-org)
+(require 'evil-org)
+(add-hook 'org-mode-hook 'evil-org-mode)
+(evil-org-set-key-theme '(navigation insert textobjects additional calendar))
+(require 'evil-org-agenda)
+(evil-org-agenda-set-keys)
 
 (provide 'init-org)

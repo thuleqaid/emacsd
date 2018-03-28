@@ -1,0 +1,1 @@
+(define-package "ox-rst" "20180314.1713" "Export reStructuredText using org-mode." '((emacs "24.4") (org "8.2.4")) :commit "a74b60883b0d844c80efb364dac1560b85f2548f" :url "https://github.com/masayuko/ox-rst" :keywords '("org" "rst" "rest" "restructuredtext"))
