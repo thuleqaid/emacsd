@@ -176,13 +176,13 @@
   (when (get-buffer "fate-liuyao")
     (let* ((logbuffer (get-buffer "fate-liuyao"))
            (poslist (liuyao-parts))
-           (xtime (safe-date-to-time (org-read-date t)))                         ;; 用户输入时间
+           (xtime (safe-date-to-time (fate-read-date t)))                         ;; 用户输入时间
            ytime adate
            stopwatch gdate sdate
            )
       ;; 读取日期（输入必须包括时间）
       (while (and (= (nth 0 xtime) 0) (= (nth 1 xtime) 0))
-        (setq xtime (safe-date-to-time (org-read-date t))
+        (setq xtime (safe-date-to-time (fate-read-date t))
               )
         )
       (setq ytime (decode-time xtime)

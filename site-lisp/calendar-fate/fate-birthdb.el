@@ -56,11 +56,11 @@
       )
     (setq name (string-trim (read-from-minibuffer "Name: "))
           male (y-or-n-p "Are you male?")
-          birth0 (safe-date-to-time (org-read-date t))
+          birth0 (safe-date-to-time (fate-read-date t))
           )
     ;; 读取出生日期（输入必须包括时间）
     (while (and (= (nth 0 birth0) 0) (= (nth 1 birth0) 0))
-      (setq birth0 (safe-date-to-time (org-read-date t))
+      (setq birth0 (safe-date-to-time (fate-read-date t))
             )
       )
     (if fate-user-specify-pos

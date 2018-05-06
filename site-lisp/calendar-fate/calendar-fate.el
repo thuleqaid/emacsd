@@ -461,6 +461,572 @@ Computes values for 10 years either side of YEAR."
     holiday-list)
   )
 
+(defconst fate-time-stamp-formats '("<%Y-%m-%d %a>" . "<%Y-%m-%d %a %H:%M:%S>")
+  "Formats for `format-time-string' which are used for time stamps.")
+
+(defvar fate-extend-today-until 0
+  "The hour when your day really ends.  Must be an integer.
+This has influence for the following applications:
+- When switching the agenda to \"today\".  It it is still earlier than
+  the time given here, the day recognized as TODAY is actually yesterday.
+- When a date is read from the user and it is still before the time given
+  here, the current date and time will be assumed to be yesterday, 23:59.
+  Also, timestamps inserted in capture templates follow this rule.
+
+IMPORTANT:  This is a feature whose implementation is and likely will
+remain incomplete.  Really, it is only here because past midnight seems to
+be the favorite working time of John Wiegley :-)")
+
+(defvar fate-read-date-popup-calendar t
+  "Non-nil means pop up a calendar when prompting for a date.
+In the calendar, the date can be selected with mouse-1.  However, the
+minibuffer will also be active, and you can simply enter the date as well.
+When nil, only the minibuffer will be available.")
+
+(defvar fate-read-date-prefer-future 'time
+  "Non-nil means assume future for incomplete date input from user.
+This affects the following situations:
+1. The user gives a month but not a year.
+   For example, if it is April and you enter \"feb 2\", this will be read
+   as Feb 2, *next* year.  \"May 5\", however, will be this year.
+2. The user gives a day, but no month.
+   For example, if today is the 15th, and you enter \"3\", Fate will read
+   this as the third of *next* month.  However, if you enter \"17\",
+   it will be considered as *this* month.
+
+If you set this variable to the symbol `time', then also the following
+will work:
+
+3. If the user gives a time.
+   If the time is before now, it will be interpreted as tomorrow.
+
+Currently none of this works for ISO week specifications.
+
+When this option is nil, the current day, month and year will always be
+used as defaults.")
+
+(defvar fate-replace-disputed-keys nil
+  "Non-nil means use alternative key bindings for some keys.
+Fate mode uses S-<cursor> keys for changing timestamps and priorities.
+These keys are also used by other packages like shift-selection-mode'
+\(built into Emacs 23), `CUA-mode' or `windmove.el'.
+If you want to use Fate mode together with one of these other modes,
+or more generally if you would like to move some Fate mode commands to
+other keys, set this variable and configure the keys with the variable
+`fate-disputed-keys'.
+
+This option is only relevant at load-time of Fate mode, and must be set
+*before* fate.el is loaded.  Changing it requires a restart of Emacs to
+become effective.")
+
+(defvar fate-disputed-keys
+  '(([(shift up)]		. [(meta p)])
+    ([(shift down)]		. [(meta n)])
+    ([(shift left)]		. [(meta -)])
+    ([(shift right)]		. [(meta +)])
+    ([(control shift right)] 	. [(meta shift +)])
+    ([(control shift left)]	. [(meta shift -)]))
+  "Keys for which Fate mode and other modes compete.
+This is an alist, cars are the default keys, second element specifies
+the alternative to use when `fate-replace-disputed-keys' is t.
+
+Keys can be specified in any syntax supported by `define-key'.
+The value of this option takes effect only at Fate mode startup,
+therefore you'll have to restart Emacs to apply it after changing.")
+
+(defvar fate-read-date-display-live t
+  "Non-nil means display current interpretation of date prompt live.
+This display will be in an overlay, in the minibuffer.")
+
+(defvar fate-date-ovl (make-overlay 1 1))
+
+(defvar fate-read-date-overlay nil)
+
+(defun fate-key (key)
+  "Select key according to `fate-replace-disputed-keys' and `fate-disputed-keys'.
+Or return the original if not disputed."
+  (when fate-replace-disputed-keys
+    (let* ((nkey (key-description key))
+           (x (cl-find-if (lambda (x) (equal (key-description (car x)) nkey))
+                          fate-disputed-keys)))
+      (setq key (if x (cdr x) key))))
+  key)
+
+(defun fate-defkey (keymap key def)
+  "Define a key, possibly translated, as returned by `fate-key'."
+  (define-key keymap (fate-key key) def))
+
+(defvar fate-read-date-minibuffer-local-map
+  (let* ((map (make-sparse-keymap)))
+    (set-keymap-parent map minibuffer-local-map)
+    (fate-defkey map (kbd ".")
+                 (lambda () (interactive)
+                   ;; Are we at the beginning of the prompt?
+                   (if (looking-back "^[^:]+: "
+                                     (let ((inhibit-field-text-motion t))
+                                       (line-beginning-position)))
+                       (fate-eval-in-calendar '(calendar-goto-today))
+                     (insert "."))))
+    (fate-defkey map (kbd "C-.")
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-goto-today))))
+    (fate-defkey map [(meta shift left)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-backward-month 1))))
+    (fate-defkey map [(meta shift right)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-forward-month 1))))
+    (fate-defkey map [(meta shift up)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-backward-year 1))))
+    (fate-defkey map [(meta shift down)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-forward-year 1))))
+    (fate-defkey map [?\e (shift left)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-backward-month 1))))
+    (fate-defkey map [?\e (shift right)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-forward-month 1))))
+    (fate-defkey map [?\e (shift up)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-backward-year 1))))
+    (fate-defkey map [?\e (shift down)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-forward-year 1))))
+    (fate-defkey map [(shift up)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-backward-week 1))))
+    (fate-defkey map [(shift down)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-forward-week 1))))
+    (fate-defkey map [(shift left)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-backward-day 1))))
+    (fate-defkey map [(shift right)]
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-forward-day 1))))
+    (fate-defkey map "!"
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(diary-view-entries))
+                   (message "")))
+    (fate-defkey map ">"
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-scroll-left 1))))
+    (fate-defkey map "<"
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar '(calendar-scroll-right 1))))
+    (fate-defkey map "\C-v"
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar
+                    '(calendar-scroll-left-three-months 1))))
+    (fate-defkey map "\M-v"
+                 (lambda () (interactive)
+                   (fate-eval-in-calendar
+                    '(calendar-scroll-right-three-months 1))))
+    map)
+  "Keymap for minibuffer commands when using `fate-read-date'.")
+
+(defun fate-calendar-select-mouse (ev)
+  "Return to `fate-read-date' with the date currently selected.
+This is used by `fate-read-date' in a temporary keymap for the calendar buffer."
+  (interactive "e")
+  (mouse-set-point ev)
+  (when (calendar-cursor-to-date)
+    (let* ((date (calendar-cursor-to-date))
+           (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
+      (setq fate-ans1 (format-time-string "%Y-%m-%d" time)))
+    (when (active-minibuffer-window) (exit-minibuffer))))
+
+(defun fate-calendar-select ()
+  "Return to `fate-read-date' with the date currently selected.
+This is used by `fate-read-date' in a temporary keymap for the calendar buffer."
+  (interactive)
+  (when (calendar-cursor-to-date)
+    (let* ((date (calendar-cursor-to-date))
+           (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
+      (setq fate-ans1 (format-time-string "%Y-%m-%d" time)))
+    (when (active-minibuffer-window) (exit-minibuffer))))
+
+(defun fate-overlay-display (ovl text &optional face evap)
+  "Make overlay OVL display TEXT with face FACE."
+  (overlay-put ovl 'display text)
+  (if face (overlay-put ovl 'face face))
+  (if evap (overlay-put ovl 'evaporate t)))
+
+(defun fate-read-date-display ()
+  "Display the current date prompt interpretation in the minibuffer."
+  (when fate-read-date-display-live
+    (when fate-read-date-overlay
+      (delete-overlay fate-read-date-overlay))
+    (when (minibufferp (current-buffer))
+      (save-excursion
+        (end-of-line 1)
+        (while (not (equal (buffer-substring
+                            (max (point-min) (- (point) 4)) (point))
+                           "    "))
+          (insert " ")))
+      (let* ((ans (concat (buffer-substring (point-at-bol) (point-max))
+                          " " (or fate-ans1 fate-ans2)))
+             (f (fate-read-date-analyze ans fate-def fate-defdecode))
+             (fmts fate-time-stamp-formats)
+             (fmt (if fate-with-time
+                      (cdr fmts)
+                    (car fmts)))
+             (txt (format-time-string fmt (apply 'encode-time f)))
+             (txt (concat "=> " txt)))
+        (when fate-read-date-analyze-futurep
+          (setq txt (concat txt " (=>F)")))
+        (setq fate-read-date-overlay
+              (make-overlay (1- (point-at-eol)) (point-at-eol)))
+        (fate-overlay-display fate-read-date-overlay txt 'secondary-selection)))))
+
+(defun fate-eval-in-calendar (form &optional keepdate)
+  "Eval FORM in the calendar window and return to current window.
+Unless KEEPDATE is non-nil, update `fate-ans2' to the cursor date."
+  (let ((sf (selected-frame))
+        (sw (selected-window)))
+    (select-window (get-buffer-window "*Calendar*" t))
+    (eval form)
+    (when (and (not keepdate) (calendar-cursor-to-date))
+      (let* ((date (calendar-cursor-to-date))
+             (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
+        (setq fate-ans2 (format-time-string "%Y-%m-%d" time))))
+    (move-overlay fate-date-ovl (1- (point)) (1+ (point)) (current-buffer))
+    (select-window sw)
+    (select-frame-set-input-focus sf)))
+
+(defun fate-small-year-to-year (year)
+  "Convert 2-digit years into 4-digit years.
+YEAR is expanded into one of the 30 next years, if possible, or
+into a past one.  Any year larger than 99 is returned unchanged."
+  (if (>= year 100) year
+    (let* ((current (string-to-number (format-time-string "%Y" (current-time))))
+           (century (/ current 100))
+           (offset (- year (% current 100))))
+      (cond ((> offset 30) (+ (* (1- century) 100) year))
+            ((> offset -70) (+ (* century 100) year))
+            (t (+ (* (1+ century) 100) year))))))
+
+(defun fate-read-date-get-relative (s today default)
+  "Check string S for special relative date string.
+TODAY and DEFAULT are internal times, for today and for a default.
+Return shift list (N what def-flag)
+WHAT       is \"d\", \"w\", \"m\", or \"y\" for day, week, month, year.
+N          is the number of WHATs to shift.
+DEF-FLAG   is t when a double ++ or -- indicates shift relative to
+           the DEFAULT date rather than TODAY."
+  (require 'parse-time)
+  (when (and
+         (string-match
+          (concat
+           "\\`[ \t]*\\([-+]\\{0,2\\}\\)"
+           "\\([0-9]+\\)?"
+           "\\([hdwmy]\\|\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\)?"
+           "\\([ \t]\\|$\\)") s)
+         (or (> (match-end 1) (match-beginning 1)) (match-end 4)))
+    (let* ((dir (if (> (match-end 1) (match-beginning 1))
+                    (string-to-char (substring (match-string 1 s) -1))
+                  ?+))
+           (rel (and (match-end 1) (= 2 (- (match-end 1) (match-beginning 1)))))
+           (n (if (match-end 2) (string-to-number (match-string 2 s)) 1))
+           (what (if (match-end 3) (match-string 3 s) "d"))
+           (wday1 (cdr (assoc (downcase what) parse-time-weekdays)))
+           (date (if rel default today))
+           (wday (nth 6 (decode-time date)))
+           delta)
+      (if wday1
+          (progn
+            (setq delta (mod (+ 7 (- wday1 wday)) 7))
+            (when (= delta 0) (setq delta 7))
+            (when (= dir ?-)
+              (setq delta (- delta 7))
+              (when (= delta 0) (setq delta -7)))
+            (when (> n 1) (setq delta (+ delta (* (1- n) (if (= dir ?-) -7 7)))))
+            (list delta "d" rel))
+        (list (* n (if (= dir ?-) -1 1)) what rel)))))
+
+(defun fate-read-date-analyze (ans def defdecode)
+  "Analyze the combined answer of the date prompt."
+  ;; FIXME: cleanup and comment
+  ;; Pass `current-time' result to `decode-time' (instead of calling
+  ;; without arguments) so that only `current-time' has to be
+  ;; overridden in tests.
+  (let ((fate-def def)
+        (fate-defdecode defdecode)
+        (nowdecode (decode-time (current-time)))
+        delta deltan deltaw deltadef year month day
+        hour minute second wday pm tl wday1
+        iso-year iso-weekday iso-week iso-date futurep kill-year)
+    (setq fate-read-date-analyze-futurep nil)
+    (when (string-match "\\`[ \t]*\\.[ \t]*\\'" ans)
+      (setq ans "+0"))
+
+    (when (setq delta (fate-read-date-get-relative ans (current-time) fate-def))
+      (setq ans (replace-match "" t t ans)
+            deltan (car delta)
+            deltaw (nth 1 delta)
+            deltadef (nth 2 delta)))
+
+    ;; Check if there is an iso week date in there.  If yes, store the
+    ;; info and postpone interpreting it until the rest of the parsing
+    ;; is done.
+    (when (string-match "\\<\\(?:\\([0-9]+\\)-\\)?[wW]\\([0-9]\\{1,2\\}\\)\\(?:-\\([0-6]\\)\\)?\\([ \t]\\|$\\)" ans)
+      (setq iso-year (when (match-end 1)
+                       (fate-small-year-to-year
+                        (string-to-number (match-string 1 ans))))
+            iso-weekday (when (match-end 3)
+                          (string-to-number (match-string 3 ans)))
+            iso-week (string-to-number (match-string 2 ans)))
+      (setq ans (replace-match "" t t ans)))
+
+    ;; Help matching ISO dates with single digit month or day, like 2006-8-11.
+    (when (string-match
+           "^ *\\(\\([0-9]+\\)-\\)?\\([0-1]?[0-9]\\)-\\([0-3]?[0-9]\\)\\([^-0-9]\\|$\\)" ans)
+      (setq year (if (match-end 2)
+                     (string-to-number (match-string 2 ans))
+                   (progn (setq kill-year t)
+                          (string-to-number (format-time-string "%Y"))))
+            month (string-to-number (match-string 3 ans))
+            day (string-to-number (match-string 4 ans)))
+      (setq year (fate-small-year-to-year year))
+      (setq ans (replace-match (format "%04d-%02d-%02d\\5" year month day)
+                               t nil ans)))
+
+    ;; Help matching dotted european dates
+    (when (string-match
+           "^ *\\(3[01]\\|0?[1-9]\\|[12][0-9]\\)\\. ?\\(0?[1-9]\\|1[012]\\)\\.\\( ?[1-9][0-9]\\{3\\}\\)?" ans)
+      (setq year (if (match-end 3) (string-to-number (match-string 3 ans))
+                   (setq kill-year t)
+                   (string-to-number (format-time-string "%Y")))
+            day (string-to-number (match-string 1 ans))
+            month (string-to-number (match-string 2 ans))
+            ans (replace-match (format "%04d-%02d-%02d" year month day)
+                               t nil ans)))
+
+    ;; Help matching american dates, like 5/30 or 5/30/7
+    (when (string-match
+           "^ *\\(0?[1-9]\\|1[012]\\)/\\(0?[1-9]\\|[12][0-9]\\|3[01]\\)\\(/\\([0-9]+\\)\\)?\\([^/0-9]\\|$\\)" ans)
+      (setq year (if (match-end 4)
+                     (string-to-number (match-string 4 ans))
+                   (progn (setq kill-year t)
+                          (string-to-number (format-time-string "%Y"))))
+            month (string-to-number (match-string 1 ans))
+            day (string-to-number (match-string 2 ans)))
+      (setq year (fate-small-year-to-year year))
+      (setq ans (replace-match (format "%04d-%02d-%02d\\5" year month day)
+                               t nil ans)))
+    ;; Help matching am/pm times, because `parse-time-string' does not do that.
+    ;; If there is a time with am/pm, and *no* time without it, we convert
+    ;; so that matching will be successful.
+    (cl-loop for i from 1 to 2 do	; twice, for end time as well
+             (when (and (not (string-match "\\(\\`\\|[^+]\\)[012]?[0-9]:[0-9][0-9]\\(:[0-5][0-9]\\)?\\([ \t\n]\\|$\\)" ans))
+                        (string-match "\\([012]?[0-9]\\)\\(:\\([0-5][0-9]\\)\\)?\\(:\\([0-5][0-9]\\)\\)?\\(am\\|AM\\|pm\\|PM\\)\\>" ans))
+               (setq hour (string-to-number (match-string 1 ans))
+                     minute (if (match-end 3)
+                                (string-to-number (match-string 3 ans))
+                              0)
+                     second (if (match-end 5)
+                                (string-to-number (match-string 5 ans))
+                              0)
+                     pm (equal ?p
+                               (string-to-char (downcase (match-string 6 ans)))))
+               (if (and (= hour 12) (not pm))
+                   (setq hour 0)
+                 (when (and pm (< hour 12)) (setq hour (+ 12 hour))))
+               (setq ans (replace-match (format "%02d:%02d:%02d" hour minute second)
+                                        t t ans))))
+
+    (setq tl (parse-time-string ans)
+          day (or (nth 3 tl) (nth 3 fate-defdecode))
+          month
+          (cond ((nth 4 tl))
+                ((not fate-read-date-prefer-future) (nth 4 fate-defdecode))
+                ;; Day was specified.  Make sure DAY+MONTH
+                ;; combination happens in the future.
+                ((nth 3 tl)
+                 (setq futurep t)
+                 (if (< day (nth 3 nowdecode)) (1+ (nth 4 nowdecode))
+                   (nth 4 nowdecode)))
+                (t (nth 4 fate-defdecode)))
+          year
+          (cond ((and (not kill-year) (nth 5 tl)))
+                ((not fate-read-date-prefer-future) (nth 5 fate-defdecode))
+                ;; Month was guessed in the future and is at least
+                ;; equal to NOWDECODE's.  Fix year accordingly.
+                (futurep
+                 (if (or (> month (nth 4 nowdecode))
+                         (>= day (nth 3 nowdecode)))
+                     (nth 5 nowdecode)
+                   (1+ (nth 5 nowdecode))))
+                ;; Month was specified.  Make sure MONTH+YEAR
+                ;; combination happens in the future.
+                ((nth 4 tl)
+                 (setq futurep t)
+                 (cond ((> month (nth 4 nowdecode)) (nth 5 nowdecode))
+                       ((< month (nth 4 nowdecode)) (1+ (nth 5 nowdecode)))
+                       ((< day (nth 3 nowdecode)) (1+ (nth 5 nowdecode)))
+                       (t (nth 5 nowdecode))))
+                (t (nth 5 fate-defdecode)))
+          hour (or (nth 2 tl) (nth 2 fate-defdecode))
+          minute (or (nth 1 tl) (nth 1 fate-defdecode))
+          second (or (nth 0 tl) 0)
+          wday (nth 6 tl))
+
+    (when (and (eq fate-read-date-prefer-future 'time)
+               (not (nth 3 tl)) (not (nth 4 tl)) (not (nth 5 tl))
+               (equal day (nth 3 nowdecode))
+               (equal month (nth 4 nowdecode))
+               (equal year (nth 5 nowdecode))
+               (nth 2 tl)
+               (or (< (nth 2 tl) (nth 2 nowdecode))
+                   (and (= (nth 2 tl) (nth 2 nowdecode))
+                        (nth 1 tl)
+                        (< (nth 1 tl) (nth 1 nowdecode)))))
+      (setq day (1+ day)
+            futurep t))
+
+    ;; Special date definitions below
+    (cond
+     (iso-week
+      ;; There was an iso week
+      (require 'cal-iso)
+      (setq futurep nil)
+      (setq year (or iso-year year)
+            day (or iso-weekday wday 1)
+            wday nil ; to make sure that the trigger below does not match
+            iso-date (calendar-gregorian-from-absolute
+                      (calendar-iso-to-absolute
+                       (list iso-week day year))))
+                                        ; FIXME:  Should we also push ISO weeks into the future?
+                                        ;      (when (and fate-read-date-prefer-future
+                                        ;		 (not iso-year)
+                                        ;		 (< (calendar-absolute-from-gregorian iso-date)
+                                        ;		    (time-to-days (current-time))))
+                                        ;	(setq year (1+ year)
+                                        ;	      iso-date (calendar-gregorian-from-absolute
+                                        ;			(calendar-iso-to-absolute
+                                        ;			 (list iso-week day year)))))
+      (setq month (car iso-date)
+            year (nth 2 iso-date)
+            day (nth 1 iso-date)))
+     (deltan
+      (setq futurep nil)
+      (unless deltadef
+        ;; Pass `current-time' result to `decode-time' (instead of
+        ;; calling without arguments) so that only `current-time' has
+        ;; to be overridden in tests.
+        (let ((now (decode-time (current-time))))
+          (setq day (nth 3 now) month (nth 4 now) year (nth 5 now))))
+      (cond ((member deltaw '("d" "")) (setq day (+ day deltan)))
+            ((equal deltaw "w") (setq day (+ day (* 7 deltan))))
+            ((equal deltaw "m") (setq month (+ month deltan)))
+            ((equal deltaw "y") (setq year (+ year deltan)))))
+     ((and wday (not (nth 3 tl)))
+      ;; Weekday was given, but no day, so pick that day in the week
+      ;; on or after the derived date.
+      (setq wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
+      (unless (equal wday wday1)
+        (setq day (+ day (% (- wday wday1 -7) 7))))))
+    (when (< year 100) (setq year (+ 2000 year)))
+    ;; Check of the date is representable
+    (setq fate-read-date-analyze-futurep futurep)
+    (list second minute hour day month year)))
+
+(defun fate-read-date (&optional with-time prompt
+                                 default-time default-input)
+  (require 'parse-time)
+  (let* ((fate-with-time with-time)
+         (ct (current-time))
+         (fate-def (or default-time ct))
+         (fate-defdecode (decode-time fate-def))
+         (cur-frame (selected-frame))
+         (mouse-autoselect-window nil)	; Don't let the mouse jump
+         (calendar-setup
+          (and (eq calendar-setup 'calendar-only) 'calendar-only))
+         (calendar-move-hook nil)
+         (calendar-view-diary-initially-flag nil)
+         (calendar-view-holidays-initially-flag nil)
+         ans (fate-ans0 "") fate-ans1 fate-ans2 final cal-frame)
+    ;; Rationalize `fate-def' and `fate-defdecode', if required.
+    (when (< (nth 2 fate-defdecode) fate-extend-today-until)
+      (setf (nth 2 fate-defdecode) -1)
+      (setf (nth 1 fate-defdecode) 59)
+      (setq fate-def (apply #'encode-time fate-defdecode))
+      (setq fate-defdecode (decode-time fate-def)))
+    (let* ((timestr (format-time-string
+                     (if fate-with-time "%Y-%m-%d %H:%M:%S" "%Y-%m-%d")
+                     fate-def))
+           (prompt (concat (if prompt (concat prompt " ") "")
+                           (format "Date+time [%s]: " timestr))))
+      (cond
+       (fate-read-date-popup-calendar
+        (save-excursion
+          (save-window-excursion
+            (calendar)
+            (when (eq calendar-setup 'calendar-only)
+              (setq cal-frame
+                    (window-frame (get-buffer-window "*Calendar*" 'visible)))
+              (select-frame cal-frame))
+            (fate-eval-in-calendar '(setq cursor-type nil) t)
+            (unwind-protect
+                (progn
+                  (calendar-forward-day (- (time-to-days fate-def)
+                                           (calendar-absolute-from-gregorian
+                                            (calendar-current-date))))
+                  (fate-eval-in-calendar nil t)
+                  (let* ((old-map (current-local-map))
+                         (map (copy-keymap calendar-mode-map))
+                         (minibuffer-local-map
+                          (copy-keymap fate-read-date-minibuffer-local-map)))
+                    (fate-defkey map (kbd "RET") 'fate-calendar-select)
+                    (fate-defkey map [mouse-1] 'fate-calendar-select-mouse)
+                    (fate-defkey map [mouse-2] 'fate-calendar-select-mouse)
+                    (unwind-protect
+                        (progn
+                          (use-local-map map)
+                          (add-hook 'post-command-hook 'fate-read-date-display)
+                          (setq fate-ans0
+                                (read-string prompt
+                                             default-input
+                                             nil
+                                             nil))
+                          ;; fate-ans0: from prompt
+                          ;; fate-ans1: from mouse click
+                          ;; fate-ans2: from calendar motion
+                          (setq ans
+                                (concat fate-ans0 " " (or fate-ans1 fate-ans2))))
+                      (remove-hook 'post-command-hook 'fate-read-date-display)
+                      (use-local-map old-map)
+                      (when fate-read-date-overlay
+                        (delete-overlay fate-read-date-overlay)
+                        (setq fate-read-date-overlay nil)))))
+              (bury-buffer "*Calendar*")
+              (when cal-frame
+                (delete-frame cal-frame)
+                (select-frame-set-input-focus cur-frame))))))
+
+       (t				; Naked prompt only
+        (unwind-protect
+            (setq ans (read-string prompt default-input
+                                   nil timestr))
+          (when fate-read-date-overlay
+            (delete-overlay fate-read-date-overlay)
+            (setq fate-read-date-overlay nil))))))
+
+    (setq final (fate-read-date-analyze ans fate-def fate-defdecode))
+
+    ;; One round trip to get rid of 34th of August and stuff like that....
+    (setq final (decode-time (apply 'encode-time final)))
+
+    (message (format "%s" final))
+    (if fate-with-time
+        (format "%04d-%02d-%02d %02d:%02d:%02d"
+                (nth 5 final) (nth 4 final) (nth 3 final)
+                (nth 2 final) (nth 1 final) (nth 0 final))
+      (format "%04d-%02d-%02d" (nth 5 final) (nth 4 final) (nth 3 final)))
+    ))
+
 (defvar fate-buffer-list '())
 (defun clear-fate-buffer ()
   (dolist (bufname fate-buffer-list)
