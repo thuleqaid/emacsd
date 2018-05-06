@@ -885,7 +885,7 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
                 (t (nth 5 fate-defdecode)))
           hour (or (nth 2 tl) (nth 2 fate-defdecode))
           minute (or (nth 1 tl) (nth 1 fate-defdecode))
-          second (or (nth 0 tl) 0)
+          second (or (nth 0 tl) (nth 0 fate-defdecode))
           wday (nth 6 tl))
 
     (when (and (eq fate-read-date-prefer-future 'time)

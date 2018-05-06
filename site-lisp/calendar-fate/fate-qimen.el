@@ -20,11 +20,22 @@
 ;;; Commentary:
 ;; Usage
 ;; qimen-taigong
+;; qimen-taigong-time
+;; qimen-taigong-ming
+;; qimen-normal
+;; qimen-normal-time
 
 ;;; Code:
 (defun qimen-taigong ()
   (interactive)
   (let ((adate (calendar-fate-chinese-datetime)))
+    (qimen_clearbuffer)
+    (qimen_taigong adate)
+    )
+  )
+(defun qimen-taigong-time ()
+  (interactive)
+  (let ((adate (calendar-fate-chinese-datetime (qimen_specify_datetime))))
     (qimen_clearbuffer)
     (qimen_taigong adate)
     )
@@ -39,6 +50,13 @@
 (defun qimen-normal ()
   (interactive)
   (let ((adate (calendar-fate-chinese-datetime)))
+    (qimen_clearbuffer)
+    (qimen_normal adate)
+    )
+  )
+(defun qimen-normal-time ()
+  (interactive)
+  (let ((adate (calendar-fate-chinese-datetime (qimen_specify_datetime))))
     (qimen_clearbuffer)
     (qimen_normal adate)
     )
@@ -71,6 +89,17 @@
         qimen_normal_8men flag_8men)
   )
 
+(defun qimen_specify_datetime ()
+  (let ((dt (safe-date-to-time (fate-read-date t)))
+        ans
+        )
+    (setq dt (decode-time dt)
+          ans (list (nth 4 dt) (nth 3 dt) (nth 5 dt)
+                    (nth 2 dt) (nth 1 dt) (nth 0 dt))
+          )
+    ans
+    )
+  )
 ;; 太公奇门排盘
 (defun qimen_taigong_ming (adate)
   (interactive)
@@ -776,8 +805,10 @@
      nil '("Fate")
      '("奇门遁甲"
        ["起普通奇门盘" qimen-normal t]
+       ["指定时间起普通奇门盘" qimen-normal-time t]
        "---"
        ["起太公奇门盘" qimen-taigong t]
+       ["指定时间起太公奇门盘" qimen-taigong-time t]
        ["起太公奇门命盘" qimen-taigong-ming t]
        "---"
        "普通奇门盘设定：起局"
@@ -795,8 +826,10 @@
    nil '("Fate")
    '("QiMen"
      ["Normal" qimen-normal t]
+     ["Normal With Time" qimen-normal-time t]
      "---"
      ["TaiGong" qimen-taigong t]
+     ["TaiGong With Time" qimen-taigong-time t]
      ["TaiGong Ming" qimen-taigong-ming t]
      "---"
      "Normal Setting: Ju"
