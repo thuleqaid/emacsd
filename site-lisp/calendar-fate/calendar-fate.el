@@ -28,7 +28,22 @@
 (require 'calendar)
 (require 'cal-china)
 (require 'ox)
-(require 'htmlize)
+(require 'htmlize nil t)
+
+;; latest version of htmlize use alist-get
+;; alist-get is available since Emacs 25
+(unless (fboundp 'alist-get)
+  (defun alist-get (key alist &optional default remove)
+    "Return the value associated with KEY in ALIST, using `assq'.
+If KEY is not found in ALIST, return DEFAULT.
+
+This is a generalized variable suitable for use with `setf'.
+When using it to set a value, optional argument REMOVE non-nil
+means to remove KEY from ALIST if the new value is `eql' to DEFAULT."
+    (ignore remove) ;;Silence byte-compiler.
+    (let ((x (assq key alist)))
+      (if x (cdr x) default)))
+  )
 
 (defcustom calendar-fate-show-chinese
   t
