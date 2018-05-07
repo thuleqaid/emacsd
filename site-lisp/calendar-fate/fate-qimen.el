@@ -261,6 +261,8 @@
     (add-face-text-property 0 (length empty-txt-hour) (list :foreground "gray") nil empty-txt-hour)
     (add-face-text-property 0 (length empty-txt-minute) (list :foreground "gray") nil empty-txt-minute)
     ;; 设置各宫文字
+    (clear-text-properties cur-64gua)
+    (add-face-text-property 0 (length (nth 0 ziwei_12gong)) (list :foreground color-min) nil (nth 0 ziwei_12gong))
     (dotimes (tmpi (length info))
       (setq cur-dz (nth 0 (nth tmpi info))
             cur-64gua (nth 1 (nth tmpi info))
@@ -271,13 +273,9 @@
             cur-8shen (mod (+ pos-8shen -1 cur-8men) 8)
             cur-yun (mod (- dz-yun cur-dz) 12))
       (setq cur-64gua (car (nth cur-64gua gua-64))
-            tmpj (nth cur-yun ziwei_12gong)
-            tmpk (nth (mod (1- cur-yun) 12) ziwei_12gong)
+            tmpj (if (= cur-yun 0) "运宫" (nth cur-yun ziwei_12gong))
+            tmpk (if (= cur-yun 1) "运宫" (nth (mod (1- cur-yun) 12) ziwei_12gong))
             )
-      (clear-text-properties cur-64gua)
-      (when (= (mod (1+ cur-8men) 8) pos-min)
-        (add-face-text-property 0 (length cur-64gua) (list :foreground color-min) nil cur-64gua)
-        )
       (when (memq cur-yun '(0 4 8))
         (add-face-text-property 0 (length tmpj) (list :foreground (car color-yun) :background (cadr color-yun)) nil tmpj)
         )
@@ -286,6 +284,7 @@
         )
       (if (< tmpi 4)
           (if (< tmpi 2)
+              ;; 巽宫，坤宫
               (setq block (list (format "%s %s %s"
                                         (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
                                         (nth cur-9xing txt-9xing)
@@ -302,8 +301,9 @@
                                         (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
                                         (nth cur-8men txt-8men)
                                         (if (or (= (1+ cur-dz) empty-hour) (= (1+ cur-dz) empty-hour2)) empty-txt-hour "    "))
-                                (format "%s      %s"
+                                (format "%s %s %s"
                                         (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
+                                        (if (= (mod (1+ cur-8men) 8) pos-min) (nth 0 ziwei_12gong) "    ")
                                         (if (or (= (1+ cur-dz) empty-minute) (= (1+ cur-dz) empty-minute2)) empty-txt-minute "    "))
                                 (format "%s%s  %s%s"
                                         (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
@@ -312,6 +312,7 @@
                                         tmpk
                                         )
                                 ))
+            ;; 乾宫，艮宫
             (setq block (list (format "%s %s %s"
                                       (if (or (= (1+ cur-dz) empty-year) (= (1+ cur-dz) empty-year2)) empty-txt-year "    ")
                                       (nth cur-9xing txt-9xing)
@@ -328,8 +329,9 @@
                                       (if (or (= (1+ cur-dz) empty-hour) (= (1+ cur-dz) empty-hour2)) empty-txt-hour "    ")
                                       (nth cur-8men txt-8men)
                                       (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    "))
-                              (format "%s      %s"
+                              (format "%s %s %s"
                                       (if (or (= (1+ cur-dz) empty-minute) (= (1+ cur-dz) empty-minute2)) empty-txt-minute "    ")
+                                      (if (= (mod (1+ cur-8men) 8) pos-min) (nth 0 ziwei_12gong) "    ")
                                       (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    "))
                               (format "%s%s  %s%s"
                                       (aref chinese-fate-calendar-terrestrial-branch cur-dz)
@@ -340,6 +342,7 @@
                               ))
             )
         (cond ((= tmpi 4)
+               ;; 震宫
                (setq block (list (format "%s %s     "
                                          (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
                                          (nth cur-9xing txt-9xing)
@@ -356,8 +359,9 @@
                                          (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
                                          (nth cur-8men txt-8men)
                                          )
-                                 (format "%s          "
+                                 (format "%s %s     "
                                          (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
+                                         (if (= (mod (1+ cur-8men) 8) pos-min) (nth 0 ziwei_12gong) "    ")
                                          )
                                  (format "%s%s        "
                                          (aref chinese-fate-calendar-terrestrial-branch (1- cur-dz))
@@ -366,6 +370,7 @@
                                  ))
                )
               ((= tmpi 6)
+               ;; 兑宫
                (setq block (list (format "     %s %s"
                                          (nth cur-9xing txt-9xing)
                                          (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
@@ -382,7 +387,8 @@
                                          (nth cur-8men txt-8men)
                                          (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
                                          )
-                                 (format "          %s"
+                                 (format "     %s %s"
+                                         (if (= (mod (1+ cur-8men) 8) pos-min) (nth 0 ziwei_12gong) "    ")
                                          (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
                                          )
                                  (format "        %s%s"
@@ -392,6 +398,7 @@
                                  ))
                )
               (t
+               ;; 离宫，坎宫
                               (setq block (list (format "     %s %s"
                                          (nth cur-9xing txt-9xing)
                                          (if (or (= cur-dz empty-year) (= cur-dz empty-year2)) empty-txt-year "    ")
@@ -408,7 +415,8 @@
                                          (nth cur-8men txt-8men)
                                          (if (or (= cur-dz empty-hour) (= cur-dz empty-hour2)) empty-txt-hour "    ")
                                          )
-                                 (format "          %s"
+                                 (format "     %s %s"
+                                         (if (= (mod (1+ cur-8men) 8) pos-min) (nth 0 ziwei_12gong) "    ")
                                          (if (or (= cur-dz empty-minute) (= cur-dz empty-minute2)) empty-txt-minute "    ")
                                          )
                                  (format "%s%s"
