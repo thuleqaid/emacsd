@@ -589,7 +589,7 @@
           (unless (= 5 basegong)
             (add-face-text-property 0 (length (nth tmpk txt-9xing1)) (list :foreground "red") nil (nth tmpk txt-9xing1)))
           (dotimes (tmpi 8)
-            (aset tianpan (nth (mod (+ tmpi tmpj) 8) order11) (format "%s %s" (nth (mod (+ tmpi tmpk) 8) txt-9xing1) (aref dipan (nth (mod (+ tmpi tmpk) 8) order11))))
+            (aset tianpan (nth (mod (+ tmpi tmpj) 8) order11) (format "%s  %s" (nth (mod (+ tmpi tmpk) 8) txt-9xing1) (aref dipan (nth (mod (+ tmpi tmpk) 8) order11))))
             (aset shenpan (nth (mod (+ tmpi tmpj) 8) order11) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 8) txt-8shen1))
             (aset shenpan_base (nth (mod (+ tmpi tmpk) 8) order11) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 8) txt-8shen1))
             )
