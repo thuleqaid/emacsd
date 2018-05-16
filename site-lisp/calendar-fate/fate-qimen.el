@@ -80,6 +80,8 @@
   "t:Rotate, nil:Jump"
   :group 'calendar-fate
   :type '(symbol :tag "QiMen Normal Setting: PaiPan_8Men"))
+;; 普通奇门克应
+(defconst fate-qimen-file (concat calendar-fate-source-dir "qimen_normal.txt"))
 
 (defun qimen_normal_setting1 (flag_qiju)
   (setq qimen_normal_qiju flag_qiju)
@@ -521,7 +523,9 @@
          (txt '())
          (dipan (make-vector 9 ""))
          (renpan (make-vector 9 ""))
-         (tianpan (make-vector 9 ""))
+         (renpan_base (make-vector 9 ""))
+         (tianpan1 (make-vector 9 ""))
+         (tianpan2 (make-vector 9 ""))
          (shenpan (make-vector 9 ""))
          (shenpan_base (make-vector 9 ""))
          block basegong rengong tiangong
@@ -569,6 +573,7 @@
           (add-face-text-property 0 (length (nth tmpk txt-8men1)) (list :foreground "red") nil (nth tmpk txt-8men1))
           (dotimes (tmpi 8)
             (aset renpan (nth (mod (+ tmpi tmpj) 8) order11) (nth (mod (+ tmpi tmpk) 8) txt-8men1))
+            (aset renpan_base (nth (mod (+ tmpi tmpk) 8) order11) (nth (mod (+ tmpi tmpk) 8) txt-8men1))
             )
           )
       (progn
@@ -577,6 +582,7 @@
         (add-face-text-property 0 (length (nth tmpk txt-8men2)) (list :foreground "red") nil (nth tmpk txt-8men2))
         (dotimes (tmpi 9)
           (aset renpan (mod (+ tmpi tmpj) 9) (nth (mod (+ tmpi tmpk) 9) txt-8men2))
+          (aset renpan_base (mod (+ tmpi tmpk) 9) (nth (mod (+ tmpi tmpk) 9) txt-8men2))
           )
         ))
     ;; 计算天盘、神盘
@@ -589,7 +595,8 @@
           (unless (= 5 basegong)
             (add-face-text-property 0 (length (nth tmpk txt-9xing1)) (list :foreground "red") nil (nth tmpk txt-9xing1)))
           (dotimes (tmpi 8)
-            (aset tianpan (nth (mod (+ tmpi tmpj) 8) order11) (format "%s  %s" (nth (mod (+ tmpi tmpk) 8) txt-9xing1) (aref dipan (nth (mod (+ tmpi tmpk) 8) order11))))
+            (aset tianpan1 (nth (mod (+ tmpi tmpj) 8) order11) (nth (mod (+ tmpi tmpk) 8) txt-9xing1))
+            (aset tianpan2 (nth (mod (+ tmpi tmpj) 8) order11) (aref dipan (nth (mod (+ tmpi tmpk) 8) order11)))
             (aset shenpan (nth (mod (+ tmpi tmpj) 8) order11) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 8) txt-8shen1))
             (aset shenpan_base (nth (mod (+ tmpi tmpk) 8) order11) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 8) txt-8shen1))
             )
@@ -600,7 +607,8 @@
               tmpk (1- basegong)) ;; 值符旧宫位
         (add-face-text-property 0 (length (nth tmpk txt-9xing2)) (list :foreground "red") nil (nth tmpk txt-9xing2))
         (dotimes (tmpi 9)
-          (aset tianpan (mod (+ tmpi tmpj) 9) (format "%s  %s" (nth (mod (+ tmpi tmpk) 9) txt-9xing2) (aref dipan (mod (+ tmpi tmpk) 9))))
+          (aset tianpan1 (mod (+ tmpi tmpj) 9) (nth (mod (+ tmpi tmpk) 9) txt-9xing2))
+          (aset tianpan2 (mod (+ tmpi tmpj) 9) (aref dipan (mod (+ tmpi tmpk) 9)))
           (aset shenpan (mod (+ tmpi tmpj) 9) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 9) txt-8shen2))
           (aset shenpan_base (mod (+ tmpi tmpk) 9) (nth (mod (* (if ju-yinyang 1 -1) tmpi) 9) txt-8shen2))
           )
@@ -608,7 +616,7 @@
     ;; 设置各宫文字
     (dotimes (tmpi 9)
       (setq block (list (format "  %s  " (aref shenpan tmpi))
-                        (format "%s" (aref tianpan tmpi))
+                        (format "%s  %s" (aref tianpan1 tmpi) (aref tianpan2 tmpi))
                         (format "%s  %s" (aref renpan tmpi) (aref dipan tmpi))
                         (format "  %s  " (aref shenpan_base tmpi))
                         ))
@@ -648,8 +656,48 @@
                     ))
     ;; 画九宫
     (qimen_draw txt)
+    ;; 辅助文字
+    (insert "\n========================================")
+    ;; 寄宫位置
+    (setq tmpj -1)
+    (dotimes (tmpi 9)
+      (when (string-equal (aref tianpan1 tmpi) "天芮")
+        (setq tmpj tmpi)
+        )
+      )
+    (dotimes (tmpi 9)
+      (when (not (string-equal (aref tianpan2 tmpi) ""))
+        (insert "\n")
+        ;; 十干克应
+        (insert (qimen_normal_msg (format "^%s\\+%s" (aref tianpan2 tmpi) (aref dipan tmpi))))
+        (insert "\n")
+        (when (and flag-9xing (= tmpi tmpj))
+          (insert (qimen_normal_msg (format "^%s\\+%s" (aref tianpan2 tmpi) (aref dipan 4))))
+          (insert "\n")
+          )
+        ;; 八门克应
+        (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref renpan_base tmpi))))
+        (insert "\n")
+        (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref dipan tmpi))))
+        (insert "\n")
+        )
+      )
+    (goto-char (point-min))
     ))
 
+(defun qimen_normal_msg (prefix)
+  (with-current-buffer (find-file-noselect fate-qimen-file)
+    (let (point point1 point2 result)
+      (goto-char (point-min))
+      (setq point (search-forward-regexp prefix nil t)
+            point1 (line-beginning-position)
+            point2 (line-end-position)
+            result (if point (buffer-substring-no-properties point1 point2)
+                     ""))
+      result
+      )
+    )
+  )
 (defun qimen_clearbuffer ()
   (let ((logbuffer (get-buffer-create "fate-qimen")))
     (set-buffer logbuffer)
@@ -808,6 +856,7 @@
   )
 
 (add-to-list 'fate-buffer-list "fate-qimen")
+(add-to-list 'fate-buffer-list "qimen_normal.txt")
 (if calendar-fate-show-chinese
     (easy-menu-add-item
      nil '("Fate")
