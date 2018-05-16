@@ -562,7 +562,7 @@
         )
       )
     (when (= org2 1) (setq tiangong basegong))
-    (setq rengong (1+ (mod (+ basegong -2 (* (if ju-yinyang 1 -1) org2)) 9)))
+    (setq rengong (1+ (mod (+ basegong -1 (* (if ju-yinyang 1 -1) (1- org2))) 9)))
     ;; 计算人盘
     (setq zhishi basegong)
     (if flag-8men
