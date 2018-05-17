@@ -945,6 +945,10 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
         (setq day (+ day (% (- wday wday1 -7) 7))))))
     (when (< year 100) (setq year (+ 2000 year)))
     ;; Check of the date is representable
+    (condition-case nil
+        (ignore (encode-time second minute hour month year))
+      (error (setq year (nth 5 fate-defdecode)))
+      )
     (setq fate-read-date-analyze-futurep futurep)
     (list second minute hour day month year)))
 
@@ -1034,7 +1038,6 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
     ;; One round trip to get rid of 34th of August and stuff like that....
     (setq final (decode-time (apply 'encode-time final)))
 
-    (message (format "%s" final))
     (if fate-with-time
         (format "%04d-%02d-%02d %02d:%02d:%02d"
                 (nth 5 final) (nth 4 final) (nth 3 final)
