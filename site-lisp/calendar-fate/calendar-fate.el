@@ -1052,6 +1052,14 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
       (kill-buffer bufname))
       )
   )
+(defun fate-dumps-b64 (value)
+  (base64-encode-string
+   (encode-coding-string (prin1-to-string value) 'utf-8)
+   t)
+  )
+(defun fate-loads-b64 (b64value)
+  (decode-coding-string (base64-decode-string b64value) 'utf-8)
+  )
 (defun fate-export-org (&optional prefix suffix)
   (let* ((fprefix (or prefix ""))
          (fsuffix (or suffix ""))
@@ -1088,6 +1096,18 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
     (write-file outfile t)
     (kill-buffer htmlbuf)
     (browse-url (concat "file://" outfile))
+    )
+  )
+(defun fate-import-org ()
+  (let* ((fname (read-file-name "Load *.html: "
+                                calendar-fate-data-path
+                                nil t))
+         (buf (find-file-noselect fname t t))
+         )
+    (set-buffer buf)
+    (goto-char (point-min))
+    (search-forward-regexp "<meta name=\"keywords\" content=\"\\(.*\\)\" />")
+    (fate-loads-b64 (match-string-no-properties 1))
     )
   )
 

@@ -627,6 +627,13 @@
     (dotimes (cnt 4)
       (setq lastguayao (heluo_msg_output (+ year-start cnt) lastguayao))
       )
+    (insert "* Footnotes\n")
+    (insert (format "#+KEYWORDS: %s\n"
+                    (fate-dumps-b64 (list 'name (plist-get fate-user-current 'name)
+                                          'birthday (plist-get fate-user-current 'birthday)
+                                          'male (plist-get fate-user-current 'male)
+                                          'year year-cur))
+                    ))
     (org-content 3)
     (switch-to-buffer logbuffer)
     )
@@ -718,7 +725,7 @@
 
 (defun heluo-export ( )
   (interactive)
-  (fate-export-org "heluo_")
+  (fate-export-org nil "_heluo")
   )
 
 (add-to-list 'fate-user-calculate 'heluo-user-calculate)
