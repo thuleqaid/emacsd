@@ -479,7 +479,7 @@
 
 (defun ziwei-export ( )
   (interactive)
-  (fate-export-html "ziwei_")
+  (fate-export-html nil "_ziwei")
   )
 
 (add-to-list 'fate-user-calculate 'ziwei-user-calculate)

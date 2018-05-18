@@ -477,6 +477,11 @@
                     (nth 2 txt)))
     ;; 画九宫
     (qimen_draw txt)
+    (insert "----------------------------------------\n")
+    (insert "断卦：\n\n")
+    (insert "反馈：\n\n")
+    (insert "总结：\n\n")
+    (goto-char (point-min))
     ))
 ;; 普通奇门排盘
 (defun qimen_normal (adate)
@@ -656,6 +661,10 @@
                     ))
     ;; 画九宫
     (qimen_draw txt)
+    (insert "----------------------------------------\n")
+    (insert "断卦：\n\n")
+    (insert "反馈：\n\n")
+    (insert "总结：\n\n")
     ;; 辅助文字
     (insert "\n========================================")
     ;; 寄宫位置
@@ -702,6 +711,9 @@
   (let ((logbuffer (get-buffer-create "fate-qimen")))
     (set-buffer logbuffer)
     (erase-buffer)
+    (insert "占事：\n")
+    (insert "背景：\n")
+    (insert "问卦人：\n")
     )
   )
 (defun qimen_draw (blocks)
@@ -852,7 +864,7 @@
 
 (defun qimen-export ( )
   (interactive)
-  (fate-export-html "qimen_")
+  (fate-export-html nil "_qimen")
   )
 
 (add-to-list 'fate-buffer-list "fate-qimen")
