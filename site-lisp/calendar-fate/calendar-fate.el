@@ -1076,7 +1076,18 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
     (browse-url (concat "file://" outfile))
     )
   )
-(defun fate-export-html (&optional prefix suffix)
+(defun fate-export-html-after ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward "========================================" nil t)
+      (replace-match "<span style=\"page-break-after:always;\"></span>"))
+    (goto-char (plist-get htmlize-buffer-places 'content-end))
+    (insert "\n<span hidden>")
+    (insert fate_export_html_extra_info)
+    (insert "</span>")
+    )
+  )
+(defun fate-export-html (&optional prefix suffix extrastr)
   (let* ((fprefix (or prefix ""))
          (fsuffix (or suffix ""))
          (outfile (read-file-name "Save As *.html: "
@@ -1088,13 +1099,14 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
                                           fsuffix)))
          (htmlize-output-type "inline-css")
          (htmlize-html-charset "utf-8")
-         (htmlbuf (htmlize-buffer)))
+         (fate_export_html_extra_info (or extrastr ""))
+         htmlbuf)
+    (add-hook 'htmlize-after-hook 'fate-export-html-after t t)
+    (setq htmlbuf (htmlize-buffer))
     (set-buffer htmlbuf)
-    (goto-char (point-min))
-    (while (search-forward "========================================" nil t)
-      (replace-match "<span style=\"page-break-after:always;\"></span>"))
     (write-file outfile t)
     (kill-buffer htmlbuf)
+    (remove-hook 'htmlize-after-hook 'fate-export-html-after t)
     (browse-url (concat "file://" outfile))
     )
   )
@@ -1103,11 +1115,41 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
                                 calendar-fate-data-path
                                 nil t))
          (buf (find-file-noselect fname t t))
+         result
          )
     (set-buffer buf)
     (goto-char (point-min))
     (search-forward-regexp "<meta name=\"keywords\" content=\"\\(.*\\)\" />")
-    (read (fate-loads-b64 (match-string-no-properties 1)))
+    (setq result (condition-case nil
+                     (read (fate-loads-b64 (match-string-no-properties 1)))
+                   (error nil))
+          )
+    (kill-buffer buf)
+    (when result
+        (setq result (plist-put result 'filepath fname))
+      )
+    result
+    )
+  )
+(defun fate-import-html ()
+  (let* ((fname (read-file-name "Load *.html: "
+                                calendar-fate-data-path
+                                nil t))
+         (buf (find-file-noselect fname t t))
+         result
+         )
+    (set-buffer buf)
+    (goto-char (point-min))
+    (search-forward-regexp "<span hidden>\\(.*\\)</span>")
+    (setq result (condition-case nil
+                     (read (fate-loads-b64 (match-string-no-properties 1)))
+                   (error nil))
+          )
+    (kill-buffer buf)
+    (when result
+        (setq result (plist-put result 'filepath fname))
+      )
+    result
     )
   )
 
