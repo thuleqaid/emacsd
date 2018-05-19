@@ -1107,7 +1107,7 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
     (set-buffer buf)
     (goto-char (point-min))
     (search-forward-regexp "<meta name=\"keywords\" content=\"\\(.*\\)\" />")
-    (fate-loads-b64 (match-string-no-properties 1))
+    (read (fate-loads-b64 (match-string-no-properties 1)))
     )
   )
 

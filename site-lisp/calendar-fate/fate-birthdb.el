@@ -134,7 +134,38 @@
     (fate_user_list_save)
     )
   )
-
+;; 选择或者添加用户
+(defun fate-user-select-or-add (userinfo)
+  (let ((user_count (length fate-user-list))
+        (curidx 0)
+        (found nil)
+        (name (plist-get userinfo 'name))
+        (birthday (plist-get userinfo 'birthday))
+        (gender (plist-get userinfo 'male))
+        curuser
+        )
+    (while (< curidx user_count)
+      (setq curuser (nth curidx fate-user-list))
+      (if (and (string-equal (plist-get curuser 'name) name)
+               (equal (plist-get curuser 'birthday) birthday)
+               (equal (plist-get curuser 'male) gender)
+               )
+          (setq fate-user-current (nth curidx fate-user-list)
+                curidx user_count
+                found t)
+        (setq curidx (1+ curidx))
+          )
+      )
+    (unless found
+      (fate_user_add_dummy
+       name gender
+       (encode-time (nth 5 birthday) (nth 4 birthday) (nth 3 birthday)
+                    (nth 1 birthday) (nth 0 birthday) (nth 2 birthday))
+       (car fate-timediff-pos-choice) 120)
+      (fate_user_list_save)
+      )
+    )
+  )
 ;; 读取用户列表文件
 (defun fate_user_list_load ()
   (if (file-exists-p fate-user-list-file)

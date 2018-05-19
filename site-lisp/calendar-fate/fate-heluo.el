@@ -723,9 +723,18 @@
     )
   )
 
-(defun heluo-export ( )
+(defun heluo-export ()
   (interactive)
   (fate-export-org nil "_heluo")
+  )
+
+(defun heluo-import ()
+  (interactive)
+  (let ((info (fate-import-org))
+        )
+    (fate-user-select-or-add info)
+    (heluo-show (plist-get info 'year))
+    )
   )
 
 (add-to-list 'fate-user-calculate 'heluo-user-calculate)
@@ -741,6 +750,7 @@
        ["指定年份" heluo-show t]
        "---"
        ["保存" heluo-export t]
+       ["读取" heluo-import t]
        )
      )
   (easy-menu-add-item
@@ -750,6 +760,7 @@
      ["Specified Year" heluo-show t]
      "---"
      ["Save" heluo-export t]
+     ["Load" heluo-import t]
      )
    )
   )
