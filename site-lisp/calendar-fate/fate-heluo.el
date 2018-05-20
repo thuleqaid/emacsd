@@ -725,7 +725,7 @@
 
 (defun heluo-export ()
   (interactive)
-  (fate-export-org nil "_heluo")
+  (fate-export-org nil nil "_heluo")
   )
 
 (defun heluo-import ()

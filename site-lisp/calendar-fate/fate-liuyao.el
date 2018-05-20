@@ -43,6 +43,8 @@
 (defconst liuqin-name '("兄" "孙" "财" "官" "父"))
 ;; 六神
 (defconst liushen-name '("青龙" "朱雀" "勾陈" "滕蛇" "白虎" "玄武"))
+;; 当前排盘的导出文件名
+(defvar liuyao-current-filename nil)
 ;; 计算卦的六亲
 (defun liuqin (gua &optional basegua)
   (let (
@@ -71,6 +73,7 @@
   (let* ((logbuffer (get-buffer-create "fate-liuyao"))
          poslist
         )
+    (setq liuyao-current-filename nil)
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
@@ -104,6 +107,7 @@
   (let* ((logbuffer (get-buffer-create "fate-liuyao"))
          poslist
          )
+    (setq liuyao-current-filename nil)
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
@@ -848,19 +852,7 @@
     )
   )
 (defun liuyao-parts ()
-  (save-excursion
-    (let* ((logbuffer (get-buffer-create "fate-liuyao"))
-           (partsep "----------------------------------------\\|========================================")
-           (poslist '())
-           )
-      (set-buffer logbuffer)
-      (goto-char (point-min))
-      (while (search-forward-regexp partsep nil t)
-        (setq poslist (cons (line-beginning-position) poslist))
-        )
-      (reverse poslist)
-      )
-    )
+  (fate-parts "fate-liuyao")
   )
 (defun liuyao-stopwatch ()
   (let (time0
@@ -894,7 +886,49 @@
 
 (defun liuyao-export ( )
   (interactive)
-  (fate-export-html nil "_liuyao")
+  (let* ((poslist (liuyao-parts))
+         (part1 (buffer-substring-no-properties 1 (nth 0 poslist)))
+         part2 part4
+         )
+    (goto-char (nth 0 poslist))
+    (forward-line 1)
+    (setq part2 (buffer-substring-no-properties (point) (nth 1 poslist)))
+    (goto-char (nth 2 poslist))
+    (forward-line 1)
+    (setq part4 (buffer-substring-no-properties (point) (nth 3 poslist)))
+    (fate-export-html liuyao-current-filename nil "_liuyao"
+                      (fate-dumps-b64 (list 'part1 part1 'part2 part2 'part4 part4)))
+    )
+  )
+
+(defun liuyao-import ()
+  (interactive)
+  (let ((info (fate-import-html))
+        (logbuffer (get-buffer-create "fate-liuyao"))
+        )
+    (setq liuyao-current-filename (plist-get info 'filepath))
+    (set-buffer logbuffer)
+    (erase-buffer)
+    ;; 输出第一部分（起卦特征）
+    (insert (plist-get info 'part1))
+    (insert "----------------------------------------\n")
+    ;; 输出第二部分（起卦信息）
+    (insert (plist-get info 'part2))
+    (insert "----------------------------------------\n")
+    ;; 输出第三部分（装卦）
+    (insert "----------------------------------------\n")
+    ;; 输出第四部分（断卦）
+    (insert (plist-get info 'part4))
+    (insert "========================================\n")
+    ;; 输出第五部分（自动提示）
+    (insert "----------------------------------------\n")
+    ;; 输出第六部分（易经）
+
+    ;; 根据第一部分生成第三，五，六部分
+    (liuyao-update)
+    (goto-char (point-min))
+    (switch-to-buffer logbuffer)
+    )
   )
 
 (add-to-list 'fate-buffer-list "fate-liuyao")
@@ -910,6 +944,7 @@
        ["重新排卦" liuyao-update t]
        "---"
        ["保存" liuyao-export t]
+       ["读取" liuyao-import t]
        )
      )
   (easy-menu-add-item
@@ -923,6 +958,7 @@
      ["Update" liuyao-update t]
      "---"
      ["Save" liuyao-export t]
+     ["Load" liuyao-import t]
      )
    )
   )

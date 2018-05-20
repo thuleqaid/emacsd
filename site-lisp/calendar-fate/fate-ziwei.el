@@ -152,6 +152,10 @@
 (defconst ziwei_color '(("white" "blue")
                         ("white" "orange")
                         ("black" "cyan")))
+;; 当前排盘的导出文件名
+(defvar ziwei-current-filename nil)
+(defvar ziwei-current-mode nil)
+(defvar ziwei-current-year nil)
 
 ;; 计算紫微各星曜的位置
 (defun ziwei_calculate (&optional mode year)
@@ -201,6 +205,9 @@
          starcode starinfo starname starcolor                            ;; 星耀信息
          item tmpi tmpj tmpk                                             ;; 临时变量
          )
+    (setq ziwei-current-filename nil
+          ziwei-current-mode smode
+          ziwei-current-year syear)
     ;; 计算各星座的位置
     (dotimes (tmpi (length ziwei_star))
       (setq item (nth tmpi ziwei_star)
@@ -328,6 +335,9 @@
       )
     (clear-text-properties ziwei_12gong)
     (ziwei_draw txt)
+    (insert "----------------------------------------\n")
+    (insert "批命：\n")
+    (goto-char (car (fate-parts "fate-ziwei")))
     )
   )
 
@@ -479,7 +489,29 @@
 
 (defun ziwei-export ( )
   (interactive)
-  (fate-export-html nil "_ziwei")
+  (goto-char (car (fate-parts "fate-ziwei")))
+  (forward-line 1)
+  (fate-export-html ziwei-current-filename nil "_ziwei"
+                    (fate-dumps-b64 (list 'name (plist-get fate-user-current 'name)
+                                          'birthday (plist-get fate-user-current 'birthday)
+                                          'male (plist-get fate-user-current 'male)
+                                          'mode ziwei-current-mode
+                                          'year ziwei-current-year
+                                          'memo (buffer-substring-no-properties (point) (point-max))
+                                          )))
+  )
+(defun ziwei-import ()
+  (interactive)
+  (let ((info (fate-import-html))
+        )
+    (fate-user-select-or-add info)
+    (ziwei_calculate (plist-get info 'mode) (plist-get info 'year))
+    (goto-char (car (fate-parts "fate-ziwei")))
+    (forward-line 1)
+    (delete-region (point) (point-max))
+    (insert (plist-get info 'memo))
+    (setq ziwei-current-filename (plist-get info 'filepath))
+    )
   )
 
 (add-to-list 'fate-user-calculate 'ziwei-user-calculate)
@@ -492,9 +524,10 @@
        ["命盘" (ziwei_calculate) t]
        ["大运盘" (ziwei_calculate 2 (nth 5 (decode-time))) t]
        ["流年盘" (ziwei_calculate 3 (nth 5 (decode-time))) t]
-       ["指定年份" ziwei-show t]
+       ["其它指定" ziwei-show t]
        "---"
        ["保存" ziwei-export t]
+       ["读取" ziwei-import t]
        )
      )
   (easy-menu-add-item
@@ -503,9 +536,10 @@
      ["MingPan" (ziwei_calculate) t]
      ["DaYun" (ziwei_calculate 2 (nth 5 (decode-time))) t]
      ["LiuNian" (ziwei_calculate 3 (nth 5 (decode-time))) t]
-     ["Specified Year" ziwei-show t]
+     ["Other Year" ziwei-show t]
      "---"
      ["Save" ziwei-export t]
+     ["Load" ziwei-import t]
      )
    )
   )

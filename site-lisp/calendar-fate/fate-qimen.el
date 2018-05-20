@@ -82,6 +82,8 @@
   :type '(symbol :tag "QiMen Normal Setting: PaiPan_8Men"))
 ;; 普通奇门克应
 (defconst fate-qimen-file (concat calendar-fate-source-dir "qimen_normal.txt"))
+;; 当前排盘的导出文件名
+(defvar qimen-current-filename nil)
 
 (defun qimen_normal_setting1 (flag_qiju)
   (setq qimen_normal_qiju flag_qiju)
@@ -864,7 +866,7 @@
 
 (defun qimen-export ( )
   (interactive)
-  (fate-export-html nil "_qimen")
+  (fate-export-html qimen-current-filename nil "_qimen")
   )
 
 (add-to-list 'fate-buffer-list "fate-qimen")

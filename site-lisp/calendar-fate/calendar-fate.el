@@ -1052,6 +1052,21 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
       (kill-buffer bufname))
       )
   )
+(defun fate-parts (bufname)
+  (save-excursion
+    (let* ((logbuffer (get-buffer-create bufname))
+           (partsep "----------------------------------------\\|========================================")
+           (poslist '())
+           )
+      (set-buffer logbuffer)
+      (goto-char (point-min))
+      (while (search-forward-regexp partsep nil t)
+        (setq poslist (cons (line-beginning-position) poslist))
+        )
+      (reverse poslist)
+      )
+    )
+  )
 (defun fate-dumps-b64 (value)
   (base64-encode-string
    (encode-coding-string (prin1-to-string value) 'utf-8)
@@ -1060,16 +1075,19 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
 (defun fate-loads-b64 (b64value)
   (decode-coding-string (base64-decode-string b64value) 'utf-8)
   )
-(defun fate-export-org (&optional prefix suffix)
+(defun fate-export-org (&optional filename prefix suffix)
   (let* ((fprefix (or prefix ""))
          (fsuffix (or suffix ""))
          (outfile (read-file-name "Save As *.html: "
                                   calendar-fate-data-path
                                   nil nil
-                                  (format "%s%s%s.html"
-                                          fprefix
-                                          (format-time-string "%Y%m%d%H%M%S")
-                                          fsuffix)))
+                                  (if filename
+                                      filename
+                                    (format "%s%s%s.html"
+                                            fprefix
+                                            (format-time-string "%Y%m%d%H%M%S")
+                                            fsuffix)
+                                    )))
          (org-export-coding-system org-html-coding-system)
          )
     (org-export-to-file 'html outfile)
@@ -1078,35 +1096,42 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
   )
 (defun fate-export-html-after ()
   (save-excursion
-    (goto-char (point-min))
-    (while (search-forward "========================================" nil t)
-      (replace-match "<span style=\"page-break-after:always;\"></span>"))
     (goto-char (plist-get htmlize-buffer-places 'content-end))
     (insert "\n<span hidden>")
     (insert fate_export_html_extra_info)
     (insert "</span>")
+
+    (goto-char (point-min))
+    (while (search-forward "========================================" nil t)
+      (replace-match "<div style=\"page-break-after:always;\"></div>"))
+    (goto-char (point-min))
+    (while (search-forward "----------------------------------------" nil t)
+      (replace-match "<br />"))
     )
   )
-(defun fate-export-html (&optional prefix suffix extrastr)
+(defun fate-export-html (&optional filename prefix suffix extrastr)
   (let* ((fprefix (or prefix ""))
          (fsuffix (or suffix ""))
          (outfile (read-file-name "Save As *.html: "
                                   calendar-fate-data-path
                                   nil nil
-                                  (format "%s%s%s.html"
-                                          fprefix
-                                          (format-time-string "%Y%m%d%H%M%S")
-                                          fsuffix)))
+                                  (if filename
+                                      filename
+                                    (format "%s%s%s.html"
+                                            fprefix
+                                            (format-time-string "%Y%m%d%H%M%S")
+                                            fsuffix)
+                                    )))
          (htmlize-output-type "inline-css")
          (htmlize-html-charset "utf-8")
          (fate_export_html_extra_info (or extrastr ""))
          htmlbuf)
-    (add-hook 'htmlize-after-hook 'fate-export-html-after t t)
+    (add-hook 'htmlize-after-hook 'fate-export-html-after)
     (setq htmlbuf (htmlize-buffer))
     (set-buffer htmlbuf)
-    (write-file outfile t)
+    (write-file outfile (not filename))
     (kill-buffer htmlbuf)
-    (remove-hook 'htmlize-after-hook 'fate-export-html-after t)
+    (remove-hook 'htmlize-after-hook 'fate-export-html-after)
     (browse-url (concat "file://" outfile))
     )
   )
