@@ -77,7 +77,8 @@
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
-    (insert "----------------------------------------\n")
+    (insert "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\n")
+    (insert "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n")
     ;; 输出第二部分（起卦信息）
     (insert "占事：\n")
     (insert "背景：\n")
@@ -95,6 +96,7 @@
     ;; 输出第五部分（自动提示）
     (insert "----------------------------------------\n")
     ;; 输出第六部分（易经）
+    (insert "----------------------------------------\n")
 
     ;; 输出第一部分
     (liuyao-qigua-empty)
@@ -111,7 +113,8 @@
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
-    (insert "----------------------------------------\n")
+    (insert "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\n")
+    (insert "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n")
     ;; 输出第二部分（起卦信息）
     (insert "占事：\n")
     (insert "背景：\n")
@@ -129,6 +132,7 @@
     ;; 输出第五部分（自动提示）
     (insert "----------------------------------------\n")
     ;; 输出第六部分（易经）
+    (insert "----------------------------------------\n")
 
     ;; 输出第一部分
     (liuyao-qigua)
@@ -152,10 +156,8 @@
            (stopwatch (liuyao-stopwatch))
            )
       (set-buffer logbuffer)
-      ;; 删除第一部分
-      (delete-region 1 (car poslist))
       ;; 输出第一部分
-      (goto-char (point-min))
+      (goto-char (nth 1 poslist))
       ;; 输出公历时间
       (insert (format "%d-%d-%d %d:%d"
                       (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
@@ -168,6 +170,10 @@
                       (nth 4 sdate)))
       ;; 输出卦码（上卦、下卦、动爻）
       (insert (format "  %s\n" stopwatch))
+      ;; 删除第一部分
+      (goto-char (car poslist))
+      (forward-line 1)
+      (delete-region (point) (nth 1 poslist))
       (liuyao-update)
       (goto-char (point-min))
       (switch-to-buffer logbuffer)
@@ -202,10 +208,8 @@
             stopwatch (liuyao-stopwatch)
             )
       (set-buffer logbuffer)
-      ;; 删除第一部分
-      (delete-region 1 (car poslist))
       ;; 输出第一部分
-      (goto-char (point-min))
+      (goto-char (nth 1 poslist))
       ;; 输出公历时间
       (insert (format "%d-%d-%d %d:%d"
                       (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
@@ -218,6 +222,10 @@
                       (nth 4 sdate)))
       ;; 输出卦码（上卦、下卦、动爻）
       (insert (format "  %s\n" stopwatch))
+      ;; 删除第一部分
+      (goto-char (car poslist))
+      (forward-line 1)
+      (delete-region (point) (nth 1 poslist))
       (liuyao-update)
       (goto-char (point-min))
       (switch-to-buffer logbuffer)
@@ -238,29 +246,29 @@
            )
       (set-buffer logbuffer)
       ;; 删除第六部分
+      (goto-char (nth 5 poslist))
+      (beginning-of-line 2)
+      (delete-region (point) (nth 6 poslist))
+      ;; 删除第五部分
       (goto-char (nth 4 poslist))
       (beginning-of-line 2)
-      (delete-region (point) (point-max))
-      ;; 删除第五部分
-      (goto-char (nth 3 poslist))
-      (beginning-of-line 2)
-      (delete-region (point) (nth 4 poslist))
+      (delete-region (point) (nth 5 poslist))
       ;; 删除第三部分
-      (goto-char (nth 1 poslist))
+      (goto-char (nth 2 poslist))
       (beginning-of-line 2)
-      (delete-region (point) (nth 2 poslist))
+      (delete-region (point) (nth 3 poslist))
 
       (setq poslist (liuyao-parts))
       ;; 输出第六部分
-      (goto-char (nth 4 poslist))
+      (goto-char (nth 5 poslist))
       (beginning-of-line 2)
       (liuyao-yi (list gua0 gua1 gua2))
       ;; 输出第五部分
-      (goto-char (nth 3 poslist))
+      (goto-char (nth 4 poslist))
       (beginning-of-line 2)
       (liuyao-calc-part5 gua0 gua1 gua2 gzdt)
       ;; 输出第三部分
-      (goto-char (nth 1 poslist))
+      (goto-char (nth 2 poslist))
       (beginning-of-line 2)
       (liuyao-zhuanggua gua0 gua1 gua2 gzdt)
       )
@@ -277,10 +285,8 @@
            (poslist (liuyao-parts))
            )
       (set-buffer logbuffer)
-      ;; 删除第一部分
-      (delete-region 1 (car poslist))
       ;; 输出第一部分
-      (goto-char (point-min))
+      (goto-char (nth 1 poslist))
       ;; 输出公历时间
       (insert (format "%d-%d-%d %d:%d"
                       (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
@@ -293,6 +299,10 @@
                       (nth 4 sdate)))
       ;; 输出卦码（上卦、下卦、动爻）
       (insert (format "  GC11\n"))
+      ;; 删除第一部分
+      (goto-char (car poslist))
+      (forward-line 1)
+      (delete-region (point) (nth 1 poslist))
       (liuyao-update)
       (goto-char (point-min))
       (switch-to-buffer logbuffer)
@@ -500,8 +510,9 @@
            )
       (set-buffer logbuffer)
       (goto-char (point-min))
+      (forward-line 1)
       (setq pos (line-end-position)
-            tmptxt (buffer-substring-no-properties (point-min) pos)
+            tmptxt (buffer-substring-no-properties (point) pos)
             tmppart (split-string tmptxt "  ")
             gzdt (mapcar 'string-to-number (split-string (nth 1 tmppart) ","))
             tmptxt (nth 2 tmppart)
@@ -887,15 +898,17 @@
 (defun liuyao-export ( )
   (interactive)
   (let* ((poslist (liuyao-parts))
-         (part1 (buffer-substring-no-properties 1 (nth 0 poslist)))
-         part2 part4
+         part1 part2 part4
          )
     (goto-char (nth 0 poslist))
     (forward-line 1)
-    (setq part2 (buffer-substring-no-properties (point) (nth 1 poslist)))
-    (goto-char (nth 2 poslist))
+    (setq part1 (buffer-substring-no-properties (point) (nth 1 poslist)))
+    (goto-char (nth 1 poslist))
     (forward-line 1)
-    (setq part4 (buffer-substring-no-properties (point) (nth 3 poslist)))
+    (setq part2 (buffer-substring-no-properties (point) (nth 2 poslist)))
+    (goto-char (nth 3 poslist))
+    (forward-line 1)
+    (setq part4 (buffer-substring-no-properties (point) (nth 4 poslist)))
     (fate-export-html liuyao-current-filename nil "_liuyao"
                       (fate-dumps-b64 (list 'part1 part1 'part2 part2 'part4 part4)))
     )
@@ -910,8 +923,9 @@
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
+    (insert "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\n")
     (insert (plist-get info 'part1))
-    (insert "----------------------------------------\n")
+    (insert "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n")
     ;; 输出第二部分（起卦信息）
     (insert (plist-get info 'part2))
     (insert "----------------------------------------\n")
@@ -923,6 +937,7 @@
     ;; 输出第五部分（自动提示）
     (insert "----------------------------------------\n")
     ;; 输出第六部分（易经）
+    (insert "----------------------------------------\n")
 
     ;; 根据第一部分生成第三，五，六部分
     (liuyao-update)
