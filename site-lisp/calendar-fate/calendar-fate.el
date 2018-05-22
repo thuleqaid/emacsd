@@ -1055,7 +1055,7 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
 (defun fate-parts (bufname)
   (save-excursion
     (let* ((logbuffer (get-buffer-create bufname))
-           (partsep "----------------------------------------\\|========================================\\|\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\[\\|]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]")
+           (partsep "---------------------------------------\\|=======================================\\|#######################################")
            (poslist '())
            )
       (set-buffer logbuffer)
@@ -1101,17 +1101,37 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
     (insert fate_export_html_extra_info)
     (insert "</span>")
 
+    ;; page break
     (goto-char (point-min))
     (while (search-forward "========================================" nil t)
       (replace-match "<div style=\"page-break-after:always;\"></div>"))
+    ;; line break
     (goto-char (point-min))
     (while (search-forward "----------------------------------------" nil t)
       (replace-match "<br />"))
+    ;; hidden start
     (goto-char (point-min))
-    (while (search-forward "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[" nil t)
+    (while (search-forward "#######################################[" nil t)
+      (replace-match "<span hidden>"))
+    ;; hidden end
+    (goto-char (point-min))
+    (while (search-forward "#######################################]" nil t)
+      (replace-match "</span>"))
+    ;; page break with hidden start
+    (goto-char (point-min))
+    (while (search-forward "=======================================[" nil t)
+      (replace-match "<div style=\"page-break-after:always;\"></div><span hidden>"))
+    ;; page break with hidden end
+    (goto-char (point-min))
+    (while (search-forward "=======================================]" nil t)
+      (replace-match "</span><div style=\"page-break-after:always;\"></div>"))
+    ;; line break with hidden start
+    (goto-char (point-min))
+    (while (search-forward "---------------------------------------[" nil t)
       (replace-match "<br /><span hidden>"))
+    ;; line break with hidden end
     (goto-char (point-min))
-    (while (search-forward "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]" nil t)
+    (while (search-forward "---------------------------------------]" nil t)
       (replace-match "</span><br />"))
     )
   )

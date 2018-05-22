@@ -77,8 +77,8 @@
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
-    (insert "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\n")
-    (insert "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n")
+    (insert "#######################################[\n")
+    (insert "---------------------------------------]\n")
     ;; 输出第二部分（起卦信息）
     (insert "占事：\n")
     (insert "背景：\n")
@@ -113,8 +113,8 @@
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
-    (insert "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\n")
-    (insert "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n")
+    (insert "#######################################[\n")
+    (insert "---------------------------------------]\n")
     ;; 输出第二部分（起卦信息）
     (insert "占事：\n")
     (insert "背景：\n")
@@ -152,7 +152,7 @@
                         24.0))) ;; 卜卦时间（绝对时间 GMT+8）
            (gdate (calendar-fate-gregorian-from-absolute adate)) ;; 卜卦时间（公历）
            (sdate (calendar-fate-chinese-from-absolute adate))   ;; 卜卦时间（阳历）
-           (poslist (liuyao-parts))
+           (poslist (fate-parts "fate-liuyao"))
            (stopwatch (liuyao-stopwatch))
            )
       (set-buffer logbuffer)
@@ -185,7 +185,7 @@
   (interactive)
   (when (get-buffer "fate-liuyao")
     (let* ((logbuffer (get-buffer "fate-liuyao"))
-           (poslist (liuyao-parts))
+           (poslist (fate-parts "fate-liuyao"))
            (xtime (safe-date-to-time (fate-read-date t)))                         ;; 用户输入时间
            ytime adate
            stopwatch gdate sdate
@@ -237,7 +237,7 @@
   (interactive)
   (when (get-buffer "fate-liuyao")
     (let* ((logbuffer (get-buffer "fate-liuyao"))
-           (poslist (liuyao-parts))
+           (poslist (fate-parts "fate-liuyao"))
            (info (liuyao-parse-part1))
            (gzdt (car info))
            (gua0 (nth 1 info))
@@ -258,7 +258,7 @@
       (beginning-of-line 2)
       (delete-region (point) (nth 3 poslist))
 
-      (setq poslist (liuyao-parts))
+      (setq poslist (fate-parts "fate-liuyao"))
       ;; 输出第六部分
       (goto-char (nth 5 poslist))
       (beginning-of-line 2)
@@ -282,7 +282,7 @@
                         24.0))) ;; 卜卦时间（绝对时间 GMT+8）
            (gdate (calendar-fate-gregorian-from-absolute adate)) ;; 卜卦时间（公历）
            (sdate (calendar-fate-chinese-from-absolute adate))   ;; 卜卦时间（阳历）
-           (poslist (liuyao-parts))
+           (poslist (fate-parts "fate-liuyao"))
            )
       (set-buffer logbuffer)
       ;; 输出第一部分
@@ -862,9 +862,6 @@
       )
     )
   )
-(defun liuyao-parts ()
-  (fate-parts "fate-liuyao")
-  )
 (defun liuyao-stopwatch ()
   (let (time0
         time1 time2 time3 time4 time5 time6
@@ -897,7 +894,7 @@
 
 (defun liuyao-export ( )
   (interactive)
-  (let* ((poslist (liuyao-parts))
+  (let* ((poslist (fate-parts "fate-liuyao"))
          part1 part2 part4
          )
     (goto-char (nth 0 poslist))
@@ -923,9 +920,9 @@
     (set-buffer logbuffer)
     (erase-buffer)
     ;; 输出第一部分（起卦特征）
-    (insert "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[\n")
+    (insert "#######################################[\n")
     (insert (plist-get info 'part1))
-    (insert "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n")
+    (insert "---------------------------------------]\n")
     ;; 输出第二部分（起卦信息）
     (insert (plist-get info 'part2))
     (insert "----------------------------------------\n")
