@@ -483,10 +483,11 @@
     (insert "断卦：\n\n")
     (insert "反馈：\n\n")
     (insert "总结：\n\n")
+    (insert "----------------------------------------\n")
     (goto-char (point-min))
     ))
 ;; 普通奇门排盘
-(defun qimen_normal (adate)
+(defun qimen_normal (adate &optional specified_ju)
   (let* ((flag-ju qimen_normal_qiju)
          (flag-9xing qimen_normal_9xing)
          (flag-8men qimen_normal_8men)
@@ -505,8 +506,10 @@
          (org (+ (floor (/ (1- (nth 4 sdate)) 10)) 5)) ;; 甲的遁干
          (org2 (1+ (mod (1- (nth 4 sdate)) 10)))       ;; 时干
          (termidx (nth 5 sdate))                       ;; 上一个节气
-         (ju-yinyang (if (or (>= termidx 22) (< termidx 10)) t nil)) ;; 阴遁/阳遁（定局方法1） t:阳遁, nil:阴遁
-         (ju (nth (floor (/ (mod (1- (nth 3 sdate)) 15) 5)) (nth (1- termidx) yinyang-table))) ;; 局数（定局方法1）
+         (ju-yinyang (if specified_ju (>= ju 0)
+                       (if (or (>= termidx 22) (< termidx 10)) t nil))) ;; 阴遁/阳遁（定局方法1） t:阳遁, nil:阴遁
+         (ju (if specified_ju (1+ (mod (1- (abs specified_ju)) 9))
+               (nth (floor (/ (mod (1- (nth 3 sdate)) 15) 5)) (nth (1- termidx) yinyang-table)))) ;; 局数（定局方法1）
          (info-tiangan '(5 6 7 8 9 10 4 3 2))
          ;; 转盘顺序
          (order11 '(0 7 2 3 8 1 6 5))    ;; 转盘的宫位顺序
@@ -548,13 +551,15 @@
     (add-face-text-property 0 (length (nth 0 txt-8shen1)) (list :foreground "red") nil (nth 0 txt-8shen1))
     (add-face-text-property 0 (length (nth 0 txt-8shen2)) (list :foreground "red") nil (nth 0 txt-8shen2))
     ;; 调整阴阳遁及局数
-    (cond ((= flag-ju 2)
-           (setq ju-yinyang (if (= (mod (nth 3 gdate) 2) 1) t nil)
-                 termidx (1+ (mod (+ (if ju-yinyang 0 12) (floor (/ (nth 4 gdate) 5)) 21) 24))
-                 ju (nth (floor (/ (mod (+ (* (nth 4 gdate) 60) (nth 5 gdate)) 300) 100)) (nth (1- termidx) yinyang-table))
-                 )
-           )
-          )
+    (unless specified_ju
+      (cond ((= flag-ju 2)
+             (setq ju-yinyang (if (= (mod (nth 3 gdate) 2) 1) t nil)
+                   termidx (1+ (mod (+ (if ju-yinyang 0 12) (floor (/ (nth 4 gdate) 5)) 21) 24))
+                   ju (nth (floor (/ (mod (+ (* (nth 4 gdate) 60) (nth 5 gdate)) 300) 100)) (nth (1- termidx) yinyang-table))
+                   )
+             )
+            )
+      )
     ;; 计算地盘天干
     (dotimes (tmpi 9)
       (aset dipan (mod (+ ju -1 (* (if ju-yinyang 1 -1) tmpi)) 9)
@@ -630,6 +635,13 @@
       (add-to-list 'txt block t)
       )
     (set-buffer logbuffer)
+    (goto-char (point-min))
+    (forward-line 1)
+    (insert (format "%d-%02d-%02d %02d:%02d:%02d"
+                    (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
+                    (nth 3 gdate) (nth 4 gdate) (nth 5 gdate)))
+    (insert (format "  %s  %d  %d  %s  %s\n" ju-yinyang ju qimen_normal_qiju qimen_normal_9xing qimen_normal_8men))
+    (goto-char (point-max))
     (insert (format "起盘时间：%d/%02d/%02d %02d:%02d:%02d	%s遁%d局\n" (nth 2 gdate) (nth 0 gdate) (nth 1 gdate) (nth 3 gdate) (nth 4 gdate) (nth 5 gdate) (if ju-yinyang "阳" "阴") ju))
     (insert (format "起盘方法：%s\n"
                     (if flag-9xing
@@ -693,6 +705,8 @@
         (insert "\n")
         )
       )
+    (insert "----------------------------------------\n")
+    (setq qimen-current-filename nil)
     (goto-char (point-min))
     ))
 
@@ -709,13 +723,38 @@
       )
     )
   )
+(defun qimen_normal_parse ()
+  (save-excursion
+    (let* ((logbuffer (get-buffer-create "fate-qimen"))
+           gdate ju-yinyang ju qiju flag_9xing flag_8men
+           pos tmptxt tmppart
+           )
+      (set-buffer logbuffer)
+      (goto-char (point-min))
+      (forward-line 1)
+      (setq pos (line-end-position)
+            tmptxt (buffer-substring-no-properties (point) pos)
+            tmppart (split-string tmptxt "  ")
+            gdate (parse-time-string (nth 0 tmppart))
+            ju-yinyang (not (string-equal "nil" (nth 1 tmppart)))
+            ju (string-to-number (nth 2 tmppart))
+            qiju (string-to-number (nth 3 tmppart))
+            flag_9xing (not (string-equal "nil" (nth 4 tmppart)))
+            flag_8men (not (string-equal "nil" (nth 5 tmppart)))
+            )
+      )
+    )
+  )
 (defun qimen_clearbuffer ()
   (let ((logbuffer (get-buffer-create "fate-qimen")))
     (set-buffer logbuffer)
     (erase-buffer)
+    (insert "#######################################[\n")
+    (insert "---------------------------------------]\n")
     (insert "占事：\n")
     (insert "背景：\n")
     (insert "问卦人：\n")
+    (insert "----------------------------------------\n")
     )
   )
 (defun qimen_draw (blocks)
@@ -866,7 +905,51 @@
 
 (defun qimen-export ( )
   (interactive)
-  (fate-export-html qimen-current-filename nil "_qimen")
+  (let* ((poslist (fate-parts "fate-qimen"))
+         part1 part2 part4
+         )
+    (goto-char (nth 0 poslist))
+    (forward-line 1)
+    (setq part1 (buffer-substring-no-properties (point) (nth 1 poslist)))
+    (goto-char (nth 1 poslist))
+    (forward-line 1)
+    (setq part2 (buffer-substring-no-properties (point) (nth 2 poslist)))
+    (goto-char (nth 3 poslist))
+    (forward-line 1)
+    (setq part4 (buffer-substring-no-properties (point) (nth 4 poslist)))
+    (fate-export-html qimen-current-filename nil "_qimen"
+                      (fate-dumps-b64 (list 'part1 part1 'part2 part2 'part4 part4)))
+    )
+  )
+(defun qimen-import ()
+  (interactive)
+  (let ((info (fate-import-html))
+        (logbuffer (get-buffer-create "fate-qimen"))
+        poslist
+        )
+    (qimen_clearbuffer)
+    (qimen_normal (calendar-fate-chinese-datetime))
+    (setq poslist (fate-parts "fate-qimen"))
+    ;; 更新第四部分
+    (goto-char (nth 4 poslist))
+    (insert (plist-get info 'part4))
+    (goto-char (nth 3 poslist))
+    (forward-line 1)
+    (delete-region (point) (nth 4 poslist))
+    ;; 更新第二部分
+    (goto-char (nth 2 poslist))
+    (insert (plist-get info 'part2))
+    (goto-char (nth 1 poslist))
+    (forward-line 1)
+    (delete-region (point) (nth 2 poslist))
+    ;; 更新第一部分
+    (goto-char (nth 1 poslist))
+    (insert (plist-get info 'part1))
+    (goto-char (nth 0 poslist))
+    (forward-line 1)
+    (delete-region (point) (nth 1 poslist))
+    (setq qimen-current-filename (plist-get info 'filepath))
+    )
   )
 
 (add-to-list 'fate-buffer-list "fate-qimen")
