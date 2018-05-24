@@ -483,6 +483,28 @@
                     (nth 1 txt)
                     (nth 4 txt)
                     (nth 2 txt)))
+
+    (goto-char (point-min))
+    (forward-line 1)
+    (if custom_info
+        (progn
+          (insert "taigong_ming")
+          (insert (format "  %d-%02d-%02d %02d:%02d:%02d"
+                          (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
+                          (nth 3 gdate) (nth 4 gdate) (nth 5 gdate)))
+          (insert (format "  %s" (plist-get fate-user-current 'name)))
+          (insert (format "  %s" (plist-get fate-user-current 'male)))
+          (insert (format "  %s\n" (plist-get fate-user-current 'birthday)))
+          )
+      (progn
+        (insert "taigong")
+        (insert (format "  %d-%02d-%02d %02d:%02d:%02d\n"
+                        (nth 2 gdate) (nth 0 gdate) (nth 1 gdate)
+                        (nth 3 gdate) (nth 4 gdate) (nth 5 gdate)))
+        )
+      )
+    (goto-char (point-max))
+
     ;; 画九宫
     (qimen_draw txt)
     (insert "----------------------------------------\n")
@@ -491,6 +513,7 @@
     (insert "总结：\n\n")
     (insert "----------------------------------------\n")
     (goto-char (point-min))
+    (setq qimen-current-filename nil)
     ))
 ;; 普通奇门排盘
 (defun qimen_normal (adate &optional specified_ju)
@@ -936,25 +959,31 @@
 (defun qimen-export ( )
   (interactive)
   (let* ((poslist (fate-parts "fate-qimen"))
+         (type (qimen_type))
          part1 part2 part4
          )
-    (if (string-equal (qimen_type) "normal")
-        (progn
-          (goto-char (nth 0 poslist))
-          (forward-line 1)
-          (setq part1 (buffer-substring-no-properties (point) (nth 1 poslist)))
-          (goto-char (nth 1 poslist))
-          (forward-line 1)
-          (setq part2 (buffer-substring-no-properties (point) (nth 2 poslist)))
-          (goto-char (nth 3 poslist))
-          (forward-line 1)
-          (setq part4 (buffer-substring-no-properties (point) (nth 4 poslist)))
-          (fate-export-html qimen-current-filename nil "_qimen"
-                            (fate-dumps-b64 (list 'type "qimen_normal" 'part1 part1 'part2 part2 'part4 part4)))
+    (goto-char (nth 0 poslist))
+    (forward-line 1)
+    (setq part1 (buffer-substring-no-properties (point) (nth 1 poslist)))
+    (goto-char (nth 1 poslist))
+    (forward-line 1)
+    (setq part2 (buffer-substring-no-properties (point) (nth 2 poslist)))
+    (goto-char (nth 3 poslist))
+    (forward-line 1)
+    (setq part4 (buffer-substring-no-properties (point) (nth 4 poslist)))
+    (cond ((string-equal type "normal")
+           (fate-export-html qimen-current-filename nil "_qimen"
+                             (fate-dumps-b64 (list 'type "qimen_normal" 'part1 part1 'part2 part2 'part4 part4)))
+           )
+          ((string-equal type "taigong")
+           (fate-export-html qimen-current-filename nil "_qimen"
+                             (fate-dumps-b64 (list 'type "qimen_taigong" 'part1 part1 'part2 part2 'part4 part4)))
+           )
+          ((string-equal type "taigong_ming")
+           (fate-export-html qimen-current-filename nil "_qimen"
+                             (fate-dumps-b64 (list 'type "qimen_taigong_ming" 'part1 part1 'part2 part2 'part4 part4)))
+           )
           )
-      (progn
-        )
-      )
     )
   )
 (defun qimen-import ()
@@ -989,9 +1018,38 @@
           ;; 重新排盘
           (qimen_normal_update)
           )
-      (progn
+      (let* ((tmppart (split-string (plist-get info 'part1) "  "))
+             (gdate (parse-time-string (nth 1 tmppart)))
+             userinfo
+             )
+        (qimen_clearbuffer)
+        (if (string-equal (plist-get info 'type) "qimen_taigong_ming")
+            (progn
+              (setq userinfo (list 'name (nth 2 tmppart)
+                                   'male (string-equal (nth 3 tmppart) "t")
+                                   'birthday (read (nth 4 tmppart))))
+              (fate-user-select-or-add userinfo)
+              (qimen_taigong_ming (calendar-fate-chinese-datetime (list (nth 4 gdate) (nth 3 gdate) (nth 5 gdate) (nth 2 gdate) (nth 1 gdate) (nth 0 gdate))))
+              )
+          (progn
+            (qimen_taigong (calendar-fate-chinese-datetime (list (nth 4 gdate) (nth 3 gdate) (nth 5 gdate) (nth 2 gdate) (nth 1 gdate) (nth 0 gdate))))
+            )
+          )
+        (setq poslist (fate-parts "fate-qimen"))
+        ;; 更新第四部分
+        (goto-char (nth 4 poslist))
+        (insert (plist-get info 'part4))
+        (goto-char (nth 3 poslist))
+        (forward-line 1)
+        (delete-region (point) (nth 4 poslist))
+        ;; 更新第二部分
+        (goto-char (nth 2 poslist))
+        (insert (plist-get info 'part2))
+        (goto-char (nth 1 poslist))
+        (forward-line 1)
+        (delete-region (point) (nth 2 poslist))
         )
-        )
+      )
     (setq qimen-current-filename (plist-get info 'filepath))
     )
   )
