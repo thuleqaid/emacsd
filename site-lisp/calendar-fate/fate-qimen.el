@@ -723,9 +723,19 @@
         ;; 十干克应
         (insert (qimen_normal_msg (format "^%s\\+%s" (aref tianpan2 tmpi) (aref dipan tmpi))))
         (insert "\n")
-        (when (and flag-9xing (= tmpi tmpj))
-          (insert (qimen_normal_msg (format "^%s\\+%s" (aref tianpan2 tmpi) (aref dipan 4))))
-          (insert "\n")
+        (when flag-9xing
+          (when (= tmpi tmpj) ;; 天盘为天芮星
+            (insert (qimen_normal_msg (format "^%s\\+%s" (aref dipan 4) (aref dipan tmpi))))
+            (insert "\n")
+            )
+          (when (= tmpi 1)  ;; 地盘坤宫
+            (insert (qimen_normal_msg (format "^%s\\+%s" (aref tianpan2 tmpi) (aref dipan 4))))
+            (insert "\n")
+            (when (= tmpj 1)  ;; 9星伏吟
+              (insert (qimen_normal_msg (format "^%s\\+%s" (aref dipan 4) (aref dipan 4))))
+              (insert "\n")
+              )
+            )
           )
         ;; 八门克应
         (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref renpan_base tmpi))))
