@@ -740,8 +740,14 @@
         ;; 八门克应
         (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref renpan_base tmpi))))
         (insert "\n")
-        (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref dipan tmpi))))
+        (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref tianpan2 tmpi))))
         (insert "\n")
+        (when flag-9xing
+          (when (= tmpi tmpj) ;; 天盘为天芮星
+            (insert (qimen_normal_msg (format "^%s\\+%s" (aref renpan tmpi) (aref dipan 4))))
+            (insert "\n")
+            )
+          )
         )
       )
     (insert "----------------------------------------\n")
