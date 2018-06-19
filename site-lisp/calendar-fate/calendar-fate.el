@@ -29,6 +29,23 @@
 (require 'cal-china)
 (require 'ox)
 (require 'htmlize nil t)
+(require 'log4e nil t)
+(defun fate-enable-logger (loglevel)
+     (when (featurep 'log4e)
+       (log4e:deflogger "fate" "%t [%l] %m" "%H:%M:%S")
+       (fate--log-enable-logging)
+       )
+     )
+
+(defun fate-do-log (loglevel logstr)
+  (when (featurep 'log4e)
+    (cond ((<= loglevel 1) (fate--log-trace "'%s'" log))
+          ((= loglevel 2) (fate--log-debug "'%s'" log))
+          ((= loglevel 3) (fate--log-info "'%s'" log))
+          ((= loglevel 4) (fate--log-warn "'%s'" log))
+          ((= loglevel 5) (fate--log-error "'%s'" log))
+          ((>= loglevel 6) (fate--log-fatal "'%s'" log))
+          )))
 
 ;; latest version of htmlize use alist-get
 ;; alist-get is available since Emacs 25
@@ -946,7 +963,7 @@ DEF-FLAG   is t when a double ++ or -- indicates shift relative to
     (when (< year 100) (setq year (+ 2000 year)))
     ;; Check of the date is representable
     (condition-case nil
-        (ignore (encode-time second minute hour month year))
+        (ignore (encode-time second minute hour day month year))
       (error (setq year (nth 5 fate-defdecode)))
       )
     (setq fate-read-date-analyze-futurep futurep)
