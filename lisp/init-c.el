@@ -18,7 +18,8 @@
 
 (defun thuleqaid/indent-tabs-mode-setup ()
   (setq indent-tabs-mode t)
-  (c-set-style "stroustrup"))
+  (c-set-style "stroustrup")
+  (setq tab-width 4))
 
 (require-package 'helm-gtags)
 ;; Enable helm-gtags-mode
