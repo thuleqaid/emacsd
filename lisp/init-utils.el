@@ -118,7 +118,7 @@
 (defun thuleqaid/coding-system (func coding)
   "Set coding system for external program"
   (eval-expression
-   `(defadvice ,func (around ,(make-symbol (format "coding-system/%s/%s" func coding)))
+   `(defadvice ,func (around ,(make-symbol (format "coding-system/%s/%s" func coding)) activate)
       (let ((coding-system-for-read ',coding)
             (coding-system-for-write ',coding))
         ad-do-it
