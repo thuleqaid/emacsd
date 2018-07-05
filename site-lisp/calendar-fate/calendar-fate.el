@@ -31,20 +31,22 @@
 (require 'htmlize nil t)
 
 (require 'log4e nil t)
-(defconst log-prefix "fate")
-(eval (if (featurep 'log4e)
-          `(progn
-             (log4e:deflogger ,log-prefix "%t [%l] %m" "%H:%M:%S")
-             )
-        `(progn
-           (defun ,(intern (concat log-prefix "--log-set-level")) (minlevel &optional maxlevel))
-           (defun ,(intern (concat log-prefix "--log-enable-logging")) () (interactive))
-           (defun ,(intern (concat log-prefix "--log-disable-logging")) () (interactive))
-           (defun ,(intern (concat log-prefix "--log-clear-log")) () (interactive))
-           (defun ,(intern (concat log-prefix "--log-open-log")) () (interactive))
-           (defun ,(intern (concat log-prefix "--log")) (level msg &rest msgargs))
-           )
-        ))
+(defmacro log-setup (log-prefix)
+  `(if (featurep 'log4e)
+       (progn
+         (log4e:deflogger ,log-prefix "%t [%l] %m" "%H:%M:%S")
+         )
+     (progn
+       (defun ,(intern (concat log-prefix "--log-set-level")) (minlevel &optional maxlevel))
+       (defun ,(intern (concat log-prefix "--log-enable-logging")) () (interactive))
+       (defun ,(intern (concat log-prefix "--log-disable-logging")) () (interactive))
+       (defun ,(intern (concat log-prefix "--log-clear-log")) () (interactive))
+       (defun ,(intern (concat log-prefix "--log-open-log")) () (interactive))
+       (defun ,(intern (concat log-prefix "--log")) (level msg &rest msgargs))
+       )
+     )
+  )
+(log-setup "fate")
 
 ;; latest version of htmlize use alist-get
 ;; alist-get is available since Emacs 25
